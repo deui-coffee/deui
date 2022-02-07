@@ -7,7 +7,23 @@ export default defineConfig({
     react({
       jsxImportSource: "@emotion/react",
       babel: {
-        plugins: ["@emotion/babel-plugin"],
+        plugins: [
+          "babel-plugin-macros",
+          "@emotion/babel-plugin",
+          [
+            "@emotion/babel-plugin-jsx-pragmatic",
+            {
+              export: "jsx",
+              import: "__cssprop",
+              module: "@emotion/react",
+            },
+          ],
+          [
+            "@babel/plugin-transform-react-jsx",
+            { pragma: "__cssprop" },
+            "twin.macro",
+          ],
+        ],
       },
     }),
   ],
