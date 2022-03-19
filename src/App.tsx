@@ -26,6 +26,27 @@ const Metrics = () => (
 const Settings = () => (
   <div>
     <h1>Settings</h1>
+    <p>Testing fonts</p>
+    <div tw="text-2xl">
+      <p tw="font-thin">
+        Thin (<em>Thin italic</em>)
+      </p>
+      <p tw="font-light">
+        Light (<em>Light italic</em>)
+      </p>
+      <p>
+        Regular (<em>Regular italic</em>)
+      </p>
+      <p tw="font-medium">
+        Medium (<em>Medium italic</em>)
+      </p>
+      <p tw="font-bold">
+        Bold (<em>Bold italic</em>)
+      </p>
+      <p tw="font-black">
+        Black (<em>Black italic</em>)
+      </p>
+    </div>
   </div>
 );
 
@@ -36,7 +57,7 @@ const Profiles = () => (
 );
 
 const Layout = () => (
-  <div tw="light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey) h-screen">
+  <div tw="font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey) h-screen">
     <nav tw="w-full fixed bottom-0">
       <ul tw="flex flex-row">
         <li tw="flex-1 text-center">

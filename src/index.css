@@ -1,13 +1,83 @@
-body {
-  margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-    sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Thin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 100;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-    monospace;
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-ThinItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 100;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Light.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-LightItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 300;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Regular.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Italic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Medium.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-MediumItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 500;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Bold.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-BoldItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 700;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-Black.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 900;
+}
+
+@font-face {
+  font-family: "LabGrotesque";
+  src: url("./fonts/LabGrotesque-BlackItalic.woff2") format("woff2");
+  font-style: italic;
+  font-weight: 900;
 }

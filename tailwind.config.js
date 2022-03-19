@@ -17,7 +17,19 @@ module.exports = {
       "dark-blue": "#002E59",
       green: "#00B41C",
     },
-    extend: {},
+    fontWeight: {
+      thin: 100,
+      light: 300,
+      normal: 400,
+      medium: 500,
+      bold: 700,
+      black: 900,
+    },
+    extend: {
+      fontFamily: {
+        "lab-grotesque": ["LabGrotesque", "sans-serif"],
+      },
+    },
   },
   plugins: [],
 };
