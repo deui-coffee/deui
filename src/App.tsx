@@ -36,7 +36,7 @@ const Profiles = () => (
 );
 
 const Layout = () => (
-  <div>
+  <div tw="light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey) h-screen">
     <nav tw="w-full fixed bottom-0">
       <ul tw="flex flex-row">
         <li tw="flex-1 text-center">
