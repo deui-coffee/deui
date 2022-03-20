@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, Outlet, Route, Routes } from "react-router-dom";
 import "twin.macro";
+import DemoThing from "./DemoThing";
 
 const App = () => {
   return (
@@ -9,6 +10,7 @@ const App = () => {
         <Route index element={<Metrics />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profiles" element={<Profiles />} />
+        <Route path="test" element={<DemoThing />} />
 
         {/* TODO 404. */}
         {/* <Route path="*" element={<NotFound />} /> */}
@@ -20,33 +22,16 @@ const App = () => {
 const Metrics = () => (
   <div>
     <h1>Metrics here</h1>
+
+    <Link to="/test" tw="underline hover:no-underline">
+      Page with some styling examples
+    </Link>
   </div>
 );
 
 const Settings = () => (
   <div>
     <h1>Settings</h1>
-    <p>Testing fonts</p>
-    <div tw="text-2xl">
-      <p tw="font-thin">
-        Thin (<em>Thin italic</em>)
-      </p>
-      <p tw="font-light">
-        Light (<em>Light italic</em>)
-      </p>
-      <p>
-        Regular (<em>Regular italic</em>)
-      </p>
-      <p tw="font-medium">
-        Medium (<em>Medium italic</em>)
-      </p>
-      <p tw="font-bold">
-        Bold (<em>Bold italic</em>)
-      </p>
-      <p tw="font-black">
-        Black (<em>Black italic</em>)
-      </p>
-    </div>
   </div>
 );
 
