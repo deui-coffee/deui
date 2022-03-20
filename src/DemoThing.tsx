@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import "twin.macro";
 import "./DemoThing.css";
 import logo from "./logo.svg";
 import StylesExample from "./StylesExample";
@@ -14,11 +15,37 @@ function App() {
 
         <StylesExample count={count} />
 
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
+        <p>count is: {count}</p>
+        <button
+          tw="bg-medium-grey rounded px-4 py-1"
+          type="button"
+          onClick={() => setCount((count) => count + 1)}
+        >
+          Increment
+        </button>
+
+        <p>Testing fonts</p>
+        <div tw="text-2xl">
+          <p tw="font-thin">
+            Thin (<em>Thin italic</em>)
+          </p>
+          <p tw="font-light">
+            Light (<em>Light italic</em>)
+          </p>
+          <p>
+            Regular (<em>Regular italic</em>)
+          </p>
+          <p tw="font-medium">
+            Medium (<em>Medium italic</em>)
+          </p>
+          <p tw="font-bold">
+            Bold (<em>Bold italic</em>)
+          </p>
+          <p tw="font-black">
+            Black (<em>Black italic</em>)
+          </p>
+        </div>
+
         <p>
           Edit <code>App.tsx</code> and save to test HMR updates.
         </p>
