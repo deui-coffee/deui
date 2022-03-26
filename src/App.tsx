@@ -2,6 +2,7 @@ import React from "react";
 import { Link, Outlet, Route, Routes } from "react-router-dom";
 import "twin.macro";
 import DemoThing from "./DemoThing";
+import Metrics from "./Metrics";
 
 const App = () => {
   return (
@@ -18,16 +19,6 @@ const App = () => {
     </Routes>
   );
 };
-
-const Metrics = () => (
-  <div>
-    <h1>Metrics here</h1>
-
-    <Link to="/test" tw="underline hover:no-underline">
-      Page with some styling examples
-    </Link>
-  </div>
-);
 
 const Settings = () => (
   <div>
