@@ -2,6 +2,34 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "twin.macro";
 
+const data = [
+    {
+      name: "Metal Temp",
+      measurement: "56",
+      unit: "℃"
+    },
+    {
+      name: "Pressure",
+      measurement: "0.0",
+      unit: "bar"
+    },
+    {
+      name: "Flow Rate",
+      measurement: "0.0",
+      unit: "ml/s"
+    },
+    {
+      name: "Shot Time",
+      measurement: "0.0",
+      unit: "s"
+    },
+    {
+      name: "Weight",
+      measurement: "0.0",
+      unit: "g"
+    }
+];
+
 const Metrics = () => (
   <div tw="p-12">
     <header tw="pb-8">
@@ -13,17 +41,13 @@ const Metrics = () => (
       <span>&rarr;</span>
     </Link>
 
-    <Measurement
-      name="Metal temp"
-      measurement="56"
-      unit="℃"
-    />
-
-    <Measurement
-      name="Pressure"
-      measurement="0.0"
-      unit="bar"
-    />
+    { data.map( measure => (
+      <Measurement
+        name={measure.name}
+        measurement={measure.measurement}
+        unit={measure.unit}
+      />
+    )) }
   </div>
 );
 
