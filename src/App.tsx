@@ -33,9 +33,9 @@ const Profiles = () => (
 );
 
 const Layout = () => (
-  <div tw="font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey) h-screen">
-    <nav tw="w-full fixed bottom-0">
-      <ul tw="flex flex-row">
+  <div tw="font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey)">
+    <nav tw="w-full fixed bottom-0 light:(bg-off-white bg-opacity-80 backdrop-blur text-darker-grey) dark:(bg-dark-grey bg-opacity-80 backdrop-blur text-lighter-grey)">
+      <ul tw="flex flex-row pt-8 pb-8">
         <li tw="flex-1 text-center">
           <Link to="/settings">Settings</Link>
         </li>
