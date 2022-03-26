@@ -31,7 +31,7 @@ const data = [
 ];
 
 const Metrics = () => (
-  <div tw="p-12">
+  <div tw="p-12 h-screen">
     <header tw="pb-8">
       <h1 tw="text-3xl">Espresso</h1>
       <p tw="text-base text-medium-grey">Warming up</p>
