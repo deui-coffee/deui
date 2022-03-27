@@ -1,0 +1,41 @@
+import React, { ReactNode } from "react";
+import { Link, Outlet } from "react-router-dom";
+import "twin.macro";
+import MetricsIcon from "./icons/MetricsIcon";
+import ProfilesIcon from "./icons/ProfilesIcon";
+import SettingsIcon from "./icons/SettingsIcon";
+
+interface NavItemProps {
+  children: ReactNode;
+  linkTo: string;
+}
+
+const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => (
+  <li tw="flex items-center justify-center w-12 h-12 bg-black rounded-full text-lighter-grey ">
+    <Link to={linkTo}>{children}</Link>
+  </li>
+);
+
+const Layout = () => (
+  <div tw="h-screen font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey)">
+    <nav tw="w-full fixed bottom-0 light:(bg-off-white bg-opacity-80 backdrop-blur text-darker-grey) dark:(bg-dark-grey bg-opacity-80 backdrop-blur text-lighter-grey)">
+      <ul tw="flex flex-row justify-between py-8 px-14">
+        <NavItem linkTo="/settings">
+          <SettingsIcon />
+        </NavItem>
+        <NavItem linkTo="/">
+          <MetricsIcon />
+        </NavItem>
+        <NavItem linkTo="/profiles">
+          <ProfilesIcon />
+        </NavItem>
+      </ul>
+    </nav>
+
+    <main tw="p-14">
+      <Outlet />
+    </main>
+  </div>
+);
+
+export default Layout;
