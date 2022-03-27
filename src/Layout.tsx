@@ -1,6 +1,6 @@
 import React, { ReactNode } from "react";
-import { Link, Outlet } from "react-router-dom";
-import "twin.macro";
+import { Link, Outlet, useLocation } from "react-router-dom";
+import tw from "twin.macro";
 import MetricsIcon from "./icons/MetricsIcon";
 import ProfilesIcon from "./icons/ProfilesIcon";
 import SettingsIcon from "./icons/SettingsIcon";
@@ -10,11 +10,21 @@ interface NavItemProps {
   linkTo: string;
 }
 
-const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => (
-  <li tw="flex items-center justify-center w-12 h-12 bg-black rounded-full text-lighter-grey ">
-    <Link to={linkTo}>{children}</Link>
-  </li>
-);
+const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => {
+  const { pathname } = useLocation();
+  const isActive = pathname === linkTo;
+
+  return (
+    <li
+      css={[
+        tw`flex items-center justify-center w-12 h-12 bg-black rounded-full`,
+        isActive ? tw`text-lighter-grey` : tw`text-medium-grey`,
+      ]}
+    >
+      <Link to={linkTo}>{children}</Link>
+    </li>
+  );
+};
 
 const Layout = () => (
   <div tw="h-screen font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey)">
