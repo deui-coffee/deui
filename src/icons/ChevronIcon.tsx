@@ -1,7 +1,7 @@
 import React from "react";
 import "twin.macro";
 
-const Chevron = () => (
+const ChevronIcon = () => (
   <svg tw="stroke-current" width="11" height="19" fill="none">
     <path
       d="m2.06713 2.4134 7.07106 7.07107-7.06712 7.06713"
@@ -12,4 +12,4 @@ const Chevron = () => (
   </svg>
 );
 
-export default Chevron;
+export default ChevronIcon;

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "twin.macro";
-import Chevron from "./icons/Chevron";
+import ChevronIcon from "./icons/ChevronIcon";
 
 const data = [
   {
@@ -43,7 +43,7 @@ const Metrics = () => (
     <Link to="#" tw="flex justify-between items-center py-8 text-medium">
       <span>Best overall pressure</span>
       <span tw="text-medium-grey">
-        <Chevron />
+        <ChevronIcon />
       </span>
     </Link>
 

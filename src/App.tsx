@@ -2,6 +2,9 @@ import React from "react";
 import { Link, Outlet, Route, Routes } from "react-router-dom";
 import "twin.macro";
 import DemoThing from "./DemoThing";
+import MetricsIcon from "./icons/MetricsIcon";
+import ProfilesIcon from "./icons/ProfilesIcon";
+import SettingsIcon from "./icons/SettingsIcon";
 import Metrics from "./Metrics";
 
 const App = () => {
@@ -37,13 +40,19 @@ const Layout = () => (
     <nav tw="w-full fixed bottom-0 light:(bg-off-white bg-opacity-80 backdrop-blur text-darker-grey) dark:(bg-dark-grey bg-opacity-80 backdrop-blur text-lighter-grey)">
       <ul tw="flex flex-row pt-8 pb-8">
         <li tw="flex-1 text-center">
-          <Link to="/settings">Settings</Link>
+          <Link to="/settings">
+            <SettingsIcon />
+          </Link>
         </li>
         <li tw="flex-1 text-center">
-          <Link to="/">Home</Link>
+          <Link to="/">
+            <MetricsIcon />
+          </Link>
         </li>
         <li tw="flex-1 text-center">
-          <Link to="/profiles">Profiles</Link>
+          <Link to="/profiles">
+            <ProfilesIcon />
+          </Link>
         </li>
       </ul>
     </nav>
