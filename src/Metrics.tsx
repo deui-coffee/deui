@@ -1,6 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "twin.macro";
+import Chevron from "./icons/Chevron";
 
 const data = [
   {
@@ -33,15 +34,17 @@ const data = [
 const Metrics = () => (
   <div tw="">
     <header tw="pb-8">
-      <h1 tw="text-large">Espresso</h1>
+      <h1 tw="text-large mb-2">Espresso</h1>
       <p tw="text-normal text-medium-grey">Warming up</p>
     </header>
 
     <Divider />
 
-    <Link to="#" tw="flex justify-between py-8 text-medium">
+    <Link to="#" tw="flex justify-between items-center py-8 text-medium">
       <span>Best overall pressure</span>
-      <span>&rarr;</span>
+      <span tw="text-medium-grey">
+        <Chevron />
+      </span>
     </Link>
 
     <Divider />
