@@ -17,8 +17,10 @@ const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => {
   return (
     <li
       css={[
-        tw`flex items-center justify-center w-12 h-12 bg-black rounded-full`,
-        isActive ? tw`text-lighter-grey` : tw`text-medium-grey`,
+        tw`flex items-center justify-center w-12 h-12 rounded-full dark:bg-black light:bg-white`,
+        isActive
+          ? tw`dark:text-lighter-grey light:text-darker-grey`
+          : tw`dark:(text-medium-grey opacity-50) light:(text-darker-grey opacity-25)`,
       ]}
     >
       <Link to={linkTo}>{children}</Link>

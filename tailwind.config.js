@@ -3,8 +3,11 @@ module.exports = {
   content: [],
   theme: {
     colors: {
+      // these names are starting to be terrible
+      // consider moving to a numeric scale
       white: "#FFFFFF",
       "off-white": "#F6F6F6",
+      "offish-white": "#ECECEC",
       "lighter-grey": "#EBE8E8",
       "light-grey": "#BBBBBB",
       "medium-grey": "#757575",

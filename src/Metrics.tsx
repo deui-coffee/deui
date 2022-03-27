@@ -35,14 +35,16 @@ const Metrics = () => (
   <>
     <header tw="pb-8">
       <h1 tw="mb-2 text-large">Espresso</h1>
-      <p tw="text-normal text-medium-grey">Warming up</p>
+      <p tw="text-normal dark:text-medium-grey light:text-light-grey">
+        Warming up
+      </p>
     </header>
 
     <Divider />
 
     <Link to="#" tw="flex items-center justify-between py-8 text-medium">
       <span>Best overall pressure</span>
-      <span tw="text-medium-grey">
+      <span tw="dark:text-medium-grey light:text-light-grey">
         <ChevronIcon />
       </span>
     </Link>
@@ -64,7 +66,9 @@ const Metrics = () => (
   </>
 );
 
-const Divider = () => <hr tw="w-full border-t border-heavy-grey" />;
+const Divider = () => (
+  <hr tw="w-full border-t dark:border-heavy-grey light:border-offish-white" />
+);
 
 interface MeasurementProps {
   name: string;
@@ -78,10 +82,12 @@ const Measurement: React.FC<MeasurementProps> = ({
   unit,
 }) => (
   <div>
-    <h3 tw="mb-2 uppercase text-tiny text-medium-grey">{name}</h3>
+    <h3 tw="mb-2 uppercase text-tiny dark:text-medium-grey light:text-light-grey">
+      {name}
+    </h3>
     <p tw="text-3xl">
       <span tw="pr-2">{measurement}</span>
-      <span tw="text-medium-grey">{unit}</span>
+      <span tw="dark:text-medium-grey light:text-light-grey">{unit}</span>
     </p>
   </div>
 );
