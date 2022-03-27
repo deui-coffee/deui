@@ -30,6 +30,14 @@ module.exports = {
       fontFamily: {
         "lab-grotesque": ["LabGrotesque", "sans-serif"],
       },
+      // these sizes are work-in-progress
+      // once we have all of them sorted we should probably override the default ones
+      fontSize: {
+        tiny: ["0.625rem", { lineHeight: "0.75rem", letterSpacing: "0.15rem" }],
+        normal: ["1.25rem", { lineHeight: "1.5rem" }],
+        medium: ["1.5rem", { lineHeight: "2rem" }],
+        large: ["2rem", { lineHeight: "2.375rem" }],
+      },
     },
   },
   plugins: [],
