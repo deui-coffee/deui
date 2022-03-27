@@ -7,7 +7,7 @@ const data = [
   {
     name: "Metal Temp",
     measurement: "56",
-    unit: "℃",
+    unit: "°C",
   },
   {
     name: "Pressure",
@@ -32,15 +32,15 @@ const data = [
 ];
 
 const Metrics = () => (
-  <div tw="">
+  <>
     <header tw="pb-8">
-      <h1 tw="text-large mb-2">Espresso</h1>
+      <h1 tw="mb-2 text-large">Espresso</h1>
       <p tw="text-normal text-medium-grey">Warming up</p>
     </header>
 
     <Divider />
 
-    <Link to="#" tw="flex justify-between items-center py-8 text-medium">
+    <Link to="#" tw="flex items-center justify-between py-8 text-medium">
       <span>Best overall pressure</span>
       <span tw="text-medium-grey">
         <ChevronIcon />
@@ -61,10 +61,10 @@ const Metrics = () => (
     </div>
 
     <Divider />
-  </div>
+  </>
 );
 
-const Divider = () => <hr tw="border-t border-heavy-grey w-full" />;
+const Divider = () => <hr tw="w-full border-t border-heavy-grey" />;
 
 interface MeasurementProps {
   name: string;
@@ -78,7 +78,7 @@ const Measurement: React.FC<MeasurementProps> = ({
   unit,
 }) => (
   <div>
-    <h3 tw="mb-2 text-tiny uppercase text-medium-grey">{name}</h3>
+    <h3 tw="mb-2 uppercase text-tiny text-medium-grey">{name}</h3>
     <p tw="text-3xl">
       <span tw="pr-2">{measurement}</span>
       <span tw="text-medium-grey">{unit}</span>
