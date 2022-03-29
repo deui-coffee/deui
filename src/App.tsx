@@ -2,7 +2,8 @@ import React from "react";
 import { Route, Routes } from "react-router-dom";
 import "twin.macro";
 import Layout from "./Layout";
-import Metrics from "./Metrics";
+import Metrics from "./pages/Metrics";
+import Settings from "./pages/Settings";
 
 const App = () => {
   return (
@@ -18,12 +19,6 @@ const App = () => {
     </Routes>
   );
 };
-
-const Settings = () => (
-  <div>
-    <h1>Settings</h1>
-  </div>
-);
 
 const Profiles = () => (
   <div>

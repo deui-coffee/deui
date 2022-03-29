@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "twin.macro";
-import ChevronIcon from "./icons/ChevronIcon";
+import ChevronIcon from "../icons/ChevronIcon";
 
 const data = [
   {
