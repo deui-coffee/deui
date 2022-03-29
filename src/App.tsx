@@ -1,7 +1,6 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import "twin.macro";
-import DemoThing from "./DemoThing";
 import Layout from "./Layout";
 import Metrics from "./Metrics";
 
@@ -12,7 +11,6 @@ const App = () => {
         <Route index element={<Metrics />} />
         <Route path="settings" element={<Settings />} />
         <Route path="profiles" element={<Profiles />} />
-        <Route path="test" element={<DemoThing />} />
 
         {/* TODO 404. */}
         {/* <Route path="*" element={<NotFound />} /> */}
