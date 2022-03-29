@@ -19,12 +19,9 @@ module.exports = {
       green: "#00B41C",
     },
     fontWeight: {
-      thin: 100,
-      light: 300,
-      normal: 400,
-      medium: 500,
+      regular: 300,
+      medium: 400,
       bold: 700,
-      black: 900,
     },
     extend: {
       fontFamily: {

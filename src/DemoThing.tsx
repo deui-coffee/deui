@@ -17,7 +17,7 @@ function App() {
 
         <p>count is: {count}</p>
         <button
-          tw="bg-medium-grey rounded px-4 py-1"
+          tw="px-4 py-1 rounded bg-medium-grey"
           type="button"
           onClick={() => setCount((count) => count + 1)}
         >
@@ -26,13 +26,7 @@ function App() {
 
         <p>Testing fonts</p>
         <div tw="text-2xl">
-          <p tw="font-thin">
-            Thin (<em>Thin italic</em>)
-          </p>
-          <p tw="font-light">
-            Light (<em>Light italic</em>)
-          </p>
-          <p>
+          <p tw="font-regular">
             Regular (<em>Regular italic</em>)
           </p>
           <p tw="font-medium">
@@ -40,9 +34,6 @@ function App() {
           </p>
           <p tw="font-bold">
             Bold (<em>Bold italic</em>)
-          </p>
-          <p tw="font-black">
-            Black (<em>Black italic</em>)
           </p>
         </div>
 
