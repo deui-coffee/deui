@@ -8,6 +8,8 @@ const Settings = () => (
     <WaterLevel volume={610} />
 
     <ScaleConnect />
+
+    <Theme />
   </div>
 );
 
@@ -75,6 +77,49 @@ const ScaleConnect: React.FC = () => {
             {isConnected ? scale : "Connect"}
           </span>
         </p>
+      </div>
+    </article>
+  );
+};
+
+const Theme = () => {
+  const [theme, setTheme] = useState<"dark" | "light" | undefined>();
+
+  return (
+    <article>
+      <BlockLabel>Power</BlockLabel>
+      <div css={[blockStyles, tw`p-3`]}>
+        <div
+          css={[
+            tw`relative flex justify-between w-full h-full gap-2 after:(content transition-all duration-300 absolute rounded-md width[calc(50% - 4px)] h-full dark:bg-darkish-grey light:bg-off-white)`,
+            theme === "dark"
+              ? tw`after:left-0`
+              : tw`after:left[calc(50% + 4px)]`,
+          ]}
+        >
+          <button
+            onClick={() => setTheme("dark")}
+            css={[
+              tw`z-10 flex items-center justify-center w-full h-full text-normal`,
+              theme === "dark"
+                ? tw` dark:text-lighter-grey light:text-darker-grey`
+                : tw`dark:text-medium-grey light:text-light-grey`,
+            ]}
+          >
+            Dark
+          </button>
+          <button
+            onClick={() => setTheme("light")}
+            css={[
+              tw`z-10 flex items-center justify-center w-full h-full text-normal`,
+              theme === "light"
+                ? tw` dark:text-lighter-grey light:text-darker-grey`
+                : tw`dark:text-medium-grey light:text-light-grey`,
+            ]}
+          >
+            Light
+          </button>
+        </div>
       </div>
     </article>
   );
