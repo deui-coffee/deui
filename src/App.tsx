@@ -1,14 +1,14 @@
-import { useLocalStorage } from "@rehooks/local-storage";
 import React from "react";
 import { Helmet } from "react-helmet";
 import { Route, Routes } from "react-router-dom";
 import "twin.macro";
+import { useTheme } from "./hooks/useTheme";
 import Layout from "./Layout";
 import Metrics from "./pages/Metrics";
 import Settings from "./pages/Settings";
 
 const App = () => {
-  const [theme] = useLocalStorage<"dark" | "light">("theme", "dark");
+  const [theme] = useTheme();
 
   return (
     <>

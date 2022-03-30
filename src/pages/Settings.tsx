@@ -1,8 +1,8 @@
 import { css } from "@emotion/react";
-import useLocalStorage from "@rehooks/local-storage";
 import React, { useState } from "react";
 import tw from "twin.macro";
 import BlockLabel from "../components/BlockLabel";
+import { useTheme } from "../hooks/useTheme";
 
 const Settings = () => (
   <div tw="flex flex-col gap-8">
@@ -84,7 +84,7 @@ const ScaleConnect: React.FC = () => {
 };
 
 const Theme = () => {
-  const [theme, setTheme] = useLocalStorage<"dark" | "light">("theme", "dark");
+  const [theme, setTheme] = useTheme();
 
   return (
     <article>
