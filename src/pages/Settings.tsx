@@ -1,4 +1,5 @@
 import { css } from "@emotion/react";
+import useLocalStorage from "@rehooks/local-storage";
 import React, { useState } from "react";
 import tw from "twin.macro";
 import BlockLabel from "../components/BlockLabel";
@@ -83,7 +84,7 @@ const ScaleConnect: React.FC = () => {
 };
 
 const Theme = () => {
-  const [theme, setTheme] = useState<"dark" | "light" | undefined>();
+  const [theme, setTheme] = useLocalStorage<"dark" | "light">("theme", "dark");
 
   return (
     <article>

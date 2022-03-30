@@ -1,6 +1,7 @@
 /* eslint-env node */
 module.exports = {
   content: [],
+  darkMode: "class",
   theme: {
     colors: {
       // these names are starting to be terrible
