@@ -30,7 +30,7 @@ const WaterLevel: React.FC<WaterLevelProps> = () => {
         <span>1.5L max</span>
       </BlockLabel>
       <div
-        onClick={() => setVolume(Math.floor(Math.random() * 1500))}
+        onClick={() => setVolume(Math.floor(Math.random() * 150) * 10)}
         css={[
           blockStyles,
           tw`before:(content absolute transition-all duration-500 left-0 h-full dark:bg-dark-blue light:bg-blue)`,
