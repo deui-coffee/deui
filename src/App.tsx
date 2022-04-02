@@ -5,7 +5,7 @@ import "twin.macro";
 import { useTheme } from "./hooks/useTheme";
 import Layout from "./Layout";
 import Metrics from "./pages/Metrics";
-import Settings from "./pages/Settings";
+import Settings from "./pages/Settings/Settings";
 
 const App = () => {
   const [theme] = useTheme();
