@@ -10,7 +10,7 @@ export const PowerToggle = () => {
     <article>
       <BlockLabel>Power</BlockLabel>
       <div css={[blockStyles, tw`p-3`]}>
-        <ToggleContainer isOn={power === "on"}>
+        <ToggleContainer isOn={power === "on"} showDot>
           <ToggleButton
             label="On"
             selected={power === "on"}
