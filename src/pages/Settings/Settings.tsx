@@ -3,6 +3,7 @@ import tw from "twin.macro";
 import { PowerToggle } from "./PowerToggle";
 import { ScaleConnect } from "./ScaleConnect";
 import { ThemeToggle } from "./ThemeToggle";
+import { VisualizerLink } from "./VisualizerLink";
 import { WaterLevel } from "./WaterLevel";
 
 const Settings = () => (
@@ -10,6 +11,8 @@ const Settings = () => (
     <WaterLevel volume={610} />
 
     <ScaleConnect />
+
+    <VisualizerLink />
 
     <ThemeToggle />
 

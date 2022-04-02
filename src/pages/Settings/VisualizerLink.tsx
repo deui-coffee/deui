@@ -3,30 +3,37 @@ import tw from "twin.macro";
 import BlockLabel from "../../components/BlockLabel";
 import { blockStyles } from "./Settings";
 
-export const ScaleConnect = () => {
-  const [scale, setScale] = useState<string | null>();
-  const isConnected = !!scale;
+export const VisualizerLink = () => {
+  const [link, setLink] = useState<string | null>();
 
   return (
     <article>
-      <BlockLabel>Scale</BlockLabel>
+      <BlockLabel>Visualizer</BlockLabel>
       <div
-        onClick={() => (scale ? setScale(null) : setScale("Skale 2"))}
+        onClick={() =>
+          link ? undefined : setLink("https://visualizer.coffee/")
+        }
         css={[
           blockStyles,
           tw`after:(content transition-all duration-300 absolute rounded-full top-2 right-2 h-2 w-2)`,
-          isConnected ? tw`after:bg-green` : tw`after:bg-red`,
+          link ? tw`after:bg-green` : tw`after:bg-red`,
         ]}
       >
         <p
           css={[
             tw`text-normal`,
-            isConnected
+            link
               ? tw`dark:text-lighter-grey light:text-darker-grey`
               : tw`dark:text-medium-grey light:text-light-grey`,
           ]}
         >
-          {isConnected ? scale : "Connect"}
+          {link ? (
+            <a href={link} target="_blank" rel="noreferrer noopener">
+              View shot
+            </a>
+          ) : (
+            "No shot available"
+          )}
         </p>
       </div>
     </article>
