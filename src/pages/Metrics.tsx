@@ -1,7 +1,8 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import "twin.macro";
-import ChevronIcon from "./icons/ChevronIcon";
+import BlockLabel from "../components/BlockLabel";
+import ChevronIcon from "../icons/ChevronIcon";
 
 const data = [
   {
@@ -82,9 +83,7 @@ const Measurement: React.FC<MeasurementProps> = ({
   unit,
 }) => (
   <div>
-    <h3 tw="mb-2 uppercase text-tiny dark:text-medium-grey light:text-light-grey">
-      {name}
-    </h3>
+    <BlockLabel>{name}</BlockLabel>
     <p tw="text-3xl">
       <span tw="pr-2">{measurement}</span>
       <span tw="dark:text-medium-grey light:text-light-grey">{unit}</span>
