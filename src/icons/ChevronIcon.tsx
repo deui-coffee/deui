@@ -1,5 +1,5 @@
-import React from "react";
-import "twin.macro";
+import React from 'react'
+import 'twin.macro'
 
 const ChevronIcon = () => (
   <svg tw="stroke-current" width="11" height="19" fill="none">
@@ -10,6 +10,6 @@ const ChevronIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
-export default ChevronIcon;
+export default ChevronIcon

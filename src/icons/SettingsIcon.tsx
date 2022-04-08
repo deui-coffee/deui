@@ -1,5 +1,5 @@
-import React from "react";
-import "twin.macro";
+import React from 'react'
+import 'twin.macro'
 
 const SettingsIcon = () => (
   <svg tw="stroke-current" width="24" height="24" fill="none">
@@ -30,6 +30,6 @@ const SettingsIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-);
+)
 
-export default SettingsIcon;
+export default SettingsIcon

@@ -1,14 +1,14 @@
-import React from "react";
-import { Helmet } from "react-helmet";
-import { Route, Routes } from "react-router-dom";
-import "twin.macro";
-import { useTheme } from "./hooks/useTheme";
-import Layout from "./Layout";
-import Metrics from "./pages/Metrics";
-import Settings from "./pages/Settings/Settings";
+import React from 'react'
+import { Helmet } from 'react-helmet'
+import { Route, Routes } from 'react-router-dom'
+import 'twin.macro'
+import { useTheme } from './hooks/useTheme'
+import Layout from './Layout'
+import Metrics from './pages/Metrics'
+import Settings from './pages/Settings/Settings'
 
 const App = () => {
-  const [theme] = useTheme();
+  const [theme] = useTheme()
 
   return (
     <>
@@ -25,13 +25,13 @@ const App = () => {
         </Route>
       </Routes>
     </>
-  );
-};
+  )
+}
 
 const Profiles = () => (
   <div>
     <h1>All profiles</h1>
   </div>
-);
+)
 
-export default App;
+export default App

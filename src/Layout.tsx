@@ -1,18 +1,18 @@
-import React, { ReactNode } from "react";
-import { Link, Outlet, useLocation } from "react-router-dom";
-import tw from "twin.macro";
-import MetricsIcon from "./icons/MetricsIcon";
-import ProfilesIcon from "./icons/ProfilesIcon";
-import SettingsIcon from "./icons/SettingsIcon";
+import React, { ReactNode } from 'react'
+import { Link, Outlet, useLocation } from 'react-router-dom'
+import tw from 'twin.macro'
+import MetricsIcon from './icons/MetricsIcon'
+import ProfilesIcon from './icons/ProfilesIcon'
+import SettingsIcon from './icons/SettingsIcon'
 
 interface NavItemProps {
-  children: ReactNode;
-  linkTo: string;
+  children: ReactNode
+  linkTo: string
 }
 
 const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => {
-  const { pathname } = useLocation();
-  const isActive = pathname === linkTo;
+  const { pathname } = useLocation()
+  const isActive = pathname === linkTo
 
   return (
     <li
@@ -25,8 +25,8 @@ const NavItem: React.FC<NavItemProps> = ({ linkTo, children }) => {
     >
       <Link to={linkTo}>{children}</Link>
     </li>
-  );
-};
+  )
+}
 
 const Layout = () => (
   <div tw="h-screen font-lab-grotesque light:(bg-off-white text-darker-grey) dark:(bg-dark-grey text-lighter-grey)">
@@ -48,6 +48,6 @@ const Layout = () => (
       <Outlet />
     </main>
   </div>
-);
+)
 
-export default Layout;
+export default Layout

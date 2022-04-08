@@ -1,15 +1,15 @@
-import { css } from "@emotion/react";
-import React, { useState } from "react";
-import tw from "twin.macro";
-import BlockLabel from "../../components/BlockLabel";
-import { blockStyles } from "./Settings";
+import { css } from '@emotion/react'
+import React, { useState } from 'react'
+import tw from 'twin.macro'
+import BlockLabel from '../../components/BlockLabel'
+import { blockStyles } from './Settings'
 
 interface WaterLevelProps {
-  volume: number;
+  volume: number
 }
 
 export const WaterLevel: React.FC<WaterLevelProps> = () => {
-  const [volume, setVolume] = useState(0);
+  const [volume, setVolume] = useState(0)
 
   return (
     <article>
@@ -37,5 +37,5 @@ export const WaterLevel: React.FC<WaterLevelProps> = () => {
         </p>
       </div>
     </article>
-  );
-};
+  )
+}

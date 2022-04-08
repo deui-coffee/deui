@@ -1,17 +1,17 @@
-import React, { useState } from "react";
-import tw from "twin.macro";
-import BlockLabel from "../../components/BlockLabel";
-import { blockStyles } from "./Settings";
+import React, { useState } from 'react'
+import tw from 'twin.macro'
+import BlockLabel from '../../components/BlockLabel'
+import { blockStyles } from './Settings'
 
 export const VisualizerLink = () => {
-  const [link, setLink] = useState<string | null>();
+  const [link, setLink] = useState<string | null>()
 
   return (
     <article>
       <BlockLabel>Visualizer</BlockLabel>
       <div
         onClick={() =>
-          link ? undefined : setLink("https://visualizer.coffee/")
+          link ? undefined : setLink('https://visualizer.coffee/')
         }
         css={[
           blockStyles,
@@ -32,10 +32,10 @@ export const VisualizerLink = () => {
               View shot
             </a>
           ) : (
-            "No shot available"
+            'No shot available'
           )}
         </p>
       </div>
     </article>
-  );
-};
+  )
+}

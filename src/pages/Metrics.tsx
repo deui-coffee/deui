@@ -1,36 +1,36 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import "twin.macro";
-import BlockLabel from "../components/BlockLabel";
-import ChevronIcon from "../icons/ChevronIcon";
+import React from 'react'
+import { Link } from 'react-router-dom'
+import 'twin.macro'
+import BlockLabel from '../components/BlockLabel'
+import ChevronIcon from '../icons/ChevronIcon'
 
 const data = [
   {
-    name: "Metal Temp",
-    measurement: "56",
-    unit: "°C",
+    name: 'Metal Temp',
+    measurement: '56',
+    unit: '°C',
   },
   {
-    name: "Pressure",
-    measurement: "0.0",
-    unit: "bar",
+    name: 'Pressure',
+    measurement: '0.0',
+    unit: 'bar',
   },
   {
-    name: "Flow Rate",
-    measurement: "0.0",
-    unit: "ml/s",
+    name: 'Flow Rate',
+    measurement: '0.0',
+    unit: 'ml/s',
   },
   {
-    name: "Shot Time",
-    measurement: "0.0",
-    unit: "s",
+    name: 'Shot Time',
+    measurement: '0.0',
+    unit: 's',
   },
   {
-    name: "Weight",
-    measurement: "0.0",
-    unit: "g",
+    name: 'Weight',
+    measurement: '0.0',
+    unit: 'g',
   },
-];
+]
 
 const Metrics = () => (
   <>
@@ -65,16 +65,16 @@ const Metrics = () => (
 
     <Divider />
   </>
-);
+)
 
 const Divider = () => (
   <hr tw="w-full border-t dark:border-heavy-grey light:border-offish-white" />
-);
+)
 
 interface MeasurementProps {
-  name: string;
-  measurement: string;
-  unit: string;
+  name: string
+  measurement: string
+  unit: string
 }
 
 const Measurement: React.FC<MeasurementProps> = ({
@@ -89,6 +89,6 @@ const Measurement: React.FC<MeasurementProps> = ({
       <span tw="dark:text-medium-grey light:text-light-grey">{unit}</span>
     </p>
   </div>
-);
+)
 
-export default Metrics;
+export default Metrics

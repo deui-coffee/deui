@@ -1,10 +1,10 @@
-import React, { ReactNode } from "react";
-import tw from "twin.macro";
+import React, { ReactNode } from 'react'
+import tw from 'twin.macro'
 
 interface ToggleContainerProps {
-  children: ReactNode;
-  isOn: boolean;
-  showDot?: boolean;
+  children: ReactNode
+  isOn: boolean
+  showDot?: boolean
 }
 
 export const ToggleContainer: React.FC<ToggleContainerProps> = ({
@@ -25,12 +25,12 @@ export const ToggleContainer: React.FC<ToggleContainerProps> = ({
   >
     {children}
   </div>
-);
+)
 
 interface ToggleButtonProps {
-  label: string;
-  selected: boolean;
-  onClick: () => void;
+  label: string
+  selected: boolean
+  onClick: () => void
 }
 
 export const ToggleButton: React.FC<ToggleButtonProps> = ({
@@ -49,4 +49,4 @@ export const ToggleButton: React.FC<ToggleButtonProps> = ({
   >
     {label}
   </button>
-);
+)

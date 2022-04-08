@@ -1,5 +1,5 @@
-import React from "react";
-import "twin.macro";
+import React from 'react'
+import 'twin.macro'
 
 const MetricsIcon = () => (
   <svg
@@ -27,6 +27,6 @@ const MetricsIcon = () => (
       transform="translate(2.97855 1)"
     />
   </svg>
-);
+)
 
-export default MetricsIcon;
+export default MetricsIcon
