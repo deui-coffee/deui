@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom'
 import { BrowserRouter } from 'react-router-dom'
 import { GlobalStyles } from 'twin.macro'
 import App from './App'
+import './fonts/LabGrotesque.css'
 import './index.css'
 
 ReactDOM.render(

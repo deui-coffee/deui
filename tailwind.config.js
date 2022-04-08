@@ -30,7 +30,7 @@ module.exports = {
     },
     extend: {
       fontFamily: {
-        "lab-grotesque": ["LabGrotesque", "sans-serif"],
+        "lab-grotesque": ["Lab Grotesque", "sans-serif"],
       },
       // these sizes are work-in-progress
       // once we have all of them sorted we should probably override the default ones
