@@ -2,9 +2,10 @@
   "name": "pyde1-react-ui",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "dev": "vite",
+    "preview": "vite preview",
+    "start": "npm run dev"
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
