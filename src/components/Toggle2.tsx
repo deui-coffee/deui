@@ -1,14 +1,24 @@
 import React, { ReactNode, useEffect, useState, useRef } from 'react'
-import tw from 'twin.macro'
+import tw, { css } from 'twin.macro'
+import StatusIndicator, { Status } from './StatusIndicator'
 
 type Props = {
   options: [[string, string], [string, string]]
   value: string
   onChange?: (arg0: string) => void
+  status?: Status | ((arg0: string) => void)
 }
 
-export default function Toggle({ options, value: valueProp, onChange }: Props) {
+export default function Toggle({
+  options,
+  value: valueProp,
+  onChange,
+  status: statusProp = Status.None,
+}: Props) {
   const [value, setValue] = useState<string>(valueProp)
+
+  const status =
+    typeof statusProp === 'function' ? statusProp(value) : statusProp
 
   useEffect(() => {
     setValue(valueProp)
@@ -45,12 +55,20 @@ export default function Toggle({ options, value: valueProp, onChange }: Props) {
   const isOn = options.findIndex(([w]) => w === value) === 1
 
   return (
-    <div tw="h-full relative">
+    <div
+      css={[
+        tw`
+          h-full
+          relative
+        `,
+      ]}
+    >
       <div tw="h-full w-full absolute p-2 pointer-events-none z-10">
         <div
-          tw="h-full w-1/2 p-1 transition-transform duration-200 ease-linear"
+          tw="h-full w-1/2 p-1 transition-transform duration-200 ease-linear relative"
           css={[isOn === true && tw`translate-x-full`]}
         >
+          <StatusIndicator tw="absolute right-3 top-3" value={status} />
           <div tw="bg-off-white dark:bg-darkish-grey rounded-md h-full flex items-center justify-center">
             &zwnj;
             {options.map(([v, label]) => (
@@ -94,7 +112,18 @@ type ItemProps = {
 function Item({ value, children, onClick, active = false }: ItemProps) {
   return (
     <button
-      tw="appearance-none flex-zz-half p-1 h-full outline-none"
+      css={[
+        css`
+          -webkit-tap-highlight-color: transparent;
+        `,
+        tw`
+          appearance-none
+          flex-zz-half
+          h-full
+          outline-none
+          p-1
+        `,
+      ]}
       type="button"
       onClick={() => {
         if (typeof onClick === 'function') {

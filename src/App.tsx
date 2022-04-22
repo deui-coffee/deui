@@ -9,6 +9,7 @@ import GlobalStyles from './GlobalStyles'
 import WaterLevel from './components/WaterLevel'
 import Control from './components/Control'
 import Toggle from './components/Toggle2'
+import { Status } from './components/StatusIndicator'
 
 enum Power {
   On = 'on',
@@ -52,6 +53,13 @@ const App = () => {
           </Control>
           <Control label="Power">
             <Toggle
+              status={(p: string) => {
+                if (p !== power) {
+                  return Status.Idle
+                }
+
+                return p === Power.On ? Status.Busy : Status.Off
+              }}
               onChange={(newPower) => void setPower(newPower as Power)}
               options={[
                 [Power.Off as string, 'Off'],

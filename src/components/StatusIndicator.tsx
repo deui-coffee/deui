@@ -1,36 +1,42 @@
 import React from 'react'
 import tw from 'twin.macro'
 
+export enum Status {
+  None = 'none',
+  Idle = 'idle',
+  Busy = 'busy',
+  On = 'on',
+  Off = 'off',
+}
+
 type Props = {
-  active?: boolean
+  value?: Status
   className?: string
 }
 
-function UnstyledStatusIndicator({ className, active }: Props) {
+export default function StatusIndicator({
+  className,
+  value = Status.Idle,
+}: Props) {
   return (
     <div className={className}>
       <div
         css={[
           tw`
-            bg-light-grey
-            h-full
+            h-2
             rounded-full
             transition-colors
-            w-full
+            duration-500
+            w-2
           `,
-          active === false && tw`bg-red`,
-          active === true && tw`bg-green`,
+          value === Status.Idle && tw`bg-lighter-grey dark:bg-dark-grey`,
+          value === Status.Off && tw`bg-red`,
+          value === Status.On && tw`bg-green`,
+          value === Status.Busy &&
+            tw`animate-busy-status transition-none text-lighter-grey dark:text-dark-grey`,
+          value === Status.None && tw`invisible`,
         ]}
       />
     </div>
   )
 }
-
-const StatusIndicator = tw(UnstyledStatusIndicator)`
-    box-content
-    p-2
-    w-2
-    h-2
-`
-
-export default StatusIndicator

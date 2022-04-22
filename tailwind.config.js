@@ -42,6 +42,15 @@ module.exports = {
         'zz-full': '0 0 100%',
         'zz-half': '0 0 50%',
       },
+      keyframes: {
+        'busy-status': {
+          from: { backgroundColor: '#ED920A' },
+          to: { backgroundColor: 'currentColor' }
+        },
+      },
+      animation: {
+        'busy-status': 'busy-status 500ms steps(2, jump-none) infinite alternate',
+      },
     },
   },
   plugins: [],
