@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@emotion/react": "^11.7.1",
+    "@emotion/styled": "^11.8.1",
     "@rehooks/local-storage": "^2.4.4",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-helmet": "^6.1.0",
-    "react-router-dom": "^6.2.1"
+    "react-router-dom": "^6.2.1",
+    "react-swipeable": "^6.2.1"
   },
   "devDependencies": {
     "@emotion/babel-plugin": "^11.7.2",
@@ -29,7 +31,7 @@
     "eslint": "^8.8.0",
     "eslint-plugin-react": "^7.28.0",
     "prettier": "2.5.1",
-    "tailwindcss": "^3.0.18",
+    "tailwindcss": "^3.0.24",
     "twin.macro": "^2.8.2",
     "typescript": "^4.4.4",
     "vite": "^2.7.2"

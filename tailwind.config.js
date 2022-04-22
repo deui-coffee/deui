@@ -23,11 +23,6 @@ module.exports = {
       "dark-blue": "#002E59",
       green: "#00B41C",
     },
-    fontWeight: {
-      regular: 300,
-      medium: 400,
-      bold: 700,
-    },
     extend: {
       fontFamily: {
         "lab-grotesque": ["Lab Grotesque", "sans-serif"],
@@ -35,10 +30,17 @@ module.exports = {
       // these sizes are work-in-progress
       // once we have all of them sorted we should probably override the default ones
       fontSize: {
-        tiny: ["0.625rem", { lineHeight: "0.75rem", letterSpacing: "0.12rem" }],
-        normal: ["1.25rem", { lineHeight: "1.5rem" }],
-        medium: ["1.5rem", { lineHeight: "2rem" }],
-        large: ["2rem", { lineHeight: "2.375rem" }],
+        label: ["0.625rem", { lineHeight: "2rem", letterSpacing: "0.15em" }],
+        t0: ["1.25rem", { lineHeight: "1.5rem" }],
+        t1: ["1.5rem", { lineHeight: "2rem" }],
+        t2: ["2rem", { lineHeight: "2.375rem" }],
+      },
+      boxShadow: {
+        tmp: '0 5px 10px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.15)'
+      },
+      flex: {
+        'zz-full': '0 0 100%',
+        'zz-half': '0 0 50%',
       },
     },
   },
