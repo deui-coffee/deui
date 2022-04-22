@@ -3,16 +3,16 @@ import React from 'react'
 import tw, { GlobalStyles as BaseStyles } from 'twin.macro'
 
 const customStyles = css`
-  body {
-    ${tw`antialiased font-lab-grotesque`};
+  html {
+    ${tw`bg-offish-white`};
   }
 
   html.dark {
     ${tw`bg-off-black`};
   }
 
-  html.light {
-    ${tw`bg-offish-white`};
+  body {
+    ${tw`antialiased font-lab-grotesque`};
   }
 `
 

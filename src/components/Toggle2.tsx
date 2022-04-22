@@ -65,11 +65,33 @@ export default function Toggle({
     >
       <div tw="h-full w-full absolute p-2 pointer-events-none z-10">
         <div
-          tw="h-full w-1/2 p-1 transition-transform duration-200 ease-linear relative"
-          css={[isOn === true && tw`translate-x-full`]}
+          css={[
+            tw`
+              duration-200
+              ease-linear
+              h-full
+              p-1
+              relative
+              transition-transform
+              w-1/2
+            `,
+            isOn === true && tw`translate-x-full`,
+          ]}
         >
           <StatusIndicator tw="absolute right-3 top-3" value={status} />
-          <div tw="bg-off-white dark:bg-darkish-grey rounded-md h-full flex items-center justify-center">
+          <div
+            css={[
+              tw`
+                bg-off-white
+                dark:bg-darkish-grey
+                flex
+                h-full
+                items-center
+                justify-center
+                rounded-md
+              `,
+            ]}
+          >
             &zwnj;
             {options.map(([v, label]) => (
               <span
@@ -132,8 +154,18 @@ function Item({ value, children, onClick, active = false }: ItemProps) {
       }}
     >
       <div
-        tw="rounded-md h-full flex items-center justify-center transition-opacity duration-200 ease-linear"
         css={[
+          tw`
+            duration-200
+            ease-linear
+            flex
+            h-full
+            items-center
+            justify-center
+            opacity-50
+            rounded-md
+            transition-opacity
+          `,
           active === true && tw`opacity-0`,
           active === false && tw`delay-100`,
         ]}

@@ -12,15 +12,16 @@ function UnstyledPage({ className, view, children = view }: Props) {
 }
 
 const Page = tw(UnstyledPage)`
+    bg-off-white
+    box-border
     dark:(bg-dark-grey text-lighter-grey)
     flex-zz-full
     h-screen
-    light:(bg-off-white text-darker-grey)
     max-h-[844px]
     max-w-[390px]
-    w-screen
     p-14
-    box-border
+    text-darker-grey
+    w-screen
 `
 
 export default Page

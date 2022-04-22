@@ -21,6 +21,7 @@ const Control = tw(UnstyledControl)`
 `
 
 const Label = tw.label`
+    dark:text-medium-grey
     flex
     justify-between
     m-0
@@ -32,10 +33,10 @@ const Label = tw.label`
 const Body = tw.div`
     bg-white
     dark:bg-black
-    rounded-lg
     h-[5.5rem]
     overflow-hidden
     relative
+    rounded-lg
 `
 
 export default Control
