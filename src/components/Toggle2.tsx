@@ -6,19 +6,21 @@ type Props = {
   options: [[string, string], [string, string]]
   value: string
   onChange?: (arg0: string) => void
-  status?: Status | ((arg0: string) => void)
+  status?: Status | ((arg0: string) => Status)
 }
 
 export default function Toggle({
   options,
   value: valueProp,
   onChange,
-  status: statusProp = Status.None,
+  status: statusProp,
 }: Props) {
   const [value, setValue] = useState<string>(valueProp)
 
   const status =
-    typeof statusProp === 'function' ? statusProp(value) : statusProp
+    typeof statusProp === 'function'
+      ? statusProp(value)
+      : statusProp || Status.None
 
   useEffect(() => {
     setValue(valueProp)
