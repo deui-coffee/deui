@@ -112,12 +112,7 @@ export default function Toggle({
       </div>
       <div tw="flex h-full p-2">
         {options.map(([v, label]) => (
-          <Item
-            key={`${v}`}
-            value={v}
-            onClick={onItemClick}
-            active={value === v}
-          >
+          <Item key={`${v}`} value={v} onClick={onItemClick}>
             {label}
           </Item>
         ))}
@@ -128,12 +123,11 @@ export default function Toggle({
 
 type ItemProps = {
   children: ReactNode
-  value: string
   onClick?: (arg0: string) => void
-  active?: boolean
+  value: string
 }
 
-function Item({ value, children, onClick, active = false }: ItemProps) {
+function Item({ value, children, onClick }: ItemProps) {
   return (
     <button
       css={[
@@ -166,10 +160,7 @@ function Item({ value, children, onClick, active = false }: ItemProps) {
             justify-center
             opacity-50
             rounded-md
-            transition-opacity
           `,
-          active === true && tw`opacity-0`,
-          active === false && tw`delay-100`,
         ]}
       >
         {children}

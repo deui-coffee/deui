@@ -44,7 +44,7 @@ module.exports = {
       },
       keyframes: {
         'busy-status': {
-          from: { backgroundColor: '#ED920A' },
+          from: { backgroundColor: '#FF9900' },
           to: { backgroundColor: 'currentColor' }
         },
       },
