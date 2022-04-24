@@ -1,52 +1,170 @@
-import React, { ReactNode } from 'react'
-import tw from 'twin.macro'
+import React, { ReactNode, useEffect, useState, useRef } from 'react'
+import tw, { css } from 'twin.macro'
+import StatusIndicator, { Status } from './StatusIndicator'
 
-interface ToggleContainerProps {
+type Props = {
+  options: [[string, string], [string, string]]
+  value: string
+  onChange?: (arg0: string) => void
+  status?: Status | ((arg0: string) => Status)
+}
+
+export default function Toggle({
+  options,
+  value: valueProp,
+  onChange,
+  status: statusProp,
+}: Props) {
+  const [value, setValue] = useState<string>(valueProp)
+
+  const status =
+    typeof statusProp === 'function'
+      ? statusProp(value)
+      : statusProp || Status.None
+
+  useEffect(() => {
+    setValue(valueProp)
+  }, [valueProp])
+
+  const onChangeRef = useRef(onChange)
+
+  useEffect(() => {
+    onChangeRef.current = onChange
+  }, [onChange])
+
+  const commitTimeoutRef = useRef<number | undefined>()
+
+  useEffect(
+    () => () => {
+      clearTimeout(commitTimeoutRef.current)
+      commitTimeoutRef.current = undefined
+    },
+    []
+  )
+
+  function onItemClick(newValue: string) {
+    setValue(newValue)
+
+    clearTimeout(commitTimeoutRef.current)
+
+    commitTimeoutRef.current = setTimeout(() => {
+      if (typeof onChangeRef.current === 'function') {
+        onChangeRef.current(newValue)
+      }
+    }, 500)
+  }
+
+  const isOn = options.findIndex(([w]) => w === value) === 1
+
+  return (
+    <div
+      css={[
+        tw`
+          h-full
+          relative
+        `,
+      ]}
+    >
+      <div tw="h-full w-full absolute p-2 pointer-events-none z-10">
+        <div
+          css={[
+            tw`
+              duration-200
+              ease-linear
+              h-full
+              p-1
+              relative
+              transition-transform
+              w-1/2
+            `,
+            isOn === true && tw`translate-x-full`,
+          ]}
+        >
+          <StatusIndicator tw="absolute right-3 top-3" value={status} />
+          <div
+            css={[
+              tw`
+                bg-off-white
+                dark:bg-darkish-grey
+                flex
+                h-full
+                items-center
+                justify-center
+                rounded-md
+              `,
+            ]}
+          >
+            &zwnj;
+            {options.map(([v, label]) => (
+              <span
+                key={`${v}`}
+                tw="absolute"
+                css={[
+                  tw`transition-opacity duration-200`,
+                  value !== v && tw`opacity-0`,
+                ]}
+              >
+                {label}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      <div tw="flex h-full p-2">
+        {options.map(([v, label]) => (
+          <Item key={`${v}`} value={v} onClick={onItemClick}>
+            {label}
+          </Item>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+type ItemProps = {
   children: ReactNode
-  isOn: boolean
-  showDot?: boolean
+  onClick?: (arg0: string) => void
+  value: string
 }
 
-export const ToggleContainer: React.FC<ToggleContainerProps> = ({
-  children,
-  isOn,
-  showDot = false,
-}) => (
-  <div
-    css={[
-      tw`relative flex justify-between w-full h-full gap-2 before:(content transition-all duration-300 absolute rounded-md width[calc(50% - 4px)] h-full dark:bg-darkish-grey light:bg-off-white)`,
-      isOn ? tw`before:left-0` : tw`before:left[calc(50% + 4px)]`,
-      showDot &&
-        tw`after:(content transition-all duration-300 absolute top-2 w-2 h-2 rounded-full)`,
-      isOn && showDot
-        ? tw`after:(bg-green right[calc(50% + 12px)])`
-        : tw`after:(bg-red right-2)`,
-    ]}
-  >
-    {children}
-  </div>
-)
-
-interface ToggleButtonProps {
-  label: string
-  selected: boolean
-  onClick: () => void
+function Item({ value, children, onClick }: ItemProps) {
+  return (
+    <button
+      css={[
+        css`
+          -webkit-tap-highlight-color: transparent;
+        `,
+        tw`
+          appearance-none
+          flex-zz-half
+          h-full
+          outline-none
+          p-1
+        `,
+      ]}
+      type="button"
+      onClick={() => {
+        if (typeof onClick === 'function') {
+          onClick(value)
+        }
+      }}
+    >
+      <div
+        css={[
+          tw`
+            duration-200
+            ease-linear
+            flex
+            h-full
+            items-center
+            justify-center
+            opacity-50
+            rounded-md
+          `,
+        ]}
+      >
+        {children}
+      </div>
+    </button>
+  )
 }
-
-export const ToggleButton: React.FC<ToggleButtonProps> = ({
-  label,
-  selected,
-  onClick,
-}) => (
-  <button
-    onClick={onClick}
-    css={[
-      tw`z-10 flex items-center justify-center w-full h-full text-normal`,
-      selected
-        ? tw` dark:text-lighter-grey light:text-darker-grey`
-        : tw`dark:text-medium-grey light:text-light-grey`,
-    ]}
-  >
-    {label}
-  </button>
-)
