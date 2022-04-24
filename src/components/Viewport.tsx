@@ -10,6 +10,7 @@ type PageChild = ReactElement & {
 
 type Props = {
   children: PageChild | PageChild[]
+  initialView?: View
 }
 
 type ViewportState = {
@@ -26,22 +27,20 @@ enum ActionType {
   Exact,
 }
 
-type Action =
-  | [ActionType.Init, Props['children']]
-  | [ActionType.Next]
-  | [ActionType.Prev]
-  | [ActionType.Exact, View]
+type Action = [ActionType.Next] | [ActionType.Prev] | [ActionType.Exact, View]
 
-function init(children: Props['children']): ViewportState {
-  const views = React.Children.toArray(children).map((child: unknown) => {
-    return (child as PageChild).props.view
-  })
+function init(view: View | undefined) {
+  return (children: Props['children']): ViewportState => {
+    const views = React.Children.toArray(children).map((child: unknown) => {
+      return (child as PageChild).props.view
+    })
 
-  return {
-    count: views.length,
-    index: Math.min(1, views.length) - 1,
-    view: views[0],
-    views,
+    return {
+      count: views.length,
+      index: views.indexOf(view) || 0,
+      view: view || views[0],
+      views,
+    }
   }
 }
 
@@ -49,8 +48,6 @@ function reducer(state: ViewportState, [type, payload]: Action): ViewportState {
   const { views, count, index } = state
 
   switch (type) {
-    case ActionType.Init:
-      return init(payload)
     case ActionType.Prev:
       return reducer(state, [ActionType.Exact, views[Math.max(0, index - 1)]])
     case ActionType.Next:
@@ -70,11 +67,11 @@ function reducer(state: ViewportState, [type, payload]: Action): ViewportState {
   return state
 }
 
-export default function Viewport({ children }: Props) {
+export default function Viewport({ children, initialView }: Props) {
   const [{ count, index, views, view }, dispatch] = useReducer(
     reducer,
     children,
-    init
+    init(initialView)
   )
 
   const handlers = useSwipeable({
