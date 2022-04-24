@@ -1,86 +1,39 @@
-import React, { Children, ReactElement, useReducer } from 'react'
+import React, { createElement, FC } from 'react'
 import tw, { css } from 'twin.macro'
-import { Props as PageProps } from './Page'
+import Page from './Page'
 import { useSwipeable } from 'react-swipeable'
 import { View } from '../types'
-
-type PageChild = ReactElement & {
-  props: PageProps
-}
+import { useViewSetter } from '../contexts/ViewSetterContext'
+import { useViewState } from '../contexts/ViewStateContext'
+import Settings from '../pages/Settings'
+import Metrics from '../pages/Metrics'
 
 type Props = {
-  children: PageChild | PageChild[]
-  initialView?: View
-}
-
-type ViewportState = {
-  count: number
-  index: number
-  view: undefined | View
-  views: View[]
-}
-
-enum ActionType {
-  Init,
-  Next,
-  Prev,
-  Exact,
-}
-
-type Action = [ActionType.Next] | [ActionType.Prev] | [ActionType.Exact, View]
-
-function init(view: View | undefined) {
-  return (children: Props['children']): ViewportState => {
-    const views = React.Children.toArray(children).map((child: unknown) => {
-      return (child as PageChild).props.view
-    })
-
-    return {
-      count: views.length,
-      index: views.indexOf(view) || 0,
-      view: view || views[0],
-      views,
-    }
+  viewComponents?: {
+    [index: string]: FC
   }
 }
 
-function reducer(state: ViewportState, [type, payload]: Action): ViewportState {
-  const { views, count, index } = state
-
-  switch (type) {
-    case ActionType.Prev:
-      return reducer(state, [ActionType.Exact, views[Math.max(0, index - 1)]])
-    case ActionType.Next:
-      return reducer(state, [
-        ActionType.Exact,
-        views[Math.min(count - 1, index + 1)],
-      ])
-    case ActionType.Exact:
-      return {
-        ...state,
-        index: state.views.indexOf(payload),
-        view: payload,
-      }
-    default:
-  }
-
-  return state
+const defaultViewComponents = {
+  [View.Settings]: Settings,
+  [View.Metrics]: Metrics,
+  [View.Profiles]: () => <div />,
 }
 
-export default function Viewport({ children, initialView }: Props) {
-  const [{ count, index, views, view }, dispatch] = useReducer(
-    reducer,
-    children,
-    init(initialView)
-  )
+export default function Viewport({
+  viewComponents = defaultViewComponents,
+}: Props) {
+  const goto = useViewSetter()
+
+  const { view, count, index, views } = useViewState()
 
   const handlers = useSwipeable({
     preventDefaultTouchmoveEvent: true,
     onSwipedLeft() {
-      dispatch([ActionType.Next])
+      goto('next')
     },
     onSwipedRight() {
-      dispatch([ActionType.Prev])
+      goto('prev')
     },
   })
 
@@ -116,13 +69,14 @@ export default function Viewport({ children, initialView }: Props) {
           ]}
         >
           {/* Frames. */}
-          {Children.map(children, (child) => (
+          {views.map((v) => (
             <div
+              key={`${v}`}
               style={{
                 flex: `0 0 ${100 / count}%`,
               }}
             >
-              {child}
+              <Page view={v}>{createElement(viewComponents[v])}</Page>
             </div>
           ))}
         </div>
@@ -177,7 +131,7 @@ export default function Viewport({ children, initialView }: Props) {
                     !opacity-100
                   `,
               ]}
-              onClick={() => void dispatch([ActionType.Exact, v])}
+              onClick={() => void goto(v)}
             >
               <Icon view={v} />
             </button>

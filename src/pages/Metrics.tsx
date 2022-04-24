@@ -1,8 +1,12 @@
 import React from 'react'
 import tw, { css } from 'twin.macro'
 import Metric from '../components/Metric'
+import { useViewSetter } from '../contexts/ViewSetterContext'
+import { View } from '../types'
 
 export default function Metrics() {
+  const goto = useViewSetter()
+
   return (
     <>
       <header>
@@ -52,6 +56,7 @@ export default function Metrics() {
             my-8
           `,
         ]}
+        onClick={() => void goto(View.Profiles)}
       >
         <div>Best overall pressure</div>
         <div>
