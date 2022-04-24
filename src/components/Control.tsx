@@ -1,5 +1,6 @@
 import React, { ReactNode } from 'react'
 import tw from 'twin.macro'
+import Label from './Label'
 
 type Props = {
   className?: string
@@ -17,26 +18,16 @@ function UnstyledControl({ className, label, children }: Props) {
 }
 
 const Control = tw(UnstyledControl)`
-    [* + &]:mt-4
-`
-
-const Label = tw.label`
-    dark:text-medium-grey
-    flex
-    justify-between
-    m-0
-    text-label
-    text-light-grey
-    uppercase
+  [* + &]:mt-4
 `
 
 const Body = tw.div`
-    bg-white
-    dark:bg-black
-    h-[5.5rem]
-    overflow-hidden
-    relative
-    rounded-lg
+  bg-white
+  dark:bg-black
+  h-[5.5rem]
+  overflow-hidden
+  relative
+  rounded-lg
 `
 
 export default Control
