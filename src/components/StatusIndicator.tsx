@@ -23,10 +23,10 @@ export default function StatusIndicator({
       <div
         css={[
           tw`
+            duration-500
             h-2
             rounded-full
             transition-colors
-            duration-500
             w-2
           `,
           value === Status.Idle && tw`bg-lighter-grey dark:bg-dark-grey`,
@@ -34,7 +34,7 @@ export default function StatusIndicator({
           value === Status.On && tw`bg-green`,
           value === Status.Busy &&
             tw`animate-busy-status transition-none text-lighter-grey dark:text-dark-grey`,
-          value === Status.None && tw`invisible`,
+          value === Status.None && tw`bg-[transparent]`,
         ]}
       />
     </div>

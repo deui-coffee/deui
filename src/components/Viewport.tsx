@@ -1,5 +1,5 @@
-import React, { ReactElement, useReducer } from 'react'
-import tw, { styled } from 'twin.macro'
+import React, { Children, ReactElement, useReducer } from 'react'
+import tw from 'twin.macro'
 import { Props as PageProps } from './Page'
 import { useSwipeable } from 'react-swipeable'
 import { View } from '../types'
@@ -10,7 +10,6 @@ type PageChild = ReactElement & {
 
 type Props = {
   children: PageChild | PageChild[]
-  className?: string
 }
 
 type ViewportState = {
@@ -71,7 +70,7 @@ function reducer(state: ViewportState, [type, payload]: Action): ViewportState {
   return state
 }
 
-function UnstyledViewport({ children, className }: Props) {
+export default function Viewport({ children }: Props) {
   const [{ count, index }, dispatch] = useReducer(reducer, children, init)
 
   const handlers = useSwipeable({
@@ -85,37 +84,44 @@ function UnstyledViewport({ children, className }: Props) {
   })
 
   return (
-    <div {...handlers} className={className}>
-      <Tape
+    <div
+      {...handlers}
+      css={[
+        tw`
+          bg-off-white
+          dark:(bg-dark-grey text-lighter-grey)
+          overflow-hidden
+          relative
+          shadow-tmp
+          text-darker-grey
+          w-screen
+        `,
+      ]}
+    >
+      <div
         style={{
-          transform: `translateX(${-index * (100 / count)}%)`,
-          width: `${count * 100}%`,
+          transform: `translateX(${-index * 100}vw)`,
+          width: `${count * 100}vw`,
         }}
+        css={[
+          tw`
+            duration-300
+            ease-in-out
+            flex
+            transition-transform
+          `,
+        ]}
       >
-        {children}
-      </Tape>
+        {Children.map(children, (child) => (
+          <div
+            style={{
+              flex: `0 0 ${100 / count}%`,
+            }}
+          >
+            {child}
+          </div>
+        ))}
+      </div>
     </div>
   )
 }
-
-const Tape = tw.div`
-    absolute
-    duration-300
-    ease-in-out
-    flex
-    transition-transform
-`
-
-const Viewport = tw(UnstyledViewport)`
-    h-screen
-    max-h-[844px]
-    max-w-[390px]
-    mx-auto
-    my-0
-    overflow-hidden
-    relative
-    shadow-tmp
-    w-screen
-`
-
-export default Viewport
