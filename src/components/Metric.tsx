@@ -33,6 +33,7 @@ export default function Metric({ value, unit, label }: Props) {
             tw`
               dark:text-medium-grey
               ml-2
+              text-light-grey
             `,
           ]}
         >

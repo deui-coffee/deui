@@ -24,10 +24,11 @@ export default function Metrics() {
         <p
           css={[
             tw`
-              font-medium
               dark:text-medium-grey
-              text-t0
+              font-medium
               mt-1
+              text-light-grey
+              text-t0
             `,
           ]}
         >
@@ -59,7 +60,14 @@ export default function Metrics() {
         onClick={() => void goto(View.Profiles)}
       >
         <div>Best overall pressure</div>
-        <div>
+        <div
+          css={[
+            tw`
+              dark:text-medium-grey
+              text-light-grey
+            `,
+          ]}
+        >
           <svg
             width="11"
             height="19"
