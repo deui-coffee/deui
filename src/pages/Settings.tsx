@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import tw from 'twin.macro'
 import Control from '../components/Control'
 import WaterLevel from '../components/WaterLevel'
 import Select from '../components/Select'
@@ -32,7 +33,13 @@ export default function Settings() {
   const { current: capacity } = useRef<number>(1000)
 
   return (
-    <>
+    <div
+      css={[
+        tw`
+          px-14
+        `,
+      ]}
+    >
       <Control
         label={
           <>
@@ -87,6 +94,6 @@ export default function Settings() {
           value={power}
         />
       </Control>
-    </>
+    </div>
   )
 }

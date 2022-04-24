@@ -7,6 +7,7 @@ import { useViewSetter } from '../contexts/ViewSetterContext'
 import { useViewState } from '../contexts/ViewStateContext'
 import Settings from '../pages/Settings'
 import Metrics from '../pages/Metrics'
+import Profiles from '../pages/Profiles'
 
 type Props = {
   viewComponents?: {
@@ -17,7 +18,7 @@ type Props = {
 const defaultViewComponents = {
   [View.Settings]: Settings,
   [View.Metrics]: Metrics,
-  [View.Profiles]: () => <div />,
+  [View.Profiles]: Profiles,
 }
 
 export default function Viewport({

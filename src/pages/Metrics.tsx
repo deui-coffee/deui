@@ -8,7 +8,13 @@ export default function Metrics() {
   const goto = useViewSetter()
 
   return (
-    <>
+    <div
+      css={[
+        tw`
+          px-14
+        `,
+      ]}
+    >
       <header>
         <h1
           css={[
@@ -89,6 +95,6 @@ export default function Metrics() {
       <Metric label="Flow Rate" value={0.0} unit="ml/s" />
       <Metric label="Shot Time" value={0.0} unit="s" />
       <Metric label="Weight" value={0.0} unit="g" />
-    </>
+    </div>
   )
 }

@@ -14,7 +14,7 @@ export default function Page({ view, children = view }: Props) {
         tw`
           box-border
           min-h-screen
-          p-14
+          pt-14
           pb-32
         `,
       ]}
