@@ -13,7 +13,9 @@ export default function Page({ view, children = view }: Props) {
       css={[
         tw`
           box-border
+          min-h-screen
           p-14
+          pb-32
         `,
       ]}
     >
