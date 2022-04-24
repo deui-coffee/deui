@@ -110,30 +110,44 @@ export default function Viewport({
                   -webkit-tap-highlight-color: transparent;
                 `,
                 tw`
-                  [> svg]:block
                   appearance-none
-                  bg-white
-                  dark:bg-black
                   dark:opacity-50
-                  dark:text-medium-grey
-                  flex
                   h-12
-                  items-center
-                  justify-center
                   opacity-25
-                  rounded-full
-                  text-darker-grey
+                  relative
                   w-12
                 `,
                 view === v &&
                   tw`
-                    dark:text-lighter-grey
                     !opacity-100
                   `,
               ]}
               onClick={() => void goto(v)}
             >
-              <Icon view={v} />
+              {/* @TODO: StatusIndicator */}
+              <div
+                css={[
+                  tw`
+                    [> svg]:block
+                    bg-white
+                    dark:bg-black
+                    dark:text-medium-grey
+                    flex
+                    h-full
+                    items-center
+                    justify-center
+                    rounded-full
+                    text-darker-grey
+                    w-full
+                  `,
+                  view === v &&
+                    tw`
+                      dark:text-lighter-grey
+                    `,
+                ]}
+              >
+                <Icon view={v} />
+              </div>
             </button>
           </li>
         ))}
