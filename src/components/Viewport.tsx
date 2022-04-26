@@ -1,5 +1,6 @@
 import React, { createElement, FC } from 'react'
-import tw, { css } from 'twin.macro'
+import tw from 'twin.macro'
+import { css } from '@emotion/react'
 import Page from './Page'
 import { useSwipeable } from 'react-swipeable'
 import { View } from '../types'

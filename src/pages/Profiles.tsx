@@ -1,5 +1,6 @@
 import React, { ReactNode, useEffect, useRef, useState } from 'react'
-import tw, { css } from 'twin.macro'
+import tw from 'twin.macro'
+import { css } from '@emotion/react'
 import List from '../components/List'
 
 const items: [number, string][] = [

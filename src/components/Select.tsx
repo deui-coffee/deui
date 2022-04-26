@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import tw, { css } from 'twin.macro'
+import tw from 'twin.macro'
+import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
 
 type Props = {

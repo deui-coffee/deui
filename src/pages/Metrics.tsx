@@ -1,5 +1,6 @@
 import React from 'react'
-import tw, { css } from 'twin.macro'
+import tw from 'twin.macro'
+import { css } from '@emotion/react'
 import Metric from '../components/Metric'
 import { useViewSetter } from '../contexts/ViewSetterContext'
 import { View } from '../types'
