@@ -8,26 +8,30 @@ type Props = {
   label?: ReactNode
 }
 
-function UnstyledControl({ className, label, children }: Props) {
+export default function Control({ label, children }: Props) {
   return (
-    <div className={className}>
+    <div
+      css={[
+        tw`
+          [* + &]:mt-4
+        `,
+      ]}
+    >
       {!!label && <Label>{label}</Label>}
-      <Body>{children}</Body>
+      <div
+        css={[
+          tw`
+            bg-white
+            dark:bg-black
+            h-[5.5rem]
+            overflow-hidden
+            relative
+            rounded-lg
+          `,
+        ]}
+      >
+        {children}
+      </div>
     </div>
   )
 }
-
-const Control = tw(UnstyledControl)`
-  [* + &]:mt-4
-`
-
-const Body = tw.div`
-  bg-white
-  dark:bg-black
-  h-[5.5rem]
-  overflow-hidden
-  relative
-  rounded-lg
-`
-
-export default Control

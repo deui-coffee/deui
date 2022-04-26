@@ -35,11 +35,7 @@ module.exports = {
         t1: ["1.5rem", { lineHeight: "2rem" }],
         t2: ["2rem", { lineHeight: "2.375rem" }],
       },
-      boxShadow: {
-        tmp: '0 5px 10px rgba(0, 0, 0, 0.1), 0 1px 2px rgba(0, 0, 0, 0.15)'
-      },
       flex: {
-        'zz-full': '0 0 100%',
         'zz-half': '0 0 50%',
       },
       keyframes: {

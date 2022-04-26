@@ -29,11 +29,20 @@ export default function StatusIndicator({
             transition-colors
             w-2
           `,
-          value === Status.Idle && tw`bg-lighter-grey dark:bg-dark-grey`,
+          value === Status.Idle &&
+            tw`
+              bg-lighter-grey
+              dark:bg-dark-grey
+            `,
           value === Status.Off && tw`bg-red`,
           value === Status.On && tw`bg-green`,
           value === Status.Busy &&
-            tw`animate-busy-status transition-none text-lighter-grey dark:text-dark-grey`,
+            tw`
+              animate-busy-status
+              dark:text-dark-grey
+              text-lighter-grey
+              transition-none
+            `,
           value === Status.None && tw`bg-[transparent]`,
         ]}
       />
