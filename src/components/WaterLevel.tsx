@@ -32,34 +32,34 @@ function UnstyledWaterLevel({
 }
 
 const Unit = tw.span`
-    font-normal
-    ml-1
-    text-light-grey
+  font-normal
+  ml-1
+  text-light-grey
 `
 
 const Value = tw.div`
-    -translate-x-1/2
-    -translate-y-1/2
-    absolute
-    font-bold
-    font-medium
-    left-1/2
-    text-t1
-    top-1/2
+  -translate-x-1/2
+  -translate-y-1/2
+  absolute
+  font-bold
+  font-medium
+  left-1/2
+  text-t1
+  top-1/2
 `
 
 const WaterLine = tw.div`
-    absolute
-    bg-blue
-    h-full
-    left-0
-    top-0
+  absolute
+  bg-blue
+  h-full
+  left-0
+  top-0
 `
 
 const WaterLevel = tw(UnstyledWaterLevel)`
-    h-full
-    relative
-    w-full
+  h-full
+  relative
+  w-full
 `
 
 export default WaterLevel

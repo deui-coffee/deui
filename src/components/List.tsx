@@ -1,5 +1,4 @@
 import React, { Children, ReactNode } from 'react'
-import tw from 'twin.macro'
 
 type Props = {
   children?: ReactNode
@@ -7,12 +6,7 @@ type Props = {
 
 export default function List({ children }: Props) {
   return (
-    <ul
-      css={[
-        tw`
-        `,
-      ]}
-    >
+    <ul>
       {Children.map(children, (child) => (
         <li>{child}</li>
       ))}
