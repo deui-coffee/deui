@@ -26,7 +26,7 @@ export default function Metrics() {
             `,
           ]}
         >
-          Expresso
+          Espresso
         </h1>
         <p
           css={[
