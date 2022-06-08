@@ -7,3 +7,17 @@ function selectSelf(state: State): MachineState {
 }
 
 export const selectAwake = createSelector(selectSelf, ({ awake }) => awake)
+
+export const selectScales = createSelector(selectSelf, ({ scales }) => scales)
+
+export const selectSelectedScaleId = createSelector(
+    selectSelf,
+    ({ selectedScaleId }) => selectedScaleId
+)
+
+export const selectProfiles = createSelector(selectSelf, ({ profiles }) => profiles)
+
+export const selectSelectedProfileId = createSelector(
+    selectSelf,
+    ({ selectedProfileId }) => selectedProfileId
+)

@@ -3,9 +3,14 @@ import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
 
+export interface Option {
+    value: string
+    label: string
+}
+
 type Props = {
     onChange?: (arg0: string | undefined) => void
-    options?: [string, string][]
+    options?: Option[]
     placeholder?: string
     status?: Status
     value?: string | undefined
@@ -24,12 +29,10 @@ export default function Select({
         setValue(valueProp)
     }, [valueProp])
 
-    const [selectedValue, selectedLabel] = options.find(([v]) => v === value) || []
+    const selectedOption = options.find((option) => option.value === value)
 
     function onClick() {
-        const [[v]] = options
-
-        const newValue = typeof value === 'undefined' ? v : undefined
+        const [{ value: newValue = undefined }] = typeof value === 'undefined' ? options : [{}]
 
         setValue(newValue)
 
@@ -40,7 +43,7 @@ export default function Select({
         // @TODO Drawer
     }
 
-    const status = typeof selectedValue === 'undefined' ? Status.None : statusProp
+    const status = selectedOption ? statusProp : Status.None
 
     return (
         <div
@@ -77,12 +80,12 @@ export default function Select({
                         text-t0
                         w-full
                     `,
-                    typeof selectedLabel === 'undefined' && tw`text-medium-grey`,
+                    !selectedOption && tw`text-medium-grey`,
                 ]}
                 type="button"
                 onClick={onClick}
             >
-                {selectedLabel || placeholder}
+                {selectedOption ? selectedOption.label : placeholder}
             </button>
         </div>
     )

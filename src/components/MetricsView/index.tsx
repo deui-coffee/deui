@@ -6,18 +6,15 @@ import Metric from '../Metric'
 import { ViewAction } from '../../features/view'
 import { ViewId } from '../../features/view/types'
 import { MetricId } from '../../features/metric/types'
+import { useProfileLabel } from '../../features/machine/hooks'
 
 export default function Metrics() {
     const dispatch = useDispatch()
 
+    const profileLabel = useProfileLabel()
+
     return (
-        <div
-            css={[
-                tw`
-                    px-14
-                `,
-            ]}
-        >
+        <div tw="px-14">
             <header>
                 <h1
                     css={[
@@ -59,7 +56,6 @@ export default function Metrics() {
                         font-medium
                         h-[88px]
                         items-center
-                        justify-between
                         text-left
                         text-t1
                         w-full
@@ -68,7 +64,7 @@ export default function Metrics() {
                 ]}
                 onClick={() => void dispatch(ViewAction.set(ViewId.Profiles))}
             >
-                <div>Best overall pressure</div>
+                <div tw="flex-grow">{profileLabel}</div>
                 <div
                     css={[
                         tw`

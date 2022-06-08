@@ -1,27 +1,27 @@
-import React, { ReactNode, useEffect, useRef, useState } from 'react'
+import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import List from '../List'
-
-const items: [number, string][] = [
-    [0, '7g basket'],
-    [1, 'Advanced spring lever'],
-    [2, 'Best overall pressure'],
-    [3, 'Blooming espresso'],
-    [4, 'Classic Italian espresso'],
-    [5, 'Cremina lever machine'],
-    [6, "Damian's LRV2"],
-    [7, 'DefaultE61 espresso machine'],
-    [8, 'Gentle & sweet'],
-]
+import { useProfiles, useSelectedProfileId } from '../../features/machine/hooks'
+import { useDispatch } from 'react-redux'
+import { MachineAction } from '../../features/machine'
 
 export default function Profiles() {
-    const [profileId, setProfileId] = useState<number>()
+    const profiles = useProfiles()
+
+    const selectedProfileId = useSelectedProfileId()
+
+    const dispatch = useDispatch()
 
     return (
         <List>
-            {items.map(([id, label]) => (
-                <Item key={id} id={id} onClick={setProfileId} active={profileId === id}>
+            {profiles.map(({ id, label }) => (
+                <Item
+                    key={id}
+                    id={id}
+                    onClick={(profileId) => void dispatch(MachineAction.selectProfile(profileId))}
+                    active={selectedProfileId === id}
+                >
                     {label}
                 </Item>
             ))}
@@ -31,8 +31,8 @@ export default function Profiles() {
 
 type ItemProps = {
     children?: ReactNode
-    id: number
-    onClick?: (arg0: number) => void
+    id: string
+    onClick?: (arg0: string) => void
     active?: boolean
 }
 
