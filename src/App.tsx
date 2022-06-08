@@ -4,11 +4,10 @@ import 'twin.macro'
 import tw from 'twin.macro'
 import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
-import { useTheme } from './hooks/useTheme'
-import ViewsProvider from './components/ViewsProvider'
+import { useTheme } from './features/ui/hooks'
 
 const App = () => {
-    const [theme] = useTheme()
+    const theme = useTheme()
 
     return (
         <>
@@ -24,9 +23,7 @@ const App = () => {
                     `,
                 ]}
             >
-                <ViewsProvider>
-                    <Viewport />
-                </ViewsProvider>
+                <Viewport />
             </div>
         </>
     )

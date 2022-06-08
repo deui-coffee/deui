@@ -1,14 +1,19 @@
 import React from 'react'
 import tw from 'twin.macro'
+import { metrics } from '../consts'
+import { useMetricValue } from '../features/metric/hooks'
+import { MetricId } from '../features/metric/types'
 import Label from './Label'
 
 type Props = {
-    label: string
-    unit: string
-    value: number
+    metricId: MetricId
 }
 
-export default function Metric({ value, unit, label }: Props) {
+export default function Metric({ metricId }: Props) {
+    const value = useMetricValue(metricId)
+
+    const { unit, label } = metrics[metricId]
+
     return (
         <div
             css={[

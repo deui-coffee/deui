@@ -1,12 +1,14 @@
 import React from 'react'
+import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Metric from '../components/Metric'
-import { useViewSetter } from '../contexts/ViewSetterContext'
-import { View } from '../types'
+import { ViewAction } from '../features/view'
+import { ViewId } from '../features/view/types'
+import { MetricId } from '../features/metric/types'
 
 export default function Metrics() {
-    const goto = useViewSetter()
+    const dispatch = useDispatch()
 
     return (
         <div
@@ -64,7 +66,7 @@ export default function Metrics() {
                         my-8
                     `,
                 ]}
-                onClick={() => void goto(View.Profiles)}
+                onClick={() => void dispatch(ViewAction.set(ViewId.Profiles))}
             >
                 <div>Best overall pressure</div>
                 <div
@@ -91,11 +93,11 @@ export default function Metrics() {
                     </svg>
                 </div>
             </button>
-            <Metric label="Metal Temp" value={56} unit="°C" />
-            <Metric label="Pressure" value={0.0} unit="bar" />
-            <Metric label="Flow Rate" value={0.0} unit="ml/s" />
-            <Metric label="Shot Time" value={0.0} unit="s" />
-            <Metric label="Weight" value={0.0} unit="g" />
+            <Metric metricId={MetricId.MetalTemp} />
+            <Metric metricId={MetricId.Pressure} />
+            <Metric metricId={MetricId.FlowRate} />
+            <Metric metricId={MetricId.ShotTime} />
+            <Metric metricId={MetricId.Weight} />
         </div>
     )
 }

@@ -1,17 +1,7 @@
-export enum View {
-    Settings = 'Settings',
-    Metrics = 'Metrics',
-    Profiles = 'Profile chooser',
-}
+import store from './store'
 
-export type State = {
-    view: string | undefined,
-}
+export type State = ReturnType<typeof store.getState>
 
-export enum StoreAction {
-    Init,
-    NextView,
-    PrevView,
-    SetView,
+export enum StorageKey {
+    Theme = 'deui/theme',
 }
-

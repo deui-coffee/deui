@@ -1,11 +1,17 @@
-import React, { useRef, useState } from 'react'
+import React, { useState } from 'react'
 import tw from 'twin.macro'
 import Control from '../components/Control'
 import WaterLevel from '../components/WaterLevel'
 import Select from '../components/Select'
 import Toggle from '../components/Toggle'
-import { useTheme, Theme } from '../hooks/useTheme'
 import { Status } from '../components/StatusIndicator'
+import { useDispatch } from 'react-redux'
+import { Theme } from '../features/ui/types'
+import { useTheme } from '../features/ui/hooks'
+import { UiAction } from '../features/ui'
+import { useMetricValue } from '../features/metric/hooks'
+import { MetricId } from '../features/metric/types'
+import { metrics } from '../consts'
 
 enum Power {
     On = 'on',
@@ -22,7 +28,9 @@ const Scales: [string, string][] = [
 const VisualizerOptions: [string, string][] = [['viewShot', 'View shot']]
 
 export default function Settings() {
-    const [theme, setTheme] = useTheme()
+    const dispatch = useDispatch()
+
+    const theme = useTheme()
 
     const [power, setPower] = useState<Power>(Power.Off)
 
@@ -30,7 +38,13 @@ export default function Settings() {
 
     const [visualizer, setVisualizer] = useState<string | undefined>('viewShot')
 
-    const { current: capacity } = useRef<number>(1000)
+    const capacity = useMetricValue(MetricId.WaterTankCapacity) || 0
+
+    const waterLevel = useMetricValue(MetricId.WaterLevel) || 0
+
+    const { unit: waterLevelUnit } = metrics[MetricId.WaterLevel]
+
+    const { unit: capacityUnit } = metrics[MetricId.WaterLevel]
 
     return (
         <div
@@ -44,11 +58,14 @@ export default function Settings() {
                 label={
                     <>
                         <span>Water tank</span>
-                        <span>{(capacity / 1000).toFixed(1)}L</span>
+                        <span>
+                            {capacity}
+                            {capacityUnit}
+                        </span>
                     </>
                 }
             >
-                <WaterLevel capacity={capacity} unit="ml" value={672} />
+                <WaterLevel capacity={capacity} unit={waterLevelUnit} value={waterLevel} />
             </Control>
             <Control label="Scale">
                 <Select
@@ -69,7 +86,7 @@ export default function Settings() {
             </Control>
             <Control label="Theme">
                 <Toggle
-                    onChange={(newTheme) => void setTheme(newTheme as Theme)}
+                    onChange={(newTheme) => void dispatch(UiAction.setTheme(newTheme as Theme))}
                     options={[
                         [Theme.Dark as string, 'Dark'],
                         [Theme.Light as string, 'Light'],
