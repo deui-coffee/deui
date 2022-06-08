@@ -2,10 +2,10 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import Metric from '../components/Metric'
-import { ViewAction } from '../features/view'
-import { ViewId } from '../features/view/types'
-import { MetricId } from '../features/metric/types'
+import Metric from '../Metric'
+import { ViewAction } from '../../features/view'
+import { ViewId } from '../../features/view/types'
+import { MetricId } from '../../features/metric/types'
 
 export default function Metrics() {
     const dispatch = useDispatch()

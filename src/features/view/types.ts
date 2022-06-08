@@ -1,6 +1,6 @@
-import Settings from '../../pages/Settings'
-import Metrics from '../../pages/Metrics'
-import Profiles from '../../pages/Profiles'
+import SettingsView from '../../components/SettingsView'
+import MetricsView from '../../components/MetricsView'
+import ProfilesView from '../../components/ProfilesView'
 import SettingsIcon from '../../icons/SettingsIcon'
 import MetricsIcon from '../../icons/MetricsIcon'
 import ProfilesIcon from '../../icons/ProfilesIcon'
@@ -18,6 +18,6 @@ export interface ViewState {
 
 export interface View {
     id: ViewId
-    component: typeof Settings | typeof Metrics | typeof Profiles
+    component: typeof SettingsView | typeof MetricsView | typeof ProfilesView
     icon: typeof SettingsIcon | typeof MetricsIcon | typeof ProfilesIcon
 }

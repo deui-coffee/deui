@@ -1,22 +1,20 @@
 import React, { useState } from 'react'
 import tw from 'twin.macro'
-import Control from '../components/Control'
-import WaterLevel from '../components/WaterLevel'
-import Select from '../components/Select'
-import Toggle from '../components/Toggle'
-import { Status } from '../components/StatusIndicator'
+import Control from '../Control'
+import WaterLevel from '../WaterLevel'
+import Select from '../Select'
+import Toggle from '../Toggle'
+import { Status } from '../StatusIndicator'
 import { useDispatch } from 'react-redux'
-import { Theme } from '../features/ui/types'
-import { useTheme } from '../features/ui/hooks'
-import { UiAction } from '../features/ui'
-import { useMetricValue } from '../features/metric/hooks'
-import { MetricId } from '../features/metric/types'
-import { metrics } from '../consts'
-
-enum Power {
-    On = 'on',
-    Off = 'off',
-}
+import { Theme } from '../../features/ui/types'
+import { useTheme } from '../../features/ui/hooks'
+import { UiAction } from '../../features/ui'
+import { useMetricValue } from '../../features/metric/hooks'
+import { MetricId } from '../../features/metric/types'
+import { metrics } from '../../consts'
+import { useAwake } from '../../features/machine/hooks'
+import { Awake } from '../../features/machine/types'
+import { MachineAction } from '../../features/machine'
 
 const Scales: [string, string][] = [
     ['acaia', 'Acaia Lunar'],
@@ -27,12 +25,12 @@ const Scales: [string, string][] = [
 
 const VisualizerOptions: [string, string][] = [['viewShot', 'View shot']]
 
-export default function Settings() {
+export default function SettingsView() {
     const dispatch = useDispatch()
 
     const theme = useTheme()
 
-    const [power, setPower] = useState<Power>(Power.Off)
+    const awake = useAwake()
 
     const [scale, setScale] = useState<string | undefined>()
 
@@ -50,8 +48,8 @@ export default function Settings() {
         <div
             css={[
                 tw`
-          px-14
-        `,
+                    px-14
+                `,
             ]}
         >
             <Control
@@ -96,19 +94,21 @@ export default function Settings() {
             </Control>
             <Control label="Power">
                 <Toggle
-                    status={(p: string) => {
-                        if (p !== power) {
+                    status={(a: string) => {
+                        if (a !== awake || a !== Awake.Yes) {
                             return Status.Idle
                         }
 
-                        return p === Power.On ? Status.Busy : Status.Off
+                        return Status.Busy
                     }}
-                    onChange={(newPower) => void setPower(newPower as Power)}
+                    onChange={(newAwake) =>
+                        void dispatch(MachineAction.setAwake(newAwake as Awake))
+                    }
                     options={[
-                        [Power.Off as string, 'Off'],
-                        [Power.On as string, 'On'],
+                        [Awake.No as string, 'Asleep'],
+                        [Awake.Yes as string, 'Awake'],
                     ]}
-                    value={power}
+                    value={awake}
                 />
             </Control>
         </div>

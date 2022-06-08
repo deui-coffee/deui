@@ -1,26 +1,26 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
+import SettingsView from '../../components/SettingsView'
 import MetricsIcon from '../../icons/MetricsIcon'
 import ProfilesIcon from '../../icons/ProfilesIcon'
 import SettingsIcon from '../../icons/SettingsIcon'
-import Metrics from '../../pages/Metrics'
-import Profiles from '../../pages/Profiles'
-import Settings from '../../pages/Settings'
+import MetricsView from '../../components/MetricsView'
+import ProfilesView from '../../components/ProfilesView'
 import { View, ViewId, ViewState } from './types'
 
 export const lineup: View[] = [
     {
         id: ViewId.Settings,
-        component: Settings,
+        component: SettingsView,
         icon: SettingsIcon,
     },
     {
         id: ViewId.Metrics,
-        component: Metrics,
+        component: MetricsView,
         icon: MetricsIcon,
     },
     {
         id: ViewId.Profiles,
-        component: Profiles,
+        component: ProfilesView,
         icon: ProfilesIcon,
     },
 ]
