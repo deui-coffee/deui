@@ -1,5 +1,7 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import { all } from 'redux-saga/effects'
+import { StorageKey } from '../../types'
+import selectProfile from './sagas/selectProfile.saga'
 import { Awake, MachineState } from './types'
 
 export const MachineAction = {
@@ -28,7 +30,7 @@ const initialState: MachineState = {
         { id: 'profile#7', label: 'DefaultE61 espresso machine' },
         { id: 'profile#8', label: 'Gentle & sweet' },
     ],
-    selectedProfileId: 'profile#2',
+    selectedProfileId: localStorage.getItem(StorageKey.Profile) || 'profile#2',
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -46,7 +48,7 @@ const reducer = createReducer(initialState, (builder) => {
 })
 
 export function* machineSaga() {
-    yield all([])
+    yield all([selectProfile()])
 }
 
 export default reducer
