@@ -1,8 +1,8 @@
+import { MiscAction } from '$/features/misc'
+import useTheme from '$/hooks/useTheme'
+import { Theme } from '$/types'
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { UiAction } from '../../features/ui'
-import { useTheme } from '../../features/ui/hooks'
-import { Theme } from '../../features/ui/types'
 import Control from '../Control'
 import Toggle from '../Toggle'
 
@@ -14,7 +14,9 @@ export default function ThemeControl() {
     return (
         <Control label="Theme">
             <Toggle
-                onChange={(newTheme) => void dispatch(UiAction.setTheme(newTheme as Theme))}
+                onChange={(newTheme) =>
+                    void dispatch(MiscAction.setDarkTheme(newTheme === Theme.Dark))
+                }
                 options={[
                     [Theme.Dark as string, 'Dark'],
                     [Theme.Light as string, 'Light'],

@@ -4,7 +4,7 @@ import 'twin.macro'
 import tw from 'twin.macro'
 import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
-import { useTheme } from './features/ui/hooks'
+import useTheme from '$/hooks/useTheme'
 
 const App = () => {
     const theme = useTheme()
