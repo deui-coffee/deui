@@ -24,8 +24,8 @@ export default function AwakenessControl() {
                 }}
                 onChange={(newAwake) => void dispatch(MachineAction.setAwake(newAwake as Awake))}
                 options={[
-                    [Awake.No as string, 'Asleep'],
-                    [Awake.Yes as string, 'Awake'],
+                    [Awake.Yes as string, 'On'],
+                    [Awake.No as string, 'Sleep'],
                 ]}
                 value={awake}
             />
