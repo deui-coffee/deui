@@ -23,7 +23,7 @@ export default function WaterLevelControl(props: Props) {
             label={
                 <>
                     <span>Water tank</span>
-                    <span css={[tw`md:hidden lg:block`]}>
+                    <span>
                         {capacity}
                         {capacityUnit}
                     </span>

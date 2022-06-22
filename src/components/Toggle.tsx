@@ -92,10 +92,10 @@ export default function Toggle({
                                     items-center
                                     justify-center
                                     rounded-md
-                                    md:bg-white
-                                    md:border
+                                    lg:bg-white
+                                    lg:border
                                     dark:border-0
-                                    md:border-lighter-grey
+                                    lg:border-lighter-grey
                                 `,
                             ]}
                         >

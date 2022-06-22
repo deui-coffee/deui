@@ -89,11 +89,19 @@ export default function Metrics() {
                     </svg>
                 </div>
             </button>
-            <Metric metricId={MetricId.MetalTemp} />
-            <Metric metricId={MetricId.Pressure} />
-            <Metric metricId={MetricId.FlowRate} />
-            <Metric metricId={MetricId.ShotTime} />
-            <Metric metricId={MetricId.Weight} />
+            <div
+                css={[
+                    tw`
+                        [> * + *]:mt-5
+                    `,
+                ]}
+            >
+                <Metric metricId={MetricId.MetalTemp} />
+                <Metric metricId={MetricId.Pressure} />
+                <Metric metricId={MetricId.FlowRate} />
+                <Metric metricId={MetricId.ShotTime} />
+                <Metric metricId={MetricId.Weight} />
+            </div>
         </div>
     )
 }

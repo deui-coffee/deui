@@ -25,7 +25,7 @@ export default function Control({ label, fill = false, pad = false, ...props }: 
                 css={[
                     tw`
                         h-[5.5rem]
-                        md:h-[5rem]
+                        lg:h-[5rem]
                         relative
                         rounded-lg
                     `,

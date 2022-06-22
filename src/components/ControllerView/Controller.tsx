@@ -1,6 +1,8 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
+import Metric from '$/components/Metric'
+import { MetricId } from '$/features/metric/types'
 import { css } from '@emotion/react'
-import React from 'react'
+import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 
 export default function Controller() {
@@ -8,8 +10,9 @@ export default function Controller() {
         <div
             css={[
                 tw`
-                    max-w-[974px]
+                    max-w-[69rem]
                     w-full
+                    px-20
                 `,
             ]}
         >
@@ -34,13 +37,35 @@ export default function Controller() {
                 </div>
             </div>
             <div css={[tw`mt-8`]}>
-                <Control />
+                <Control>
+                    <div
+                        css={[
+                            tw`
+                                h-full
+                                items-center
+                                flex
+                                justify-between
+                                px-10
+
+                                [> *]:-translate-y-1.5
+                            `,
+                        ]}
+                    >
+                        <Metric metricId={MetricId.MetalTemp} />
+                        <Metric metricId={MetricId.Pressure} />
+                        <Metric metricId={MetricId.FlowRate} />
+                        <Metric metricId={MetricId.ShotTime} />
+                        <Metric metricId={MetricId.Weight} />
+                    </div>
+                </Control>
             </div>
         </div>
     )
 }
 
-function Control(props: ControlProps) {
+type WrappedControlProps = ControlProps & HTMLAttributes<HTMLDivElement>
+
+function Control(props: WrappedControlProps) {
     return (
         <PrewrappedControl
             {...props}
@@ -49,7 +74,7 @@ function Control(props: ControlProps) {
                 tw`
                     border
                     border-lighter-grey
-                    md:h-[144px]
+                    lg:h-[144px]
                     dark:border-0
                 `,
             ]}

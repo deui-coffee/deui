@@ -53,8 +53,8 @@ export default function Select({
                     h-full
                     w-full
                     rounded-lg
-                    md:(border border-lighter-grey bg-white)
-                    dark:md:(border-0 bg-darkish-grey)
+                    lg:(border border-lighter-grey bg-white)
+                    dark:lg:(border-0 bg-darkish-grey)
                 `,
             ]}
         >
@@ -84,15 +84,15 @@ export default function Select({
                         w-full
                         font-medium
                         text-medium-grey
-                        md:(text-dark-grey)
+                        lg:(text-dark-grey)
                         dark:(text-medium-grey)
-                        dark:md:(text-lighter-grey)
+                        dark:lg:(text-lighter-grey)
                     `,
                     !!selectedOption &&
                         tw`
                             text-dark-grey
                             dark:(text-lighter-grey)
-                            dark:md:(text-lighter-grey)
+                            dark:lg:(text-lighter-grey)
                         `,
                 ]}
                 type="button"

@@ -24,8 +24,8 @@ const App = () => {
                     `,
                 ]}
             >
-                <ControllerView tw="hidden md:block" />
-                <Viewport tw="md:hidden" />
+                <ControllerView tw="hidden lg:block" />
+                <Viewport tw="lg:hidden" />
             </div>
         </>
     )
