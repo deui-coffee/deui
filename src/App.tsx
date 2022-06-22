@@ -5,13 +5,10 @@ import tw from 'twin.macro'
 import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
-import useMediaQuery from '$/hooks/useMediaQuery'
 import ClockView from '$/components/ClockView'
 
 const App = () => {
     const theme = useTheme()
-
-    const isTablet = useMediaQuery('(min-width: 768px)')
 
     return (
         <>
@@ -27,7 +24,8 @@ const App = () => {
                     `,
                 ]}
             >
-                {isTablet ? <ClockView /> : <Viewport />}
+                <ClockView tw="hidden md:block" />
+                <Viewport tw="md:hidden" />
             </div>
         </>
     )
