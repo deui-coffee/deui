@@ -1,14 +1,16 @@
-import React, { ReactNode } from 'react'
+import React, { HTMLAttributes, ReactNode } from 'react'
 import tw from 'twin.macro'
 import Label from './Label'
 
-type Props = {
-    className?: string
-    children?: ReactNode
+export type ControlProps = {
     label?: ReactNode
+    fill?: boolean
+    pad?: boolean
 }
 
-export default function Control({ label, children }: Props) {
+type Props = ControlProps & HTMLAttributes<HTMLDivElement>
+
+export default function Control({ label, fill = false, pad = false, ...props }: Props) {
     return (
         <div
             css={[
@@ -19,19 +21,17 @@ export default function Control({ label, children }: Props) {
         >
             {!!label && <Label>{label}</Label>}
             <div
+                {...props}
                 css={[
                     tw`
-                        bg-white
-                        dark:bg-black
                         h-[5.5rem]
-                        overflow-hidden
                         relative
                         rounded-lg
                     `,
+                    fill && tw`bg-white dark:bg-black`,
+                    pad && tw`p-2`,
                 ]}
-            >
-                {children}
-            </div>
+            />
         </div>
     )
 }

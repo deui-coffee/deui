@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { HTMLAttributes, useEffect, useState } from 'react'
 import tw from 'twin.macro'
 
 type Time = {
@@ -28,20 +28,22 @@ export default function Clock({ className }: Props) {
                 hour12: true,
             })
 
-            if (recentTime === newTime || !mounted) {
+            if (!mounted) {
                 return
             }
 
-            recentTime = newTime
+            if (recentTime !== newTime) {
+                recentTime = newTime
 
-            const [, hour = '', minute = '', ampm = 'am'] =
-                newTime.toLowerCase().match(/^(\d+):(\d+) (am|pm)$/i) || []
+                const [, hour = '', minute = '', ampm = 'am'] =
+                    newTime.toLowerCase().match(/^(\d+):(\d+) (am|pm)$/i) || []
 
-            setTime({
-                ampm: ampm as Time['ampm'],
-                hour,
-                minute,
-            })
+                setTime({
+                    ampm: ampm as Time['ampm'],
+                    hour,
+                    minute,
+                })
+            }
 
             timeout = window.setTimeout(tick, 1000)
         }
@@ -71,23 +73,78 @@ export default function Clock({ className }: Props) {
         <div
             css={[
                 tw`
+                    select-none
                     text-[200px]
+                    flex
+                    text-dark-grey
+                    dark:text-lighter-grey
                 `,
             ]}
         >
-            {/* @TODO: Make sure digits take equal amount of space, horizontally. #no-jumping */}
-            {time.hour}:{time.minute}
-            <span
+            <div css={[tw`flex`]}>
+                <Digits>{time.hour}</Digits>
+                <Char css={[tw`w-[0.3em]`]}>:</Char>
+                <Digits>{time.minute}</Digits>
+            </div>
+            <div>
+                <span
+                    css={[
+                        tw`
+                            font-medium
+                            text-[2rem]
+                            uppercase
+                            text-light-grey
+                            dark:text-medium-grey
+                        `,
+                    ]}
+                >
+                    {time.ampm}
+                </span>
+            </div>
+        </div>
+    )
+}
+
+interface DigitsProps {
+    children: string
+}
+
+function Digits({ children }: DigitsProps) {
+    return (
+        <>
+            {children.split('').map((d, i) => (
+                <Char key={`${d}-${i}`}>{d}</Char>
+            ))}
+        </>
+    )
+}
+
+function Char({ children, ...props }: HTMLAttributes<HTMLDivElement>) {
+    return (
+        <div
+            {...props}
+            css={[
+                tw`
+                    w-[0.55em]
+                    text-center
+                    relative
+                `,
+            ]}
+        >
+            &zwnj;
+            <div
                 css={[
                     tw`
-                        text-[2rem]
-                        opacity-50
-                        uppercase
+                        absolute
+                        top-1/2
+                        left-1/2
+                        -translate-x-1/2
+                        -translate-y-1/2
                     `,
                 ]}
             >
-                {time.ampm}
-            </span>
+                {children}
+            </div>
         </div>
     )
 }

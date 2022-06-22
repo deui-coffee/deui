@@ -2,11 +2,11 @@ import React from 'react'
 import { useDispatch } from 'react-redux'
 import { MachineAction } from '../../features/machine'
 import { useScales, useSelectedScaleId } from '../../features/machine/hooks'
-import Control from '../Control'
+import Control, { ControlProps } from '../Control'
 import Select from '../Select'
 import { Status } from '../StatusIndicator'
 
-export default function ScaleControl() {
+export default function ScaleControl({ label = 'Scale', ...props }: ControlProps) {
     const selectedScaleId = useSelectedScaleId()
 
     const scales = useScales()
@@ -14,7 +14,7 @@ export default function ScaleControl() {
     const dispatch = useDispatch()
 
     return (
-        <Control label="Scale">
+        <Control {...props} label={label}>
             <Select
                 onChange={(scaleId) => void dispatch(MachineAction.selectScale(scaleId))}
                 options={scales.map(({ id, label }) => ({

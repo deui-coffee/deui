@@ -1,27 +1,24 @@
+import React from 'react'
 import { MiscAction } from '$/features/misc'
 import useTheme from '$/hooks/useTheme'
 import { Theme } from '$/types'
-import React from 'react'
 import { useDispatch } from 'react-redux'
-import Control from '../Control'
+import Control, { ControlProps } from '../Control'
 import Toggle from '../Toggle'
 
-export default function ThemeControl() {
+const labels = ['Light', 'Dark']
+
+export default function ThemeControl({ label = 'Theme', ...props }: ControlProps) {
     const dispatch = useDispatch()
 
-    const theme = useTheme()
+    const isDark = useTheme() === Theme.Dark
 
     return (
-        <Control label="Theme">
+        <Control {...props} label={label}>
             <Toggle
-                onChange={(newTheme) =>
-                    void dispatch(MiscAction.setDarkTheme(newTheme === Theme.Dark))
-                }
-                options={[
-                    [Theme.Dark as string, 'Dark'],
-                    [Theme.Light as string, 'Light'],
-                ]}
-                value={theme}
+                onChange={(state) => void dispatch(MiscAction.setDarkTheme(state))}
+                labels={labels}
+                value={isDark}
             />
         </Control>
     )

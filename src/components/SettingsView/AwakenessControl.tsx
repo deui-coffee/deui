@@ -1,33 +1,39 @@
 import React from 'react'
+import Control, { ControlProps } from '$/components/Control'
 import { useDispatch } from 'react-redux'
 import { MachineAction } from '../../features/machine'
 import { useAwake } from '../../features/machine/hooks'
 import { Awake } from '../../features/machine/types'
-import Control from '../Control'
 import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
 
-export default function AwakenessControl() {
-    const awake = useAwake()
+const labels = ['Sleep']
+
+export default function AwakenessControl({ label = 'Power', ...props }: ControlProps) {
+    const isOn = useAwake() === Awake.Yes
 
     const dispatch = useDispatch()
 
     return (
-        <Control label="State">
+        <Control {...props} label={label}>
             <Toggle
-                status={(a: string) => {
-                    if (a !== awake || a !== Awake.Yes) {
+                status={(a: boolean) => {
+                    if (a !== isOn) {
                         return Status.Idle
                     }
 
-                    return Status.Busy
+                    if (!a) {
+                        return Status.Off
+                    }
+
+                    return Status.On
                 }}
-                onChange={(newAwake) => void dispatch(MachineAction.setAwake(newAwake as Awake))}
-                options={[
-                    [Awake.Yes as string, 'On'],
-                    [Awake.No as string, 'Sleep'],
-                ]}
-                value={awake}
+                onChange={(state) =>
+                    void dispatch(MachineAction.setAwake(state ? Awake.Yes : Awake.No))
+                }
+                labels={labels}
+                value={isOn}
+                reverse
             />
         </Control>
     )
