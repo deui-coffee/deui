@@ -47,7 +47,13 @@ export default function Toolbar() {
                     </>
                 ) : (
                     <>
-                        <Pane />
+                        <Pane
+                            css={[
+                                css`
+                                    flex-basis: 50%;
+                                `,
+                            ]}
+                        />
                         <Pane>
                             <ThemeControl />
                         </Pane>
@@ -61,7 +67,7 @@ export default function Toolbar() {
     )
 }
 
-function Pane(props: HTMLAttributes<HTMLDivElement>) {
+function Pane({ children, ...props }: HTMLAttributes<HTMLDivElement>) {
     return (
         <div
             {...props}
@@ -71,22 +77,33 @@ function Pane(props: HTMLAttributes<HTMLDivElement>) {
 
                     :empty {
                         flex-grow: 1;
-                        flex-basis: auto;
                     }
                 `,
                 tw`
-                    bg-[#fafafa]
-                    dark:bg-black
                     h-full
-                    px-6
-                    pb-6
-                    flex
-                    flex-col
-                    justify-end
+                    flex-shrink-0
 
-                    [& + *]:ml-[1px]
+                    [& + *]:pl-[1px]
                 `,
             ]}
-        />
+        >
+            <div
+                css={[
+                    tw`
+                        flex
+                        flex-col
+                        justify-end
+                        bg-[#fafafa]
+                        h-full
+                        w-full
+                        px-6
+                        pb-6
+                        dark:bg-black
+                    `,
+                ]}
+            >
+                {children}
+            </div>
+        </div>
     )
 }

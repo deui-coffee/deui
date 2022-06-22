@@ -6,3 +6,7 @@ export interface MiscState {
         dark?: true
     }
 }
+
+export enum Flag {
+    IsProfilesDrawerOpen = 'profile drawer',
+}

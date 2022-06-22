@@ -1,11 +1,17 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
+import { useProfileLabel } from '$/features/machine/hooks'
 import { MetricId } from '$/features/metric/types'
+import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 
 export default function Controller() {
+    const profileLabel = useProfileLabel()
+
+    const toggleProfilesDrawer = useToggleProfilesDrawer()
+
     return (
         <div
             css={[
@@ -29,11 +35,67 @@ export default function Controller() {
                     `,
                 ]}
             >
-                <div css={[tw`px-4`]}>
+                <div css={[tw`px-4 flex-shrink-0`]}>
                     <Control label="Function" />
                 </div>
-                <div css={[tw`px-4`]}>
-                    <Control label="Profile" />
+                <div css={[tw`px-4 flex-shrink-0 min-w-0`]}>
+                    <Control label="Profile">
+                        <button
+                            onClick={() => void toggleProfilesDrawer(true)}
+                            type="button"
+                            css={[
+                                css`
+                                    -webkit-tap-highlight-color: transparent;
+                                `,
+                                tw`
+                                    outline-none
+                                    appearance-none
+                                    h-full
+                                    w-full
+                                    text-left
+                                    flex
+                                    items-center
+                                    px-10
+                                    font-medium
+                                    text-[1.75rem]
+                                    text-dark-grey
+                                    dark:text-lighter-grey
+                                `,
+                            ]}
+                        >
+                            <div
+                                css={[
+                                    tw`
+                                        flex-grow
+                                        min-w-0
+                                        truncate
+                                    `,
+                                ]}
+                            >
+                                {profileLabel}
+                            </div>
+                            <div
+                                css={[
+                                    tw`
+                                        ml-6
+                                    `,
+                                ]}
+                            >
+                                <svg
+                                    width="21"
+                                    height="13"
+                                    viewBox="0 0 21 13"
+                                    fill="none"
+                                    xmlns="http://www.w3.org/2000/svg"
+                                >
+                                    <path
+                                        d="M20.031 1.054a1.5 1.5 0 0 1 0 2.122l-8.485 8.485a1.5 1.5 0 0 1-2.121 0L.939 3.176a1.5 1.5 0 1 1 2.122-2.122l7.424 7.425 7.425-7.425a1.5 1.5 0 0 1 2.121 0z"
+                                        fill="currentColor"
+                                    />
+                                </svg>
+                            </div>
+                        </button>
+                    </Control>
                 </div>
             </div>
             <div css={[tw`mt-8`]}>

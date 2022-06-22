@@ -8,3 +8,7 @@ function selectSelf(state: State) {
 export const selectTheme = createSelector(selectSelf, ({ ui: { dark } }) =>
     dark ? Theme.Dark : Theme.Light
 )
+
+export function selectFlag(key: string) {
+    return createSelector(selectSelf, ({ flags }) => Boolean(flags[key]))
+}

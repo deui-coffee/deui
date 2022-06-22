@@ -6,6 +6,7 @@ import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
 import ControllerView from '$/components/ControllerView'
+import ProfilesDrawer from '$/components/ProfilesDrawer'
 
 const App = () => {
     const theme = useTheme()
@@ -27,6 +28,7 @@ const App = () => {
                 <ControllerView tw="hidden lg:block" />
                 <Viewport tw="lg:hidden" />
             </div>
+            <ProfilesDrawer />
         </>
     )
 }
