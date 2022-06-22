@@ -10,7 +10,9 @@ export const MiscAction = {
 
 const initialState: MiscState = {
     flags: {},
-    ui: {},
+    ui: {
+        dark: true,
+    },
 }
 
 const reducer = createReducer(initialState, (builder) => {
