@@ -1,10 +1,15 @@
 import React from 'react'
-import Clock from '$/components/Clock'
-import Toolbar from '$/components/ClockView/Toolbar'
+import Toolbar from '$/components/ControllerView/Toolbar'
 import { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
+import Clock from '$/components/ControllerView/Clock'
+import { useAwake } from '$/features/machine/hooks'
+import { Awake } from '$/features/machine/types'
+import Controller from '$/components/ControllerView/Controller'
 
-export default function ClockView(props: HTMLAttributes<HTMLDivElement>) {
+export default function ControllerView(props: HTMLAttributes<HTMLDivElement>) {
+    const isOn = useAwake() === Awake.Yes
+
     return (
         <div
             {...props}
@@ -13,6 +18,7 @@ export default function ClockView(props: HTMLAttributes<HTMLDivElement>) {
                     w-full
                     h-full
                     relative
+                    bg-off-white
                     dark:bg-dark-grey
                 `,
             ]}
@@ -36,7 +42,7 @@ export default function ClockView(props: HTMLAttributes<HTMLDivElement>) {
                         `,
                     ]}
                 >
-                    <Clock />
+                    {isOn ? <Controller /> : <Clock />}
                 </div>
             </div>
             <Toolbar />

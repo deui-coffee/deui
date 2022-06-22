@@ -5,7 +5,7 @@ import tw from 'twin.macro'
 import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
-import ClockView from '$/components/ClockView'
+import ControllerView from '$/components/ControllerView'
 
 const App = () => {
     const theme = useTheme()
@@ -24,7 +24,7 @@ const App = () => {
                     `,
                 ]}
             >
-                <ClockView tw="hidden md:block" />
+                <ControllerView tw="hidden md:block" />
                 <Viewport tw="md:hidden" />
             </div>
         </>

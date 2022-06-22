@@ -9,6 +9,7 @@ const Label = tw.label`
     text-label
     text-light-grey
     uppercase
+    select-none
 `
 
 export default Label
