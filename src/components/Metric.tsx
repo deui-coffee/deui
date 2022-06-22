@@ -33,7 +33,14 @@ export default function Metric({ metricId, ...props }: Props) {
                       `,
                 ]}
             >
-                <span>
+                <span
+                    css={[
+                        tw`
+                            text-dark-grey
+                            dark:text-lighter-grey
+                        `,
+                    ]}
+                >
                     {metricId === MetricId.MetalTemp || typeof value === 'undefined'
                         ? value
                         : value.toFixed(1)}
