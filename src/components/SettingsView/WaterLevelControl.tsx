@@ -1,4 +1,5 @@
 import React from 'react'
+import tw from 'twin.macro'
 import { metrics } from '../../consts'
 import { useMetricValue } from '../../features/metric/hooks'
 import { MetricId } from '../../features/metric/types'
@@ -22,7 +23,7 @@ export default function WaterLevelControl(props: Props) {
             label={
                 <>
                     <span>Water tank</span>
-                    <span>
+                    <span css={[tw`md:hidden lg:block`]}>
                         {capacity}
                         {capacityUnit}
                     </span>

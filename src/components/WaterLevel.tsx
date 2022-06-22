@@ -15,9 +15,17 @@ export default function WaterLevel({ value = 0, capacity = 1500, unit = 'ml' }: 
         <div
             css={[
                 tw`
+                    font-medium
                     h-full
                     relative
                     w-full
+                    rounded-lg
+                    overflow-hidden
+                    md:border
+                    md:border-lighter-grey
+                    dark:md:border-0
+                    md:bg-white
+                    dark:md:bg-darkish-grey
                 `,
             ]}
         >
@@ -26,6 +34,8 @@ export default function WaterLevel({ value = 0, capacity = 1500, unit = 'ml' }: 
                     tw`
                         absolute
                         bg-blue
+                        md:bg-[#CAE6FF]
+                        dark:md:bg-dark-blue
                         h-full
                         left-0
                         top-0
@@ -41,11 +51,11 @@ export default function WaterLevel({ value = 0, capacity = 1500, unit = 'ml' }: 
                         -translate-x-1/2
                         -translate-y-1/2
                         absolute
-                        font-bold
-                        font-medium
                         left-1/2
-                        text-t1
+                        text-[1.25rem]
                         top-1/2
+                        text-darker-grey
+                        dark:text-lighter-grey
                     `,
                 ]}
             >
@@ -53,9 +63,9 @@ export default function WaterLevel({ value = 0, capacity = 1500, unit = 'ml' }: 
                 <span
                     css={[
                         tw`
-                            font-normal
                             ml-1
                             text-light-grey
+                            dark:text-medium-grey
                         `,
                     ]}
                 >

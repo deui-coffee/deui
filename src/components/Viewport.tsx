@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Page from './Page'
@@ -9,7 +9,7 @@ import { useViewId, useViewIndex } from '../features/view/hooks'
 
 const count = lineup.length
 
-export default function Viewport() {
+export default function Viewport(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
 
     const handlers = useSwipeable({
@@ -27,7 +27,7 @@ export default function Viewport() {
     const viewId = useViewId()
 
     return (
-        <>
+        <div {...props}>
             {/* Viewport */}
             <div
                 {...handlers}
@@ -143,6 +143,6 @@ export default function Viewport() {
                     </li>
                 ))}
             </ul>
-        </>
+        </div>
     )
 }

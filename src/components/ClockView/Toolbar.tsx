@@ -5,6 +5,9 @@ import tw from 'twin.macro'
 import ThemeControl from '$/components/SettingsView/ThemeControl'
 import { useAwake } from '$/features/machine/hooks'
 import { Awake } from '$/features/machine/types'
+import WaterLevelControl from '$/components/SettingsView/WaterLevelControl'
+import ScaleControl from '$/components/SettingsView/ScaleControl'
+import VisualizerControl from '$/components/SettingsView/VisualizerControl'
 
 export default function Toolbar() {
     const isOn = useAwake() === Awake.Yes
@@ -30,18 +33,28 @@ export default function Toolbar() {
                     `,
                 ]}
             >
-                <Pane />
                 {isOn ? (
-                    <></>
-                ) : (
                     <>
                         <Pane>
-                            <ThemeControl tw="h-20" />
+                            <VisualizerControl />
+                        </Pane>
+                        <Pane>
+                            <ScaleControl />
+                        </Pane>
+                        <Pane>
+                            <WaterLevelControl />
+                        </Pane>
+                    </>
+                ) : (
+                    <>
+                        <Pane />
+                        <Pane>
+                            <ThemeControl />
                         </Pane>
                     </>
                 )}
                 <Pane>
-                    <AwakenessControl tw="h-20" />
+                    <AwakenessControl />
                 </Pane>
             </div>
         </div>

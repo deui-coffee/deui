@@ -105,6 +105,7 @@ export default function Toggle({
                                     key={v}
                                     css={[
                                         tw`
+                                            text-[1.25rem]
                                             text-dark-grey
                                             dark:text-lighter-grey
                                             font-medium
@@ -158,6 +159,7 @@ function Item({ value = false, children, onClick, ...props }: ItemProps) {
                     -webkit-tap-highlight-color: transparent;
                 `,
                 tw`
+                    text-[1.25rem]
                     appearance-none
                     outline-none
                     w-full

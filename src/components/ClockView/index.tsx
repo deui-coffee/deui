@@ -1,10 +1,13 @@
+import React from 'react'
 import Clock from '$/components/Clock'
 import Toolbar from '$/components/ClockView/Toolbar'
+import { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 
-export default function ClockView() {
+export default function ClockView(props: HTMLAttributes<HTMLDivElement>) {
     return (
         <div
+            {...props}
             css={[
                 tw`
                     w-full
