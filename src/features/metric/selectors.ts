@@ -7,5 +7,5 @@ function selectSelf(state: State): MetricState {
 }
 
 export function selectMetric(metricId: MetricId) {
-    return createSelector(selectSelf, ({ items }) => items[metricId])
+    return createSelector(selectSelf, (substate) => substate[metricId])
 }

@@ -6,20 +6,18 @@ export const MetricAction = {
 }
 
 const initialState: MetricState = {
-    items: {
-        [MetricId.MetalTemp]: 56,
-        [MetricId.Pressure]: 0.0,
-        [MetricId.FlowRate]: 0.0,
-        [MetricId.ShotTime]: 0.0,
-        [MetricId.Weight]: 0.0,
-        [MetricId.WaterLevel]: 672,
-        [MetricId.WaterTankCapacity]: 1400,
-    },
+    [MetricId.MetalTemp]: 56,
+    [MetricId.Pressure]: 0.0,
+    [MetricId.FlowRate]: 0.0,
+    [MetricId.ShotTime]: 0.0,
+    [MetricId.Weight]: 0.0,
+    [MetricId.WaterLevel]: 672,
+    [MetricId.WaterTankCapacity]: 1400,
 }
 
 const reducer = createReducer(initialState, (builder) => {
     builder.addCase(MetricAction.set, (state, { payload: { metricId, value } }) => {
-        state.items[metricId] = value
+        state[metricId] = value
     })
 })
 

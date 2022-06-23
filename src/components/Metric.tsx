@@ -1,24 +1,24 @@
-import React from 'react'
+import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { metrics } from '../consts'
 import { useMetricValue } from '../features/metric/hooks'
 import { MetricId } from '../features/metric/types'
 import Label from './Label'
 
-type Props = {
+type Props = HTMLAttributes<HTMLDivElement> & {
     metricId: MetricId
 }
 
-export default function Metric({ metricId }: Props) {
+export default function Metric({ metricId, ...props }: Props) {
     const value = useMetricValue(metricId)
 
     const { unit, label } = metrics[metricId]
 
     return (
         <div
+            {...props}
             css={[
                 tw`
-                    [& + &]:mt-5
                     font-medium
                 `,
             ]}
@@ -29,10 +29,22 @@ export default function Metric({ metricId }: Props) {
                     tw`
                         -mt-1
                         text-t2
+                        lg:text-[2.5rem]
                       `,
                 ]}
             >
-                <span>{value}</span>
+                <span
+                    css={[
+                        tw`
+                            text-dark-grey
+                            dark:text-lighter-grey
+                        `,
+                    ]}
+                >
+                    {metricId === MetricId.MetalTemp || typeof value === 'undefined'
+                        ? value
+                        : value.toFixed(1)}
+                </span>
                 <span
                     css={[
                         tw`

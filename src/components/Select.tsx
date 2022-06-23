@@ -52,6 +52,9 @@ export default function Select({
                     relative
                     h-full
                     w-full
+                    rounded-lg
+                    lg:(border border-lighter-grey bg-white)
+                    dark:lg:(border-0 bg-darkish-grey)
                 `,
             ]}
         >
@@ -79,8 +82,18 @@ export default function Select({
                         justify-center
                         text-t0
                         w-full
+                        font-medium
+                        text-medium-grey
+                        lg:(text-dark-grey)
+                        dark:(text-medium-grey)
+                        dark:lg:(text-lighter-grey)
                     `,
-                    !selectedOption && tw`text-medium-grey`,
+                    !!selectedOption &&
+                        tw`
+                            text-dark-grey
+                            dark:(text-lighter-grey)
+                            dark:lg:(text-lighter-grey)
+                        `,
                 ]}
                 type="button"
                 onClick={onClick}

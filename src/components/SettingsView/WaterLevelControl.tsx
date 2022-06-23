@@ -1,11 +1,14 @@
 import React from 'react'
+import tw from 'twin.macro'
 import { metrics } from '../../consts'
 import { useMetricValue } from '../../features/metric/hooks'
 import { MetricId } from '../../features/metric/types'
-import Control from '../Control'
+import Control, { ControlProps } from '../Control'
 import WaterLevel from '../WaterLevel'
 
-export default function WaterLevelControl() {
+type Props = Omit<ControlProps, 'label'>
+
+export default function WaterLevelControl(props: Props) {
     const capacity = useMetricValue(MetricId.WaterTankCapacity) || 0
 
     const waterLevel = useMetricValue(MetricId.WaterLevel) || 0
@@ -16,6 +19,7 @@ export default function WaterLevelControl() {
 
     return (
         <Control
+            {...props}
             label={
                 <>
                     <span>Water tank</span>

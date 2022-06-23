@@ -1,17 +1,26 @@
-import React, { ReactNode, useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState, useRef, ButtonHTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
 
 type Props = {
-    options: [[string, string], [string, string]]
-    value: string
-    onChange?: (arg0: string) => void
-    status?: Status | ((arg0: string) => Status)
+    labels?: string[]
+    value?: boolean
+    onChange?: (arg0: boolean) => void
+    status?: Status | ((arg0: boolean) => Status)
+    reverse?: boolean
 }
 
-export default function Toggle({ options, value: valueProp, onChange, status: statusProp }: Props) {
-    const [value, setValue] = useState<string>(valueProp)
+export default function Toggle({
+    labels: [offLabel = 'Off', onLabel = 'On'] = [],
+    value: valueProp = false,
+    onChange,
+    status: statusProp,
+    reverse = false,
+}: Props) {
+    const [value, setValue] = useState<boolean>(valueProp)
+
+    const lineup = reverse ? [1, 0] : [0, 1]
 
     const status = typeof statusProp === 'function' ? statusProp(value) : statusProp || Status.None
 
@@ -35,19 +44,17 @@ export default function Toggle({ options, value: valueProp, onChange, status: st
         []
     )
 
-    function onItemClick(newValue: string) {
+    function onItemClick(newValue: boolean) {
         setValue(newValue)
 
         clearTimeout(commitTimeoutRef.current)
 
-        commitTimeoutRef.current = setTimeout(() => {
+        commitTimeoutRef.current = window.setTimeout(() => {
             if (typeof onChangeRef.current === 'function') {
                 onChangeRef.current(newValue)
             }
         }, 500)
     }
-
-    const isOn = options.findIndex(([w]) => w === value) === 1
 
     return (
         <div
@@ -55,84 +62,108 @@ export default function Toggle({ options, value: valueProp, onChange, status: st
                 tw`
                     h-full
                     relative
+                    -mx-1
                 `,
             ]}
         >
-            <div tw="h-full w-full absolute p-2 pointer-events-none z-10">
+            <div tw="h-full w-full absolute pointer-events-none z-10">
                 <div
                     css={[
                         tw`
                             duration-200
                             ease-linear
                             h-full
-                            p-1
-                            relative
                             transition-transform
                             w-1/2
+                            px-1
                         `,
-                        isOn === true && tw`translate-x-full`,
+                        value !== reverse && tw`translate-x-full`,
                     ]}
                 >
-                    <StatusIndicator tw="absolute right-3 top-3" value={status} />
-                    <div
-                        css={[
-                            tw`
-                                bg-off-white
-                                dark:bg-darkish-grey
-                                flex
-                                h-full
-                                items-center
-                                justify-center
-                                rounded-md
-                            `,
-                        ]}
-                    >
-                        &zwnj;
-                        {options.map(([v, label]) => (
-                            <span
-                                key={`${v}`}
-                                tw="absolute"
-                                css={[
-                                    tw`transition-opacity duration-200`,
-                                    value !== v && tw`opacity-0`,
-                                ]}
-                            >
-                                {label}
-                            </span>
-                        ))}
+                    <div css={[tw`relative w-full h-full`]}>
+                        <StatusIndicator css={[tw`absolute right-2 top-2`]} value={status} />
+                        <div
+                            css={[
+                                tw`
+                                    bg-off-white
+                                    dark:bg-darkish-grey
+                                    flex
+                                    h-full
+                                    items-center
+                                    justify-center
+                                    rounded-md
+                                    lg:bg-white
+                                    lg:border
+                                    dark:border-0
+                                    lg:border-lighter-grey
+                                `,
+                            ]}
+                        >
+                            &zwnj;
+                            {lineup.map((v) => (
+                                <span
+                                    key={v}
+                                    css={[
+                                        tw`
+                                            text-[1.25rem]
+                                            text-dark-grey
+                                            dark:text-lighter-grey
+                                            font-medium
+                                            absolute
+                                            transition-opacity
+                                            duration-200
+                                        `,
+                                        value === Boolean(v) ? tw`opacity-100` : tw`opacity-0`,
+                                    ]}
+                                >
+                                    {v ? onLabel : offLabel}
+                                </span>
+                            ))}
+                        </div>
                     </div>
                 </div>
             </div>
-            <div tw="flex h-full p-2">
-                {options.map(([v, label]) => (
-                    <Item key={`${v}`} value={v} onClick={onItemClick}>
-                        {label}
-                    </Item>
+            <div tw="flex h-full">
+                {lineup.map((v) => (
+                    <div
+                        key={v}
+                        css={[
+                            tw`
+                                flex-zz-half
+                                h-full
+                                px-1
+                            `,
+                        ]}
+                    >
+                        <Item onClick={onItemClick} value={Boolean(v)}>
+                            {v ? onLabel : offLabel}
+                        </Item>
+                    </div>
                 ))}
             </div>
         </div>
     )
 }
 
-type ItemProps = {
-    children: ReactNode
-    onClick?: (arg0: string) => void
-    value: string
+type ItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClick' | 'type'> & {
+    onClick?: (arg0: boolean) => void
+    value?: boolean
 }
 
-function Item({ value, children, onClick }: ItemProps) {
+function Item({ value = false, children, onClick, ...props }: ItemProps) {
     return (
         <button
+            {...props}
             css={[
                 css`
                     -webkit-tap-highlight-color: transparent;
                 `,
                 tw`
+                    text-[1.25rem]
                     appearance-none
-                    flex-zz-half
-                    h-full
                     outline-none
-                    p-1
+                    w-full
+                    h-full
                 `,
             ]}
             type="button"
@@ -145,14 +176,16 @@ function Item({ value, children, onClick }: ItemProps) {
             <div
                 css={[
                     tw`
+                        text-light-grey
+                        dark:text-medium-grey
                         duration-200
                         ease-linear
                         flex
                         h-full
                         items-center
                         justify-center
-                        opacity-50
                         rounded-md
+                        font-medium
                     `,
                 ]}
             >

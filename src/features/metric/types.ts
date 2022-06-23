@@ -16,7 +16,5 @@ export interface Metric {
 }
 
 export interface MetricState {
-    items: {
-        [metric: string]: MetricValue
-    }
+    [metric: string]: MetricValue
 }
