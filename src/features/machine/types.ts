@@ -4,6 +4,13 @@ export enum Awake {
     Yes = 'yes',
 }
 
+export enum ModeId {
+    Espresso,
+    Flush,
+    Water,
+    Steam,
+}
+
 export interface Profile {
     id: ProfileId
     label: string
@@ -17,6 +24,7 @@ export interface MachineState {
     selectedScaleId: undefined | ScaleId
     profiles: Profile[]
     selectedProfileId: ProfileId
+    modeId: ModeId
 }
 
 export type ScaleId = string

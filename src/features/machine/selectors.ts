@@ -21,3 +21,5 @@ export const selectSelectedProfileId = createSelector(
     selectSelf,
     ({ selectedProfileId }) => selectedProfileId
 )
+
+export const selectModeId = createSelector(selectSelf, ({ modeId }) => modeId)

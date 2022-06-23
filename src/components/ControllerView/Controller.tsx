@@ -1,5 +1,6 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
+import Revolver from '$/components/Revolver'
 import { useProfileLabel } from '$/features/machine/hooks'
 import { MetricId } from '$/features/metric/types'
 import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
@@ -36,7 +37,9 @@ export default function Controller() {
                 ]}
             >
                 <div css={[tw`px-4 flex-shrink-0`]}>
-                    <Control label="Function" />
+                    <Control label="Function">
+                        <Revolver />
+                    </Control>
                 </div>
                 <div css={[tw`px-4 flex-shrink-0 min-w-0`]}>
                     <Control label="Profile">
