@@ -33,9 +33,15 @@ function Item({ modeId, onClick, ...props }: ItemProps) {
                     h-[70px]
                     top-0
                     left-0
-                    text-medium-grey
+                    font-medium
+                    text-light-grey
+                    dark:text-medium-grey
                 `,
-                active && tw`text-lighter-grey`,
+                active &&
+                    tw`
+                        text-dark-grey
+                        dark:text-lighter-grey
+                    `,
             ]}
             onClick={() => {
                 if (typeof onClick === 'function') {
