@@ -61,7 +61,7 @@ const n = lineup.length
 const limit = 500
 
 export default function Revolver() {
-    const [phase, setPhase] = useState<number>(0)
+    const [phase, setPhase] = useState<number>(useModeId())
 
     const dispatch = useDispatch()
 
