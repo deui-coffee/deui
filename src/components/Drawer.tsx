@@ -1,7 +1,8 @@
+import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import useFlag from '$/hooks/useFlag'
-import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
-import React, { HTMLAttributes, useEffect, useRef } from 'react'
+import React, { HTMLAttributes, useCallback, useEffect, useRef } from 'react'
+import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
@@ -11,7 +12,19 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 export default function Drawer({ openFlag, children, ...props }: Props) {
     const open = useFlag(openFlag)
 
-    const toggle = useToggleProfilesDrawer()
+    const dispatch = useDispatch()
+
+    const toggle = useCallback(
+        (value: boolean) => {
+            dispatch(
+                MiscAction.setFlag({
+                    key: openFlag,
+                    value,
+                })
+            )
+        },
+        [openFlag]
+    )
 
     const bodyRef = useRef<HTMLDivElement>(null)
 
@@ -26,8 +39,6 @@ export default function Drawer({ openFlag, children, ...props }: Props) {
             if (!bodyRef.current || bodyRef.current.contains(e.target as Element)) {
                 return
             }
-
-            console.log(e.target, bodyRef.current)
 
             toggle(false)
         }

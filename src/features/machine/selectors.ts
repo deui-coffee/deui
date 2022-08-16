@@ -23,3 +23,8 @@ export const selectSelectedProfileId = createSelector(
 )
 
 export const selectModeId = createSelector(selectSelf, ({ modeId }) => modeId)
+
+export const selectConnectedMachine = createSelector(
+    selectSelf,
+    ({ connectedMachine }) => connectedMachine
+)

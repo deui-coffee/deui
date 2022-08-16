@@ -2,7 +2,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { all } from 'redux-saga/effects'
 import { StorageKey } from '../../types'
 import selectProfile from './sagas/selectProfile.saga'
-import { Awake, MachineState, ModeId } from './types'
+import { Awake, Machine, MachineState, ModeId } from './types'
 
 export const MachineAction = {
     setAwake: createAction<Awake>('machine: set awake'),
@@ -12,6 +12,8 @@ export const MachineAction = {
     selectProfile: createAction<MachineState['selectedProfileId']>('machine: select profile'),
 
     setModeId: createAction<ModeId>('machine: set mode id'),
+
+    setConnectedMachine: createAction<undefined | Machine>('machine: set connected machine'),
 }
 
 const initialState: MachineState = {
@@ -36,6 +38,7 @@ const initialState: MachineState = {
     ],
     selectedProfileId: localStorage.getItem(StorageKey.Profile) || 'profile#2',
     modeId: ModeId.Espresso,
+    connectedMachine: undefined,
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -53,6 +56,10 @@ const reducer = createReducer(initialState, (builder) => {
 
     builder.addCase(MachineAction.setModeId, (state, { payload: modeId }) => {
         state.modeId = modeId
+    })
+
+    builder.addCase(MachineAction.setConnectedMachine, (state, { payload: connectedMachine }) => {
+        state.connectedMachine = connectedMachine
     })
 })
 

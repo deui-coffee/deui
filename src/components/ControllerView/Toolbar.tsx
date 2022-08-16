@@ -8,9 +8,17 @@ import { Awake } from '$/features/machine/types'
 import WaterLevelControl from '$/components/SettingsView/WaterLevelControl'
 import ScaleControl from '$/components/SettingsView/ScaleControl'
 import VisualizerControl from '$/components/SettingsView/VisualizerControl'
+import useConnectedMachine from '$/hooks/useConnectedMachine'
+import { useDispatch } from 'react-redux'
+import { MiscAction } from '$/features/misc'
+import { Flag } from '$/features/misc/types'
+import useFlag from '$/hooks/useFlag'
+import useCafeHubClientState from '$/hooks/useCafeHubClientState'
+import { CafeHubClientState } from 'cafehub-client/types'
+import { CafeHubAction } from '$/features/cafehub'
 
 export default function Toolbar() {
-    const isOn = useAwake() === Awake.Yes
+    const isConnected = Boolean(useConnectedMachine())
 
     return (
         <div
@@ -33,37 +41,104 @@ export default function Toolbar() {
                     `,
                 ]}
             >
-                {isOn ? (
-                    <>
-                        <Pane>
-                            <VisualizerControl />
-                        </Pane>
-                        <Pane>
-                            <ScaleControl />
-                        </Pane>
-                        <Pane>
-                            <WaterLevelControl />
-                        </Pane>
-                    </>
-                ) : (
-                    <>
-                        <Pane
-                            css={[
-                                css`
-                                    flex-basis: 50%;
-                                `,
-                            ]}
-                        />
-                        <Pane>
-                            <ThemeControl />
-                        </Pane>
-                    </>
-                )}
-                <Pane>
-                    <AwakenessControl />
-                </Pane>
+                {isConnected ? <ConnectedPanes /> : <DisconnectedPanes />}
             </div>
         </div>
+    )
+}
+
+function DisconnectedPanes() {
+    const dispatch = useDispatch()
+
+    const isConnecting = useFlag(Flag.IsCafeHubConnecting)
+
+    const isScanning = useFlag(Flag.IsCafeHubScanning)
+
+    const clientState = useCafeHubClientState()
+
+    if (clientState === CafeHubClientState.Disconnected) {
+        return (
+            <Pane>
+                <button
+                    type="button"
+                    onClick={() => {
+                        dispatch(CafeHubAction.connect())
+                    }}
+                    tw="text-white bg-[#323232]"
+                >
+                    Connect to cafehub
+                </button>
+            </Pane>
+        )
+    }
+
+    if (isConnecting) {
+        return <span tw="text-white">Connecting</span>
+    }
+
+    if (isScanning) {
+        return <span tw="text-white">Scanning</span>
+    }
+
+    return (
+        <>
+            <Pane>
+                <button
+                    type="button"
+                    onClick={() => {
+                        dispatch(
+                            MiscAction.setFlag({
+                                key: Flag.IsBLEDrawerOpen,
+                                value: true,
+                            })
+                        )
+
+                        dispatch(CafeHubAction.scan())
+                    }}
+                    tw="text-white bg-[#323232]"
+                >
+                    Connect machine
+                </button>
+            </Pane>
+        </>
+    )
+}
+
+function ConnectedPanes() {
+    const isOn = useAwake() === Awake.Yes
+
+    return (
+        <>
+            {isOn ? (
+                <>
+                    <Pane>
+                        <VisualizerControl />
+                    </Pane>
+                    <Pane>
+                        <ScaleControl />
+                    </Pane>
+                    <Pane>
+                        <WaterLevelControl />
+                    </Pane>
+                </>
+            ) : (
+                <>
+                    <Pane
+                        css={[
+                            css`
+                                flex-basis: 50%;
+                            `,
+                        ]}
+                    />
+                    <Pane>
+                        <ThemeControl />
+                    </Pane>
+                </>
+            )}
+            <Pane>
+                <AwakenessControl />
+            </Pane>
+        </>
     )
 }
 

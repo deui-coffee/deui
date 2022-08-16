@@ -18,6 +18,11 @@ export interface Profile {
 
 export type ProfileId = string
 
+export interface Machine {
+    MAC: string
+    name: string
+}
+
 export interface MachineState {
     awake: Awake
     scales: Scale[]
@@ -25,6 +30,7 @@ export interface MachineState {
     profiles: Profile[]
     selectedProfileId: ProfileId
     modeId: ModeId
+    connectedMachine: undefined | Machine
 }
 
 export type ScaleId = string

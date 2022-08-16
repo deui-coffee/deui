@@ -7,9 +7,13 @@ import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
 import ControllerView from '$/components/ControllerView'
 import ProfilesDrawer from '$/components/ProfilesDrawer'
+import BLEDrawer from '$/components/BLEDrawer'
+import useCafeHubClientStateEffect from '$/hooks/useCafeHubClientStateEffect'
 
 const App = () => {
     const theme = useTheme()
+
+    useCafeHubClientStateEffect()
 
     return (
         <>
@@ -29,6 +33,7 @@ const App = () => {
                 <Viewport tw="lg:hidden" />
             </div>
             <ProfilesDrawer />
+            <BLEDrawer />
         </>
     )
 }

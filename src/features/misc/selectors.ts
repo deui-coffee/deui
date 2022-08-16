@@ -12,3 +12,5 @@ export const selectTheme = createSelector(selectSelf, ({ ui: { dark } }) =>
 export function selectFlag(key: string) {
     return createSelector(selectSelf, ({ flags }) => Boolean(flags[key]))
 }
+
+export const selectCafeHubClient = createSelector(selectSelf, ({ cafehubClient }) => cafehubClient)

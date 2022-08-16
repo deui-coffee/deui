@@ -1,6 +1,9 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import { all } from 'redux-saga/effects'
 import { MiscState } from './types'
+import CafeHubClient from 'cafehub-client'
+
+const CafeHubWebSockerServerURL = 'ws://192.168.0.15:8765'
 
 export const MiscAction = {
     setFlag: createAction<{ key: string; value: boolean }>('misc: set flag'),
@@ -13,6 +16,9 @@ const initialState: MiscState = {
     ui: {
         dark: true,
     },
+    cafehubClient: new CafeHubClient(CafeHubWebSockerServerURL, {
+        autoConnect: false,
+    }),
 }
 
 const reducer = createReducer(initialState, (builder) => {
