@@ -2,13 +2,13 @@ import React from 'react'
 import { Helmet } from 'react-helmet'
 import 'twin.macro'
 import tw from 'twin.macro'
-import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
-import ControllerView from '$/components/ControllerView'
 import ProfilesDrawer from '$/components/ProfilesDrawer'
 import BLEDrawer from '$/components/BLEDrawer'
 import useCafeHubClientStateEffect from '$/hooks/useCafeHubClientStateEffect'
+import WideView from './components/WideView'
+import SettingsDrawer from './components/SettingsDrawer'
 
 const App = () => {
     const theme = useTheme()
@@ -29,11 +29,12 @@ const App = () => {
                     `,
                 ]}
             >
-                <ControllerView tw="hidden lg:block" />
-                <Viewport tw="lg:hidden" />
+                <WideView tw="hidden lg:block" />
+                {/* <Viewport tw="lg:hidden" /> */}
             </div>
             <ProfilesDrawer />
             <BLEDrawer />
+            <SettingsDrawer />
         </>
     )
 }

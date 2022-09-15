@@ -1,7 +1,7 @@
-export enum Awake {
+export enum Power {
+    On = 'on',
+    Off = 'off',
     Unknown = 'unknown',
-    No = 'no',
-    Yes = 'yes',
 }
 
 export enum ModeId {
@@ -24,7 +24,7 @@ export interface Machine {
 }
 
 export interface MachineState {
-    awake: Awake
+    power: Power
     scales: Scale[]
     selectedScaleId: undefined | ScaleId
     profiles: Profile[]

@@ -15,4 +15,5 @@ export enum Flag {
     IsBLEDrawerOpen = 'is ble drawer open',
     IsCafeHubConnecting = 'is cafehub connecting',
     IsCafeHubScanning = 'is cafehub scanning',
+    IsSettingsDrawerOpen = 'is settings drawer open',
 }

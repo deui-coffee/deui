@@ -1,15 +1,10 @@
 import { useSelector } from 'react-redux'
 import {
-    selectAwake,
     selectProfiles,
     selectScales,
     selectSelectedProfileId,
     selectSelectedScaleId,
 } from './selectors'
-
-export function useAwake() {
-    return useSelector(selectAwake)
-}
 
 export function useScales() {
     return useSelector(selectScales)

@@ -3,13 +3,9 @@ import Toolbar from '$/components/ControllerView/Toolbar'
 import { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Clock from '$/components/ControllerView/Clock'
-import { useAwake } from '$/features/machine/hooks'
-import { Awake } from '$/features/machine/types'
 import Controller from '$/components/ControllerView/Controller'
 
 export default function ControllerView(props: HTMLAttributes<HTMLDivElement>) {
-    const isOn = useAwake() === Awake.Yes
-
     return (
         <div
             {...props}
@@ -42,7 +38,7 @@ export default function ControllerView(props: HTMLAttributes<HTMLDivElement>) {
                         `,
                     ]}
                 >
-                    {isOn ? <Controller /> : <Clock />}
+                    {/* {isOn ? <Controller /> : <Clock />} */}
                 </div>
             </div>
             <Toolbar />

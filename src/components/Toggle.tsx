@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, ButtonHTMLAttributes } from 'react'
+import React, { ButtonHTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
@@ -7,53 +7,23 @@ type Props = {
     labels?: string[]
     value?: boolean
     onChange?: (arg0: boolean) => void
-    status?: Status | ((arg0: boolean) => Status)
+    status?: Status
     reverse?: boolean
 }
 
 export default function Toggle({
     labels: [offLabel = 'Off', onLabel = 'On'] = [],
-    value: valueProp = false,
+    value = false,
     onChange,
-    status: statusProp,
+    status = Status.None,
     reverse = false,
 }: Props) {
-    const [value, setValue] = useState<boolean>(valueProp)
-
     const lineup = reverse ? [1, 0] : [0, 1]
 
-    const status = typeof statusProp === 'function' ? statusProp(value) : statusProp || Status.None
-
-    useEffect(() => {
-        setValue(valueProp)
-    }, [valueProp])
-
-    const onChangeRef = useRef(onChange)
-
-    useEffect(() => {
-        onChangeRef.current = onChange
-    }, [onChange])
-
-    const commitTimeoutRef = useRef<number | undefined>()
-
-    useEffect(
-        () => () => {
-            clearTimeout(commitTimeoutRef.current)
-            commitTimeoutRef.current = undefined
-        },
-        []
-    )
-
     function onItemClick(newValue: boolean) {
-        setValue(newValue)
-
-        clearTimeout(commitTimeoutRef.current)
-
-        commitTimeoutRef.current = window.setTimeout(() => {
-            if (typeof onChangeRef.current === 'function') {
-                onChangeRef.current(newValue)
-            }
-        }, 500)
+        if (typeof onChange === 'function') {
+            onChange(newValue)
+        }
     }
 
     return (

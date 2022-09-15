@@ -2,10 +2,10 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import { all } from 'redux-saga/effects'
 import { StorageKey } from '../../types'
 import selectProfile from './sagas/selectProfile.saga'
-import { Awake, Machine, MachineState, ModeId } from './types'
+import { Machine, MachineState, ModeId, Power } from './types'
 
 export const MachineAction = {
-    setAwake: createAction<Awake>('machine: set awake'),
+    setPower: createAction<Power>('machine: set power'),
 
     selectScale: createAction<MachineState['selectedScaleId']>('machine: select scale'),
 
@@ -17,7 +17,7 @@ export const MachineAction = {
 }
 
 const initialState: MachineState = {
-    awake: Awake.No,
+    power: Power.Unknown,
     scales: [
         { id: 'acaia', label: 'Acaia Lunar' },
         { id: 'wh', label: 'WH-1000XM4' },
@@ -42,8 +42,8 @@ const initialState: MachineState = {
 }
 
 const reducer = createReducer(initialState, (builder) => {
-    builder.addCase(MachineAction.setAwake, (state, { payload: awake }) => {
-        state.awake = awake
+    builder.addCase(MachineAction.setPower, (state, { payload: power }) => {
+        state.power = power
     })
 
     builder.addCase(MachineAction.selectScale, (state, { payload }) => {

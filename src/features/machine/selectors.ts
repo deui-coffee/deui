@@ -6,8 +6,6 @@ function selectSelf(state: State): MachineState {
     return state.machine
 }
 
-export const selectAwake = createSelector(selectSelf, ({ awake }) => awake)
-
 export const selectScales = createSelector(selectSelf, ({ scales }) => scales)
 
 export const selectSelectedScaleId = createSelector(
