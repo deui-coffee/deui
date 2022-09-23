@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react'
-import Drawer from '$/components/Drawer'
+import Drawer from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
 import { Flag } from '$/features/misc/types'
 import { useDispatch } from 'react-redux'

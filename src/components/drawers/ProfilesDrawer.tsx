@@ -1,5 +1,5 @@
 import React from 'react'
-import Drawer from '$/components/Drawer'
+import Drawer from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
 import { MachineAction } from '$/features/machine'
 import { useProfiles, useSelectedProfileId } from '$/features/machine/hooks'

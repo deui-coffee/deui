@@ -1,6 +1,6 @@
-import React, { HTMLAttributes, ReactNode } from 'react'
+import React, { forwardRef, HTMLAttributes, ReactNode, Ref } from 'react'
 import tw from 'twin.macro'
-import Label from './Label'
+import Label from './primitives/Label'
 
 export type ControlProps = {
     label?: ReactNode
@@ -10,9 +10,13 @@ export type ControlProps = {
 
 type Props = ControlProps & HTMLAttributes<HTMLDivElement>
 
-export default function Control({ label, fill = false, pad = false, ...props }: Props) {
+const Control = forwardRef(function Control(
+    { label, fill = false, pad = false, ...props }: Props,
+    ref: Ref<HTMLDivElement>
+) {
     return (
         <div
+            ref={ref}
             css={[
                 tw`
                     [* + &]:mt-4
@@ -34,4 +38,6 @@ export default function Control({ label, fill = false, pad = false, ...props }: 
             />
         </div>
     )
-}
+})
+
+export default Control

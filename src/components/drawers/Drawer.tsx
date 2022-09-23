@@ -85,7 +85,7 @@ export default function Drawer({ openFlag, children, ...props }: Props) {
                 ref={bodyRef}
                 css={[
                     tw`
-                        w-[35rem]
+                        w-[32rem]
                         h-full
                         bg-off-white
                         dark:bg-dark-grey

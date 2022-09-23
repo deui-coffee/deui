@@ -51,7 +51,7 @@ export default function Toggle({
                     ]}
                 >
                     <div css={[tw`relative w-full h-full`]}>
-                        <StatusIndicator css={[tw`absolute right-2 top-2`]} value={status} />
+                        <StatusIndicator value={status} />
                         <div
                             css={[
                                 tw`

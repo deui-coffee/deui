@@ -3,7 +3,7 @@ import tw from 'twin.macro'
 import { metrics } from '../consts'
 import { useMetricValue } from '../features/metric/hooks'
 import { MetricId } from '../features/metric/types'
-import Label from './Label'
+import Label from './primitives/Label'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
     metricId: MetricId

@@ -4,11 +4,11 @@ import 'twin.macro'
 import tw from 'twin.macro'
 import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
-import ProfilesDrawer from '$/components/ProfilesDrawer'
-import BLEDrawer from '$/components/BLEDrawer'
+import ProfilesDrawer from '$/components/drawers/ProfilesDrawer'
+import BLEDrawer from '$/components/drawers/BLEDrawer'
 import useCafeHubClientStateEffect from '$/hooks/useCafeHubClientStateEffect'
 import WideView from './components/WideView'
-import SettingsDrawer from './components/SettingsDrawer'
+import SettingsDrawer from './components/drawers/SettingsDrawer'
 
 const App = () => {
     const theme = useTheme()

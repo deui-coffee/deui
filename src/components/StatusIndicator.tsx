@@ -1,5 +1,6 @@
-import React from 'react'
-import tw from 'twin.macro'
+import { css } from '@emotion/react'
+import React, { HTMLAttributes } from 'react'
+import tw, { TwStyle } from 'twin.macro'
 
 export enum Status {
     None = 'none',
@@ -9,38 +10,69 @@ export enum Status {
     Off = 'off',
 }
 
-type Props = {
+type Props = HTMLAttributes<HTMLDivElement> & {
     value?: Status
-    className?: string
+    idleCss?: TwStyle
+    offCss?: TwStyle
+    onCss?: TwStyle
+    busyCss?: TwStyle
+    noneCss?: TwStyle
 }
 
-export default function StatusIndicator({ className, value = Status.Idle }: Props) {
+const DefaultCss = {
+    [Status.Idle]: tw``,
+    [Status.Off]: tw`
+        text-red
+    `,
+    [Status.On]: tw`
+        text-green
+    `,
+    [Status.Busy]: tw`
+    `,
+    [Status.None]: tw`
+        text-[transparent]
+    `,
+}
+
+const defaultIdleCss = tw`
+    text-lighter-grey
+    dark:text-dark-grey
+`
+
+export default function StatusIndicator({ value = Status.Idle, idleCss, ...props }: Props) {
     return (
-        <div className={className}>
+        <div
+            {...props}
+            css={[
+                tw`
+                    h-2
+                    w-2
+                    absolute
+                    pointer-events-none
+                    right-2
+                    top-2
+                `,
+                (value === Status.Busy || value === Status.Idle) && (idleCss || defaultIdleCss),
+                DefaultCss[value],
+            ]}
+        >
             <div
                 css={[
-                    tw`
-                        duration-500
-                        h-2
-                        rounded-full
-                        transition-colors
-                        w-2
+                    css`
+                        background: currentColor;
                     `,
-                    value === Status.Idle &&
-                        tw`
-                            bg-lighter-grey
-                            dark:bg-dark-grey
-                        `,
-                    value === Status.Off && tw`bg-red`,
-                    value === Status.On && tw`bg-green`,
+                    tw`
+                        rounded-full
+                        h-full
+                        duration-500
+                        transition-colors
+                        w-full
+                    `,
                     value === Status.Busy &&
                         tw`
                             animate-busy-status
-                            dark:text-dark-grey
-                            text-lighter-grey
                             transition-none
                         `,
-                    value === Status.None && tw`bg-[transparent]`,
                 ]}
             />
         </div>

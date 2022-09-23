@@ -4,8 +4,12 @@ export interface MiscState {
     flags: {
         [key: string]: true
     }
+    settings: {
+        backendUrl: string
+    }
     ui: {
         dark?: true
+        isEditingBackendUrl: boolean
     }
     cafehubClient: CafeHubClient
 }

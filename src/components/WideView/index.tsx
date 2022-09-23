@@ -1,15 +1,15 @@
-import React from 'react'
-import { HTMLAttributes } from 'react'
+import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Clock from '$/components/ControllerView/Clock'
 import { css } from '@emotion/react'
-import Label from './Label'
-import PowerToggle from './PowerToggle'
-import PaneButton from './PaneButton'
-import { Status } from './StatusIndicator'
+import Label from '../primitives/Label'
+import PowerToggle from '../PowerToggle'
+import StatusIndicator, { Status } from '../StatusIndicator'
 import { useDispatch } from 'react-redux'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
+import Button from '../primitives/Button'
+import Toolbar from '../Toolbar'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
@@ -49,46 +49,27 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                     <Clock />
                 </div>
             </div>
-            <div
-                css={[
-                    tw`
-                        absolute
-                        bottom-0
-                        left-0
-                        w-full
-                    `,
-                ]}
-            >
-                <div
-                    css={[
-                        tw`
-                            h-[9rem]
-                            w-full
-                            flex
-                        `,
-                    ]}
-                >
-                    <Pane />
-                    <Pane title="Settings">
-                        <PaneButton
-                            status={Status.Idle}
-                            onClick={() => {
-                                dispatch(
-                                    MiscAction.setFlag({
-                                        key: Flag.IsSettingsDrawerOpen,
-                                        value: true,
-                                    })
-                                )
-                            }}
-                        >
-                            Manage
-                        </PaneButton>
-                    </Pane>
-                    <Pane title="Power">
-                        <PowerToggle />
-                    </Pane>
-                </div>
-            </div>
+            <Toolbar>
+                <Pane />
+                <Pane title="Settings">
+                    <Button
+                        onClick={() => {
+                            dispatch(
+                                MiscAction.setFlag({
+                                    key: Flag.IsSettingsDrawerOpen,
+                                    value: true,
+                                })
+                            )
+                        }}
+                    >
+                        <StatusIndicator value={Status.Off} />
+                        Manage
+                    </Button>
+                </Pane>
+                <Pane title="Power">
+                    <PowerToggle />
+                </Pane>
+            </Toolbar>
         </div>
     )
 }

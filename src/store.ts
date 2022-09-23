@@ -6,6 +6,7 @@ import metric from './features/metric'
 import machine, { machineSaga } from './features/machine'
 import misc, { miscSaga } from './features/misc'
 import cafehub, { cafehubSaga } from '$/features/cafehub'
+import backend, { backendSaga } from './features/backend'
 
 const sagaMiddleware = createSagaMiddleware()
 
@@ -16,6 +17,7 @@ const store = configureStore({
         machine,
         misc,
         cafehub,
+        backend,
     },
     middleware(getDefaultMiddleware) {
         return [
@@ -30,7 +32,7 @@ const store = configureStore({
 })
 
 sagaMiddleware.run(function* saga() {
-    yield all([miscSaga(), machineSaga(), cafehubSaga()])
+    yield all([miscSaga(), machineSaga(), cafehubSaga(), backendSaga()])
 })
 
 export default store
