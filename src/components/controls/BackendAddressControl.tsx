@@ -2,7 +2,6 @@ import { BackendAction } from '$/features/backend'
 import { MiscAction } from '$/features/misc'
 import useBackendUrl from '$/hooks/useBackendUrl'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
-import useOnMouseDownOutside from '$/hooks/useOnMouseDownOutside'
 import { css } from '@emotion/react'
 import React, { ButtonHTMLAttributes, KeyboardEvent, useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
@@ -29,20 +28,9 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
 
     const fieldRef = useRef<HTMLInputElement>(null)
 
-    const fieldControlRef = useRef<HTMLDivElement>(null)
-
-    const buttonsControlRef = useRef<HTMLDivElement>(null)
-
-    const { current: refs } = useRef([fieldControlRef, buttonsControlRef])
-
     const dispatch = useDispatch()
 
     const isEditingBackendUrl = useIsEditingBackendUrl()
-
-    useOnMouseDownOutside(refs, () => {
-        dispatch(MiscAction.setIsEditingBackendUrl(false))
-        setValue(backendUrl)
-    })
 
     function onConnectClick() {
         dispatch(BackendAction.setUrl(value))
@@ -65,7 +53,6 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
         <>
             <Control
                 {...props}
-                ref={fieldControlRef}
                 label={
                     <>
                         <span>{label}</span>
@@ -101,7 +88,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                         onChange={(e) => {
                             setValue(e.target.value)
                         }}
-                        onClick={() => {
+                        onFocus={() => {
                             dispatch(MiscAction.setIsEditingBackendUrl(true))
                         }}
                         onKeyDown={onKeyDown}
@@ -109,7 +96,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                 </TextFieldDecorator>
             </Control>
             {isEditingBackendUrl && (
-                <Control ref={buttonsControlRef}>
+                <Control>
                     <div
                         css={[
                             tw`
