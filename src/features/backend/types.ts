@@ -1,16 +1,6 @@
-export enum Vendor {
-    CafeHub = 'cafehub',
-}
-
-export enum BackendStatus {
-    Disconnected,
-    Connecting,
-    Connected,
-    Disconnecting,
-}
+import WebSocketClient from '$/utils/ws-client'
 
 export interface BackendState {
-    vendor?: Vendor
     url: string
-    status: BackendStatus
+    client: WebSocketClient
 }

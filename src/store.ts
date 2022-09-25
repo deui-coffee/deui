@@ -23,7 +23,7 @@ const store = configureStore({
         return [
             ...getDefaultMiddleware({
                 serializableCheck: {
-                    ignoredPaths: ['misc.cafehubClient'],
+                    ignoredPaths: ['misc.cafehubClient', 'backend.client'],
                 },
             }),
             sagaMiddleware,

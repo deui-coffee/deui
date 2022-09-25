@@ -22,11 +22,12 @@ export default function Button({ type = 'button', theme = ButtonTheme.Default, .
                 tw`
                     rounded-lg
                     appearance-none
+                    outline-none
                     flex
                     h-full
                     items-center
                     justify-center
-                    text-t0
+                    text-[1.25rem]
                     w-full
                     font-medium
                     relative

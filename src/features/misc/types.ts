@@ -20,4 +20,6 @@ export enum Flag {
     IsCafeHubConnecting = 'is cafehub connecting',
     IsCafeHubScanning = 'is cafehub scanning',
     IsSettingsDrawerOpen = 'is settings drawer open',
+    IsConnectingToBackend = 'is connecting to backend',
+    IsDisconnectingToBackend = 'is disconnecting to backend',
 }

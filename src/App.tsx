@@ -6,14 +6,14 @@ import GlobalStyles from './GlobalStyles'
 import useTheme from '$/hooks/useTheme'
 import ProfilesDrawer from '$/components/drawers/ProfilesDrawer'
 import BLEDrawer from '$/components/drawers/BLEDrawer'
-import useCafeHubClientStateEffect from '$/hooks/useCafeHubClientStateEffect'
 import WideView from './components/WideView'
 import SettingsDrawer from './components/drawers/SettingsDrawer'
+import useAutoConnectEffect from './hooks/useAutoConnectEffect'
 
 const App = () => {
     const theme = useTheme()
 
-    useCafeHubClientStateEffect()
+    useAutoConnectEffect()
 
     return (
         <>

@@ -1,5 +1,6 @@
 import { BackendAction } from '$/features/backend'
 import { MiscAction } from '$/features/misc'
+import { Flag } from '$/features/misc/types'
 import useBackendUrl from '$/hooks/useBackendUrl'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
@@ -8,10 +9,17 @@ import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
 import Button, { ButtonTheme } from '../primitives/Button'
+import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
-import StatusIndicator, { Status } from '../StatusIndicator'
+import StatusIndicator from '../StatusIndicator'
+import useBackendConnectionStatus from '$/hooks/useBackendConnectionStatus'
+import useBackendState from '$/hooks/useBackendState'
+import { ClientState } from '$/utils/ws-client'
+import useFlag from '$/hooks/useFlag'
 
-export default function BackendAddressControl({ label = 'Backend URL', ...props }: ControlProps) {
+type Props = Omit<ControlProps, 'fill' | 'pad'>
+
+export default function BackendAddressControl({ label = 'Backend URL', ...props }: Props) {
     const backendUrl = useBackendUrl()
 
     const [value, setValue] = useState<string>(backendUrl)
@@ -20,17 +28,21 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
         setValue(backendUrl)
     }, [backendUrl])
 
-    const canConnect = !!value && !/\s/.test(value)
+    const status = useBackendConnectionStatus()
 
-    const isConnecting = false
+    const backendState = useBackendState()
 
-    const isBusy = isConnecting
+    const canConnect = !!value && !/\s/.test(value) && backendState === ClientState.Disconnected
 
     const fieldRef = useRef<HTMLInputElement>(null)
 
     const dispatch = useDispatch()
 
     const isEditingBackendUrl = useIsEditingBackendUrl()
+
+    const isBeingConnected = useFlag(Flag.IsConnectingToBackend)
+
+    const isBeingDisconnected = useFlag(Flag.IsDisconnectingToBackend)
 
     function onConnectClick() {
         dispatch(BackendAction.setUrl(value))
@@ -39,6 +51,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
     function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Escape') {
             dispatch(MiscAction.setIsEditingBackendUrl(false))
+
             setValue(backendUrl)
 
             if (fieldRef.current) {
@@ -50,13 +63,22 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
     }
 
     return (
-        <>
+        <Form
+            onSubmit={() => {
+                dispatch(
+                    BackendAction.connect({
+                        flag: Flag.IsConnectingToBackend,
+                        url: value,
+                    })
+                )
+            }}
+        >
             <Control
                 {...props}
                 label={
                     <>
                         <span>{label}</span>
-                        {isConnecting && (
+                        {backendState === ClientState.Connecting && (
                             <span
                                 css={[
                                     tw`
@@ -75,7 +97,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
             >
                 <TextFieldDecorator>
                     <StatusIndicator
-                        value={isBusy ? Status.Busy : Status.Idle}
+                        value={status}
                         idleCss={tw`
                             text-[#ddd]
                             dark:text-dark-grey
@@ -92,6 +114,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                             dispatch(MiscAction.setIsEditingBackendUrl(true))
                         }}
                         onKeyDown={onKeyDown}
+                        readOnly={!canConnect}
                     />
                 </TextFieldDecorator>
             </Control>
@@ -121,6 +144,13 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                                 onClick={() => {
                                     dispatch(MiscAction.setIsEditingBackendUrl(false))
                                     setValue(backendUrl)
+
+                                    if (
+                                        isBeingConnected ||
+                                        backendState === ClientState.Connecting
+                                    ) {
+                                        dispatch(BackendAction.abort())
+                                    }
                                 }}
                             >
                                 Cancel
@@ -137,14 +167,35 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                                 `,
                             ]}
                         >
-                            <PrimaryButton disabled={!canConnect} onClick={onConnectClick}>
-                                Connect
-                            </PrimaryButton>
+                            {(backendState === ClientState.Connected || isBeingDisconnected) &&
+                            !isBeingConnected ? (
+                                <PrimaryButton
+                                    key="dc"
+                                    disabled={isBeingDisconnected}
+                                    onClick={() => {
+                                        dispatch(
+                                            BackendAction.disconnect({
+                                                flag: Flag.IsDisconnectingToBackend,
+                                            })
+                                        )
+                                    }}
+                                >
+                                    Disconnect
+                                </PrimaryButton>
+                            ) : (
+                                <PrimaryButton
+                                    disabled={!canConnect}
+                                    onClick={onConnectClick}
+                                    type="submit"
+                                >
+                                    Connect
+                                </PrimaryButton>
+                            )}
                         </div>
                     </div>
                 </Control>
             )}
-        </>
+        </Form>
     )
 }
 

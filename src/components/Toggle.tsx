@@ -2,6 +2,7 @@ import React, { ButtonHTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
+import Button, { ButtonTheme } from './primitives/Button'
 
 type Props = {
     labels?: string[]
@@ -36,7 +37,17 @@ export default function Toggle({
                 `,
             ]}
         >
-            <div tw="h-full w-full absolute pointer-events-none z-10">
+            <div
+                css={[
+                    tw`
+                        h-full
+                        w-full
+                        absolute
+                        pointer-events-none
+                        z-10
+                    `,
+                ]}
+            >
                 <div
                     css={[
                         tw`
@@ -47,10 +58,21 @@ export default function Toggle({
                             w-1/2
                             px-1
                         `,
-                        value !== reverse && tw`translate-x-full`,
+                        value !== reverse &&
+                            tw`
+                                translate-x-full
+                            `,
                     ]}
                 >
-                    <div css={[tw`relative w-full h-full`]}>
+                    <div
+                        css={[
+                            tw`
+                                relative
+                                w-full
+                                h-full
+                            `,
+                        ]}
+                    >
                         <StatusIndicator value={status} />
                         <div
                             css={[
@@ -62,10 +84,6 @@ export default function Toggle({
                                     items-center
                                     justify-center
                                     rounded-md
-                                    lg:bg-white
-                                    lg:border
-                                    dark:border-0
-                                    lg:border-lighter-grey
                                 `,
                             ]}
                         >
@@ -120,47 +138,22 @@ type ItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClic
     value?: boolean
 }
 
-function Item({ value = false, children, onClick, ...props }: ItemProps) {
+function Item({ value = false, onClick, ...props }: ItemProps) {
     return (
-        <button
+        <Button
             {...props}
-            css={[
-                css`
-                    -webkit-tap-highlight-color: transparent;
-                `,
-                tw`
-                    text-[1.25rem]
-                    appearance-none
-                    outline-none
-                    w-full
-                    h-full
-                `,
-            ]}
-            type="button"
             onClick={() => {
                 if (typeof onClick === 'function') {
                     onClick(value)
                 }
             }}
-        >
-            <div
-                css={[
-                    tw`
-                        text-light-grey
-                        dark:text-medium-grey
-                        duration-200
-                        ease-linear
-                        flex
-                        h-full
-                        items-center
-                        justify-center
-                        rounded-md
-                        font-medium
-                    `,
-                ]}
-            >
-                {children}
-            </div>
-        </button>
+            theme={ButtonTheme.None}
+            css={[
+                tw`
+                    text-light-grey
+                    dark:text-medium-grey
+                `,
+            ]}
+        />
     )
 }

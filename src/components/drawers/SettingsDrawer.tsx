@@ -2,8 +2,7 @@ import React from 'react'
 import Drawer, { DrawerHeader } from '$/components/drawers/Drawer'
 import { Flag } from '$/features/misc/types'
 import tw from 'twin.macro'
-import ThemeControl from '../SettingsView/ThemeControl'
-import ScaleControl from '../SettingsView/ScaleControl'
+import ThemeControl from '../controls/ThemeControl'
 import BackendAddressControl from '../controls/BackendAddressControl'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 
@@ -28,10 +27,9 @@ export default function SettingsDrawer() {
                     `,
                 ]}
             >
-                <BackendAddressControl fill />
+                <BackendAddressControl />
                 {!isEditingBackendUrl && (
                     <>
-                        <ScaleControl fill pad />
                         <ThemeControl fill pad />
                     </>
                 )}

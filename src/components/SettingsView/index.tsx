@@ -1,6 +1,6 @@
 import React from 'react'
 import 'twin.macro'
-import ThemeControl from './ThemeControl'
+import ThemeControl from '../controls/ThemeControl'
 import VisualizerControl from './VisualizerControl'
 import ScaleControl from './ScaleControl'
 import WaterLevelControl from './WaterLevelControl'

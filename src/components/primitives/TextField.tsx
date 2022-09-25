@@ -21,7 +21,7 @@ const TextField = forwardRef(function TextField(props: Props, ref: Ref<HTMLInput
                     text-center
                     font-medium
                     text-medium-grey
-                    bg-offish-white
+                    bg-white
                     lg:text-dark-grey
                     dark:text-lighter-grey
                     dark:bg-black
@@ -52,8 +52,8 @@ export function TextFieldDecorator(props: HTMLAttributes<HTMLDivElement>) {
                         left-4
                         -translate-y-1/2
                         bg-gradient-to-r
-                        to-[rgba(236, 236, 236, 0)]
-                        from-[rgba(236, 236, 236, 1)]
+                        to-[rgba(255, 255, 255, 0)]
+                        from-[rgba(255, 255, 255, 1)]
                         dark:to-[rgba(0, 0, 0, 0)]
                         dark:from-[rgba(0, 0, 0, 1)]
                     )
@@ -66,8 +66,8 @@ export function TextFieldDecorator(props: HTMLAttributes<HTMLDivElement>) {
                         right-4
                         -translate-y-1/2
                         bg-gradient-to-l
-                        to-[rgba(236, 236, 236, 0)]
-                        from-[rgba(236, 236, 236, 1)]
+                        to-[rgba(255, 255, 255, 0)]
+                        from-[rgba(255, 255, 255, 1)]
                         dark:to-[rgba(0, 0, 0, 0)]
                         dark:from-[rgba(0, 0, 0, 1)]
                     )
