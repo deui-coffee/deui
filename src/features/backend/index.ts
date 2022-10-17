@@ -1,20 +1,21 @@
 import { Flagged, StorageKey } from '$/types'
-import WebSocketClient from '$/utils/ws-client'
 import { createAction, createReducer } from '@reduxjs/toolkit'
+import CafeHubClient from 'cafehub-client'
+import { Device } from 'cafehub-client/types'
 import { all } from 'redux-saga/effects'
 import connect from './sagas/connect.saga'
 import disconnect from './sagas/disconnect.saga'
+import pair from './sagas/pair.saga'
+import scan from './sagas/scan.saga'
+import setMAC from './sagas/setMAC'
 import setUrl from './sagas/setUrl.saga'
 import { BackendState } from './types'
 
 const initialState: BackendState = {
     url: localStorage.getItem(StorageKey.BackendUrl) || '',
-    client: new WebSocketClient(),
+    client: new CafeHubClient(),
+    mac: localStorage.getItem(StorageKey.MAC) || undefined,
 }
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-ignore
-window.c = initialState.client
 
 export const BackendAction = {
     setUrl: createAction<string>('backend: set url'),
@@ -24,6 +25,12 @@ export const BackendAction = {
     disconnect: createAction<Flagged>('backend: disconnect'),
 
     abort: createAction('backend: abort'),
+
+    scan: createAction('backend: scan'),
+
+    pair: createAction<string>('backend: pair'),
+
+    setMAC: createAction<undefined | string>('backend: set MAC'),
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -42,10 +49,22 @@ const reducer = createReducer(initialState, (builder) => {
     builder.addCase(BackendAction.abort, () => {
         // Noop.
     })
+
+    builder.addCase(BackendAction.scan, () => {
+        // Saga.
+    })
+
+    builder.addCase(BackendAction.pair, () => {
+        // Saga.
+    })
+
+    builder.addCase(BackendAction.setMAC, (state, { payload }) => {
+        state.mac = payload
+    })
 })
 
 export function* backendSaga() {
-    yield all([connect(), setUrl(), disconnect()])
+    yield all([connect(), setUrl(), disconnect(), scan(), pair(), setMAC()])
 }
 
 export default reducer

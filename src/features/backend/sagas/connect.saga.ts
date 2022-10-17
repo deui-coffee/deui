@@ -1,8 +1,10 @@
 import { MiscAction } from '$/features/misc'
 import { selectBackendClient } from '$/hooks/useBackendClient'
+import { selectBackendMAC } from '$/hooks/useBackendMAC'
 import handleError from '$/utils/handleError'
 import takeLeadingFlagged from '$/utils/takeLeadingFlagged'
-import WebSocketClient, { EventName } from '$/utils/ws-client'
+import CafeHubClient from 'cafehub-client'
+import { CafeHubEvent } from 'cafehub-client/types'
 import { cancelled, delay, put, select } from 'redux-saga/effects'
 import { BackendAction } from '..'
 
@@ -11,12 +13,12 @@ function onError() {
 }
 
 function* onConnect({ payload: { url } }: ReturnType<typeof BackendAction.connect>) {
-    const client: WebSocketClient = yield select(selectBackendClient)
+    const client: CafeHubClient = yield select(selectBackendClient)
 
     try {
         yield put(BackendAction.setUrl(url))
 
-        client.on(EventName.Error, onError)
+        client.on(CafeHubEvent.Error, onError)
 
         try {
             yield client.connect(`ws://${url}`, {
@@ -26,8 +28,17 @@ function* onConnect({ payload: { url } }: ReturnType<typeof BackendAction.connec
             yield delay(300)
 
             yield put(MiscAction.setIsEditingBackendUrl(false))
+
+            const mac: undefined | string = yield select(selectBackendMAC)
+
+            if (mac) {
+                yield put(BackendAction.pair(mac))
+                return
+            }
+
+            yield put(BackendAction.scan())
         } finally {
-            client.off(EventName.Error, onError)
+            client.off(CafeHubEvent.Error, onError)
         }
     } catch (e) {
         handleError(e)

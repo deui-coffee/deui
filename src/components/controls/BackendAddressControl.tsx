@@ -14,8 +14,8 @@ import TextField, { TextFieldDecorator } from '../primitives/TextField'
 import StatusIndicator from '../StatusIndicator'
 import useBackendConnectionStatus from '$/hooks/useBackendConnectionStatus'
 import useBackendState from '$/hooks/useBackendState'
-import { ClientState } from '$/utils/ws-client'
 import useFlag from '$/hooks/useFlag'
+import { CafeHubState } from 'cafehub-client/types'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
 
@@ -32,7 +32,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
 
     const backendState = useBackendState()
 
-    const canConnect = !!value && !/\s/.test(value) && backendState === ClientState.Disconnected
+    const canConnect = !!value && !/\s/.test(value) && backendState === CafeHubState.Disconnected
 
     const fieldRef = useRef<HTMLInputElement>(null)
 
@@ -78,7 +78,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                 label={
                     <>
                         <span>{label}</span>
-                        {backendState === ClientState.Connecting && (
+                        {backendState === CafeHubState.Connecting && (
                             <span
                                 css={[
                                     tw`
@@ -147,7 +147,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
 
                                     if (
                                         isBeingConnected ||
-                                        backendState === ClientState.Connecting
+                                        backendState === CafeHubState.Connecting
                                     ) {
                                         dispatch(BackendAction.abort())
                                     }
@@ -167,7 +167,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                                 `,
                             ]}
                         >
-                            {(backendState === ClientState.Connected || isBeingDisconnected) &&
+                            {(backendState === CafeHubState.Connected || isBeingDisconnected) &&
                             !isBeingConnected ? (
                                 <PrimaryButton
                                     key="dc"

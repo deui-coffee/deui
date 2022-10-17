@@ -2,13 +2,13 @@ import { MiscAction } from '$/features/misc'
 import { selectBackendClient } from '$/hooks/useBackendClient'
 import handleError from '$/utils/handleError'
 import takeLeadingFlagged from '$/utils/takeLeadingFlagged'
-import WebSocketClient from '$/utils/ws-client'
+import CafeHubClient from 'cafehub-client'
 import { delay, put, select } from 'redux-saga/effects'
 import { BackendAction } from '..'
 
 function* onDisconnect() {
     try {
-        const client: WebSocketClient = yield select(selectBackendClient)
+        const client: CafeHubClient = yield select(selectBackendClient)
 
         client.teardown()
 

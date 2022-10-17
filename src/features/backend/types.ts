@@ -1,6 +1,7 @@
-import WebSocketClient from '$/utils/ws-client'
+import CafeHubClient from 'cafehub-client'
 
 export interface BackendState {
     url: string
-    client: WebSocketClient
+    client: CafeHubClient
+    mac: undefined | string
 }

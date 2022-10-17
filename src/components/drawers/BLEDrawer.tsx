@@ -5,8 +5,7 @@ import { Flag } from '$/features/misc/types'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import { MiscAction } from '$/features/misc'
-import useCafeHubDevices from '$/hooks/useCafeHubDevices'
-import useDeviceDiscoveryEffect from '$/hooks/useDeviceDiscoveryEffect'
+import { Device } from 'cafehub-client/types'
 
 export default function BLEDrawer() {
     const dispatch = useDispatch()
@@ -20,9 +19,7 @@ export default function BLEDrawer() {
         )
     }, [])
 
-    const devices = useCafeHubDevices()
-
-    useDeviceDiscoveryEffect()
+    const devices: Record<string, Device> = {}
 
     return (
         <Drawer
