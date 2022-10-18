@@ -4,7 +4,7 @@ This document describes necessary steps to get CafeHub up and running inside a d
 - Raspberry pi 4 w/ Ubuntu server and docker
 - Ubuntu desktop (for its X server) – this can be a virtual machine.
 
-## Steps to get fire it up:
+## Steps to fire it up:
 
 1. `ssh` into the Pi from your desktop.
 
