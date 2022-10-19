@@ -1,9 +1,16 @@
+import { Machine } from '$/features/backend/types'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import { selectBackendClient } from '$/hooks/useBackendClient'
 import handleError from '$/utils/handleError'
 import CafehubClient from 'cafehub-client'
-import { RequestCommand, UpdateMessage } from 'cafehub-client/types'
+import {
+    RequestCommand,
+    UpdateMessage,
+    isConnectionStateUpdate,
+    ConnectionState,
+    CharAddr,
+} from 'cafehub-client/types'
 import { put, select, takeLeading } from 'redux-saga/effects'
 import { BackendAction } from '..'
 
@@ -25,9 +32,34 @@ function* onPair({ payload: MAC }: ReturnType<typeof BackendAction.pair>) {
             },
         })
 
-        yield put(BackendAction.setMAC(MAC))
+        if (!isConnectionStateUpdate(msg)) {
+            return
+        }
 
-        console.log('Paired', msg)
+        const machine: Machine = {
+            mac: MAC,
+            connectionState: msg.results.CState,
+        }
+
+        yield put(BackendAction.updateMachine(machine))
+
+        if (machine.connectionState !== ConnectionState.Connected) {
+            return
+        }
+
+        yield put(
+            BackendAction.listen({
+                mac: MAC,
+                char: CharAddr.WaterLevels,
+            })
+        )
+
+        yield put(
+            BackendAction.listen({
+                mac: MAC,
+                char: CharAddr.Temperatures,
+            })
+        )
     } catch (e) {
         handleError(e)
     } finally {

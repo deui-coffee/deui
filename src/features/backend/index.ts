@@ -1,20 +1,27 @@
 import { Flagged, StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import CafeHubClient from 'cafehub-client'
-import { Device } from 'cafehub-client/types'
+import { CafeHubState, CharAddr, ConnectionState } from 'cafehub-client/types'
 import { all } from 'redux-saga/effects'
 import connect from './sagas/connect.saga'
 import disconnect from './sagas/disconnect.saga'
 import pair from './sagas/pair.saga'
 import scan from './sagas/scan.saga'
-import setMAC from './sagas/setMAC'
+import listen from './sagas/listen.saga'
+import updateMachine from './sagas/updateMachine'
 import setUrl from './sagas/setUrl.saga'
-import { BackendState } from './types'
+import { BackendState, Machine } from './types'
+
+const client = new CafeHubClient()
 
 const initialState: BackendState = {
     url: localStorage.getItem(StorageKey.BackendUrl) || '',
-    client: new CafeHubClient(),
-    mac: localStorage.getItem(StorageKey.MAC) || undefined,
+    client,
+    state: client.getState(),
+    machine: {
+        mac: localStorage.getItem(StorageKey.MAC) || undefined,
+        connectionState: ConnectionState.Disconnected,
+    },
 }
 
 export const BackendAction = {
@@ -30,7 +37,15 @@ export const BackendAction = {
 
     pair: createAction<string>('backend: pair'),
 
-    setMAC: createAction<undefined | string>('backend: set MAC'),
+    updateMachine: createAction<Partial<Machine>>('backend: update machine'),
+
+    setState: createAction<CafeHubState>('backend: set state'),
+
+    listen: createAction<{
+        char: CharAddr
+        mac: string
+        enable?: boolean
+    }>('backend: listen'),
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -58,13 +73,24 @@ const reducer = createReducer(initialState, (builder) => {
         // Saga.
     })
 
-    builder.addCase(BackendAction.setMAC, (state, { payload }) => {
-        state.mac = payload
+    builder.addCase(BackendAction.listen, () => {
+        // Saga.
+    })
+
+    builder.addCase(BackendAction.updateMachine, (state, { payload }) => {
+        state.machine = {
+            ...state.machine,
+            ...payload,
+        }
+    })
+
+    builder.addCase(BackendAction.setState, (state, { payload }) => {
+        state.state = payload
     })
 })
 
 export function* backendSaga() {
-    yield all([connect(), setUrl(), disconnect(), scan(), pair(), setMAC()])
+    yield all([connect(), setUrl(), disconnect(), scan(), pair(), updateMachine(), listen()])
 }
 
 export default reducer

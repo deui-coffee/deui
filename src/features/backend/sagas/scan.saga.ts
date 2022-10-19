@@ -1,12 +1,12 @@
 import { put, select, takeLeading } from 'redux-saga/effects'
 import { BackendAction } from '..'
-import scanUtil from '$/utils/scan'
 import CafehubClient from 'cafehub-client'
 import { selectBackendClient } from '$/hooks/useBackendClient'
-import { Device } from 'cafehub-client/types'
+import { isScanResultUpdate, RequestCommand, UpdateMessage } from 'cafehub-client/types'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import handleError from '$/utils/handleError'
+import { selectBackendMachineMAC } from '$/hooks/useBackendMachineMAC'
 
 function* onScan() {
     const client: CafehubClient = yield select(selectBackendClient)
@@ -14,22 +14,47 @@ function* onScan() {
     try {
         yield put(
             MiscAction.setFlag({
-                key: Flag.IsScanningForDevices,
+                key: Flag.IsScanning,
                 value: true,
             })
         )
 
-        const de1: null | Device = yield scanUtil(client)
+        const mac: undefined | string = yield select(selectBackendMachineMAC)
 
-        if (de1) {
-            yield put(BackendAction.pair(de1.MAC))
+        if (mac) {
+            yield put(BackendAction.pair(mac))
+            return
         }
+
+        const msg: UpdateMessage = yield client.sendRequest(
+            {
+                command: RequestCommand.Scan,
+                params: {
+                    Timeout: 10,
+                },
+            },
+            {
+                resolveIf(msg) {
+                    if (!isScanResultUpdate(msg)) {
+                        return false
+                    }
+
+                    return !msg.results.MAC || msg.results.Name === 'DE1'
+                },
+            }
+        )
+
+        if (!isScanResultUpdate(msg)) {
+            return null
+        }
+
+        yield put(BackendAction.pair(msg.results.MAC))
     } catch (e) {
         handleError(e)
     } finally {
         yield put(
             MiscAction.setFlag({
-                key: Flag.IsScanningForDevices,
+                key: Flag.IsScanning,
                 value: false,
             })
         )

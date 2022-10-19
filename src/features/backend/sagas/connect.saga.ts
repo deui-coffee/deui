@@ -1,6 +1,5 @@
 import { MiscAction } from '$/features/misc'
 import { selectBackendClient } from '$/hooks/useBackendClient'
-import { selectBackendMAC } from '$/hooks/useBackendMAC'
 import handleError from '$/utils/handleError'
 import takeLeadingFlagged from '$/utils/takeLeadingFlagged'
 import CafeHubClient from 'cafehub-client'
@@ -28,15 +27,6 @@ function* onConnect({ payload: { url } }: ReturnType<typeof BackendAction.connec
             yield delay(300)
 
             yield put(MiscAction.setIsEditingBackendUrl(false))
-
-            const mac: undefined | string = yield select(selectBackendMAC)
-
-            if (mac) {
-                yield put(BackendAction.pair(mac))
-                return
-            }
-
-            yield put(BackendAction.scan())
         } finally {
             client.off(CafeHubEvent.Error, onError)
         }

@@ -17,7 +17,7 @@ export interface MiscState {
 export enum Flag {
     IsProfilesDrawerOpen = 'is profile drawer open',
     IsBLEDrawerOpen = 'is ble drawer open',
-    IsScanningForDevices = 'is scanning for devices',
+    IsScanning = 'is scanning',
     IsSettingsDrawerOpen = 'is settings drawer open',
     IsConnectingToBackend = 'is connecting to backend',
     IsDisconnectingToBackend = 'is disconnecting to backend',
