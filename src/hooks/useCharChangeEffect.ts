@@ -23,6 +23,15 @@ export default function useCharChangeEffect() {
                     )
 
                     return
+                case CharAddr.Temperatures:
+                    dispatch(
+                        MetricAction.set({
+                            metricId: MetricId.MetalTemp,
+                            value: msg.results.Data,
+                        })
+                    )
+
+                    return
                 default:
                     console.log('Unknown char', msg.results.Char, msg.results.Data)
             }
@@ -35,5 +44,7 @@ export default function useCharChangeEffect() {
         }
     }, [client, dispatch])
 
-    console.log(useMetricValue(MetricId.WaterLevel))
+    console.log('Water level', useMetricValue(MetricId.WaterLevel))
+
+    console.log('Metal temp', useMetricValue(MetricId.MetalTemp))
 }
