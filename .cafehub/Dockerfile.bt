@@ -1,16 +1,8 @@
-FROM python:3.10
+FROM python:latest
 
 RUN apt-get update
 
-RUN apt-get install -y git bluez bluetooth libmtdev-dev vim xauth
-
-WORKDIR /root
-
-RUN git clone https://github.com/mondoreale/cafehub/
-
-RUN service dbus start
-
-RUN service bluetooth start
+RUN apt-get install -y bluez bluetooth libmtdev-dev vim xauth
 
 RUN apt-get install -y openjdk-17-jdk
 
@@ -19,8 +11,6 @@ ENV JDK_HOME=/usr/lib/jvm/java-17-openjdk-arm64
 RUN python -m pip install --upgrade pip
 
 RUN pip install virtualenv
-
-WORKDIR /root/cafehub
 
 RUN touch /root/.Xauthority
 
@@ -34,7 +24,7 @@ RUN pip3 install kivy
 
 RUN pip3 install oscpy
 
-RUN pip3 install bleak
+RUN pip3 install bleak==0.17.0
 
 RUN pip3 install pydantic
 
