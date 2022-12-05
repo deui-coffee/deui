@@ -1,7 +1,13 @@
+import { Buffer } from 'buffer'
+import { MachineState } from '$/consts'
+import { BackendAction } from '$/features/backend'
+import useBackendMachineMAC from '$/hooks/useBackendMachineMAC'
 import useIsMachineConnected from '$/hooks/useIsMachineConnected'
 import useIsPairing from '$/hooks/useIsPairing'
 import useIsScanning from '$/hooks/useIsScanning'
+import { CharAddr } from 'cafehub-client/types'
 import React from 'react'
+import { useDispatch } from 'react-redux'
 import { Status } from './StatusIndicator'
 import Toggle from './Toggle'
 
@@ -24,5 +30,32 @@ function useStatus() {
 export default function PowerToggle() {
     const status = useStatus()
 
-    return <Toggle status={status} labels={labels} value={false} reverse />
+    const dispatch = useDispatch()
+
+    const mac = useBackendMachineMAC()
+
+    return (
+        <Toggle
+            status={status}
+            labels={labels}
+            value={false}
+            reverse
+            onChange={(newValue) => {
+                console.log('WHAT GOING ON?', status, mac)
+
+                if (status !== Status.On || !newValue || !mac) {
+                    return
+                }
+
+                dispatch(
+                    BackendAction.write({
+                        char: CharAddr.RequestedState,
+                        data: Buffer.alloc(1, MachineState.Idle).toString('base64'),
+                        mac,
+                        requireResponse: false,
+                    })
+                )
+            }}
+        />
+    )
 }

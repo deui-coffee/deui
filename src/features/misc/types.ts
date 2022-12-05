@@ -1,5 +1,3 @@
-import CafeHubClient from 'cafehub-client'
-
 export interface MiscState {
     flags: {
         [key: string]: true
@@ -11,7 +9,6 @@ export interface MiscState {
         dark?: true
         isEditingBackendUrl: boolean
     }
-    cafehubClient: CafeHubClient
 }
 
 export enum Flag {

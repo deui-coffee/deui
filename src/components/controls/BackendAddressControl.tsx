@@ -114,7 +114,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                             dispatch(MiscAction.setIsEditingBackendUrl(true))
                         }}
                         onKeyDown={onKeyDown}
-                        readOnly={!canConnect}
+                        readOnly={backendState !== CafeHubState.Disconnected}
                     />
                 </TextFieldDecorator>
             </Control>

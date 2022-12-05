@@ -1,13 +1,9 @@
 import { StorageKey, Theme } from '../types'
 
 export default function getTheme(): Theme {
-    const theme = localStorage.getItem(StorageKey.Theme)
-
-    switch (theme) {
-        case Theme.Light:
-        case Theme.Dark:
-            return theme
-        default:
-            return Theme.Light
+    if (localStorage.getItem(StorageKey.Theme) === Theme.Dark) {
+        return Theme.Dark
     }
+
+    return Theme.Light
 }

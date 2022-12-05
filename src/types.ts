@@ -6,7 +6,6 @@ export enum StorageKey {
     Theme = 'deui/theme',
     Profile = 'deui/profile',
     BackendUrl = 'deui/backendUrl',
-    MAC = 'deui/mac',
 }
 
 export enum Theme {
@@ -16,4 +15,14 @@ export enum Theme {
 
 export interface Flagged {
     flag: string
+}
+
+export enum MetricId {
+    MetalTemp = 'metalTemp',
+    Pressure = 'pressure',
+    FlowRate = 'flowRate',
+    ShotTime = 'shotTime',
+    Weight = 'weight',
+    WaterLevel = 'waterLevel',
+    WaterTankCapacity = 'waterTankCapacity',
 }

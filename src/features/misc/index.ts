@@ -1,9 +1,7 @@
+import { StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import { all } from 'redux-saga/effects'
 import { MiscState } from './types'
-import CafeHubClient from 'cafehub-client'
-
-const CafeHubWebSockerServerURL = 'ws://192.168.0.15:8765'
 
 export const MiscAction = {
     setFlag: createAction<{ key: string; value: boolean }>('misc: set flag'),
@@ -22,11 +20,8 @@ const initialState: MiscState = {
         isEditingBackendUrl: false,
     },
     settings: {
-        backendUrl: '',
+        backendUrl: localStorage.getItem(StorageKey.BackendUrl) || '',
     },
-    cafehubClient: new CafeHubClient(CafeHubWebSockerServerURL, {
-        autoConnect: false,
-    }),
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -51,6 +46,12 @@ const reducer = createReducer(initialState, (builder) => {
     })
 
     builder.addCase(MiscAction.setBackendUrl, (state, { payload }) => {
+        if (payload) {
+            localStorage.setItem(StorageKey.BackendUrl, payload)
+        } else {
+            localStorage.removeItem(StorageKey.BackendUrl)
+        }
+
         state.settings.backendUrl = payload
     })
 })
