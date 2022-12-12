@@ -1,17 +1,7 @@
 import { MiscAction } from '$/features/misc'
-import { Flag } from '$/features/misc/types'
-import useBackendUrl from '$/hooks/useBackendUrl'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
-import React, {
-    ButtonHTMLAttributes,
-    HTMLAttributes,
-    KeyboardEvent,
-    ReactNode,
-    useEffect,
-    useRef,
-    useState,
-} from 'react'
+import React, { ButtonHTMLAttributes, HTMLAttributes, KeyboardEvent, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
@@ -19,8 +9,6 @@ import Button, { ButtonTheme } from '../primitives/Button'
 import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
 import StatusIndicator, { Status } from '../StatusIndicator'
-import useFlag from '$/hooks/useFlag'
-import { CafeHubState } from 'cafehub-client/types'
 import useCafeHubPhase from '$/hooks/useCafeHubPhase'
 import { Phase } from '$/features/cafehub/types'
 import { CafeHubAction } from '$/features/cafehub'
@@ -132,6 +120,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                             ]}
                         >
                             <SecondaryButton
+                                disabled={chPhase === Phase.Paired || chPhase === Phase.Pairing}
                                 onClick={() => {
                                     dispatch(CafeHubAction.abort())
                                 }}
@@ -269,6 +258,17 @@ function RightAction({ disabled = false }: RightActionProps) {
                     }}
                 >
                     Pair again
+                </PrimaryButton>
+            )
+        case Phase.Paired:
+            return (
+                <PrimaryButton
+                    key={chPhase}
+                    onClick={() => {
+                        dispatch(CafeHubAction.close(null))
+                    }}
+                >
+                    Disconnect
                 </PrimaryButton>
             )
         default:
