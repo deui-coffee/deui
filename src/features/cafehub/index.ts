@@ -26,7 +26,7 @@ function getDefaultMetrics(): Record<MetricId, number> {
 
 const initialState: CafeHubState = {
     metrics: getDefaultMetrics(),
-    phase: Phase.Idle,
+    phase: Phase.Disconnected,
 }
 
 export const CafeHubAction = {
@@ -34,15 +34,17 @@ export const CafeHubAction = {
 
     open: createAction<CafeHub>('cafehub: open'),
 
-    close: createAction<CloseEvent>('cafehub: close'),
+    close: createAction<null | CloseEvent>('cafehub: close'),
 
-    cancelScan: createAction<CloseEvent>('cafehub: cancel scan'),
+    abort: createAction('cafehub: abort'),
 
-    scanComplete: createAction<CloseEvent>('cafehub: scan complete'),
+    aborted: createAction<Phase>('cafehub: aborted'),
 
-    reScan: createAction<CloseEvent>('cafehub: re-scan'),
+    scanComplete: createAction('cafehub: scan complete'),
 
-    cancelPair: createAction<CloseEvent>('cafehub: cancel pair'),
+    scanFailed: createAction('cafehub: scan failed'),
+
+    scan: createAction('cafehub: scan'),
 
     pair: createAction('cafehub: pair'),
 

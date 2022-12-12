@@ -74,16 +74,22 @@ export type Manifest =
 
 const MaxRequestId = 1000000000
 
-export default class CafeHub extends ReadableStream {
+export default class CafeHub {
     private ws: undefined | WebSocket = undefined
 
     private nextRequestId: () => number = () => 0
 
     private requests: Requests = {}
 
+    private rs: ReadableStream
+
+    private reader: ReadableStreamDefaultReader
+
     constructor(url: string) {
         const start = (controller: ReadableStreamDefaultController<Manifest>) => {
-            this.ws = new WebSocket(url)
+            console.log('START')
+
+            this.ws = new WebSocket(`ws://${url}`)
 
             this.ws.addEventListener('open', () => {
                 controller.enqueue({
@@ -180,10 +186,12 @@ export default class CafeHub extends ReadableStream {
             this.ws?.close()
         }
 
-        super({
+        this.rs = new ReadableStream({
             start,
             cancel,
         })
+
+        this.reader = this.rs.getReader()
 
         let requestId = 0
 
@@ -192,8 +200,12 @@ export default class CafeHub extends ReadableStream {
         }
     }
 
+    close() {
+        this.ws?.close()
+    }
+
     async read() {
-        return this.getReader().read()
+        return this.reader.read()
     }
 
     send(data: string) {
@@ -237,7 +249,7 @@ export default class CafeHub extends ReadableStream {
         })
 
         abort?.addEventListener('abort', () => {
-            settlers.reject(new AbortError())
+            reject(new AbortError())
         })
 
         try {
@@ -260,7 +272,7 @@ export default class CafeHub extends ReadableStream {
             }
         } catch (e) {
             // Proactively reject the outstanding settler. Not bad to call it twice.
-            settlers.reject(e)
+            reject(e)
 
             throw e
         } finally {

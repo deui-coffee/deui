@@ -10,12 +10,11 @@ import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import Button from '../primitives/Button'
 import Toolbar from '../Toolbar'
-import useBackendConnectionStatus from '$/hooks/useBackendConnectionStatus'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
 
-    const connectionStatus = useBackendConnectionStatus()
+    const connectionStatus = Status.Off // TODO
 
     return (
         <div

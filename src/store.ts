@@ -5,7 +5,11 @@ import view from './features/view'
 import misc, { miscSaga } from './features/misc'
 import cafehub, { cafehubSaga } from '$/features/cafehub'
 
-const sagaMiddleware = createSagaMiddleware()
+const sagaMiddleware = createSagaMiddleware({
+    onError(e) {
+        console.warn('Uncaught error', e)
+    },
+})
 
 const store = configureStore({
     reducer: {
@@ -17,7 +21,7 @@ const store = configureStore({
         return [
             ...getDefaultMiddleware({
                 serializableCheck: {
-                    ignoredPaths: [],
+                    ignoredActionPaths: ['payload'],
                 },
             }),
             sagaMiddleware,

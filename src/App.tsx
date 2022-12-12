@@ -9,17 +9,11 @@ import BLEDrawer from '$/components/drawers/BLEDrawer'
 import WideView from './components/WideView'
 import SettingsDrawer from './components/drawers/SettingsDrawer'
 import useAutoConnectEffect from './hooks/useAutoConnectEffect'
-import useBackendStateEffect from '$/hooks/useBackendStateEffect'
-import useCharChangeEffect from '$/hooks/useCharChangeEffect'
 
 const App = () => {
     const theme = useTheme()
 
     useAutoConnectEffect()
-
-    useBackendStateEffect()
-
-    useCharChangeEffect()
 
     return (
         <>

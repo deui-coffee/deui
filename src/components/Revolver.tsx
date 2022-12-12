@@ -1,20 +1,16 @@
-import { MachineAction } from '$/features/machine'
-import { ModeId } from '$/features/machine/types'
-import useModeId from '$/hooks/useModeId'
 import getModeLabel from '$/utils/getModeLabel'
 import { css } from '@emotion/react'
 import React, { ButtonHTMLAttributes, useState } from 'react'
-import { useDispatch } from 'react-redux'
 import { useSwipeable } from 'react-swipeable'
 import tw from 'twin.macro'
 
 type ItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'type'> & {
-    modeId: ModeId
-    onClick?: (id: ModeId) => void
+    modeId: number
+    onClick?: (id: number) => void
 }
 
 function Item({ modeId, onClick, ...props }: ItemProps) {
-    const active = modeId === useModeId()
+    const active = false // TODO
 
     return (
         <button
@@ -54,28 +50,28 @@ function Item({ modeId, onClick, ...props }: ItemProps) {
     )
 }
 
-const lineup = [ModeId.Espresso, ModeId.Flush, ModeId.Water, ModeId.Steam]
+const lineup = [0, 1, 2, 3]
 
 const n = lineup.length
 
 const limit = 500
 
 export default function Revolver() {
-    const [phase, setPhase] = useState<number>(useModeId())
+    const [phase, setPhase] = useState<number>(0)
 
-    const dispatch = useDispatch()
+    const [, setModeId] = useState<number>(0)
 
     const handlers = useSwipeable({
         preventDefaultTouchmoveEvent: true,
         onSwipedUp() {
             if (phase + 1 < limit) {
-                dispatch(MachineAction.setModeId(lineup[(((phase + 1) % n) + n) % n]))
+                setModeId(lineup[(((phase + 1) % n) + n) % n])
                 setPhase(phase + 1)
             }
         },
         onSwipedDown() {
             if (phase - 1 > -limit) {
-                dispatch(MachineAction.setModeId(lineup[(((phase - 1) % n) + n) % n]))
+                setModeId(lineup[(((phase - 1) % n) + n) % n])
                 setPhase(phase - 1)
             }
         },
@@ -113,8 +109,8 @@ export default function Revolver() {
                                 style={{
                                     top: `${(phase + i) * 70}px`,
                                 }}
-                                onClick={(modeId) => {
-                                    dispatch(MachineAction.setModeId(modeId))
+                                onClick={(mid) => {
+                                    setModeId(mid)
                                     setPhase(phase + i)
                                 }}
                             />

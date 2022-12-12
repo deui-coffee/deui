@@ -1,6 +1,8 @@
 import { CafeHubAction } from '$/features/cafehub'
 import { Phase } from '$/features/cafehub/types'
 import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHub'
+import { MiscAction } from '$/features/misc'
+import handleError from '$/utils/handleError'
 import { AbortError, MachineNotFoundError } from 'cafehub-client/errors'
 import {
     CharAddr,
@@ -54,10 +56,14 @@ function connect(url: string) {
             }
         } finally {
             if ((yield cancelled()) as boolean) {
-                ch.cancel()
+                ch.close()
             }
         }
     })
+}
+
+function is<T>(arg: unknown): arg is T {
+    return !!arg
 }
 
 function scan(ch: CafeHub) {
@@ -65,8 +71,9 @@ function scan(ch: CafeHub) {
         let device: Device | undefined
 
         while (true) {
+            yield phase(Phase.Scanning)
+
             try {
-                // This will explode with `AbortError` if `cancelScan` is dispatched first.
                 yield fork(function* () {
                     yield race([
                         call(function* () {
@@ -81,6 +88,7 @@ function scan(ch: CafeHub) {
                                         },
                                     },
                                     {
+                                        timeout: 2000,
                                         abort: abortController.signal,
                                         resolveIf(msg) {
                                             return isScanResultUpdate(msg) && !msg.results.MAC
@@ -88,48 +96,47 @@ function scan(ch: CafeHub) {
                                     }
                                 )
 
-                                yield put(CafeHubAction.scanComplete)
+                                yield put(CafeHubAction.scanComplete())
+                            } catch (e) {
+                                // If we get cancelled from the outside this error handler will be
+                                // entirely ignored. Only failures coming from within are
+                                // caught here.
+                                yield put(CafeHubAction.scanFailed())
                             } finally {
                                 if ((yield cancelled()) as boolean) {
                                     abortController.abort()
                                 }
                             }
                         }),
-                        take(CafeHubAction.cancelScan),
+                        take(CafeHubAction.abort),
                     ])
                 })
 
-                // This will explode if `scanComplete` happens before DE1 machine is found.
-                yield fork(function* () {
-                    yield race([
-                        call(function* () {
-                            yield take(CafeHubAction.scanComplete)
+                const { found }: Record<'failed' | 'completed' | 'found' | 'abort', unknown> =
+                    yield race({
+                        failed: take(CafeHubAction.scanFailed),
+                        completed: take(CafeHubAction.scanComplete),
+                        found: take(CafeHubAction.device),
+                        abort: take(CafeHubAction.abort),
+                    })
 
-                            throw new MachineNotFoundError()
-                        }),
-                        take(CafeHubAction.device),
-                    ])
+                if (is<ReturnType<typeof CafeHubAction.device>>(found)) {
+                    device = found.payload
+                    break
+                }
+
+                yield phase(Phase.Unscanned)
+
+                const { retry }: Record<'retry' | 'abort', unknown> = yield race({
+                    retry: take(CafeHubAction.scan),
+                    abort: take(CafeHubAction.abort),
                 })
 
-                device = yield take(CafeHubAction.device)
-
-                break
-            } catch (e) {
-                if (e instanceof MachineNotFoundError) {
-                    yield race([
-                        call(function* () {
-                            yield take(CafeHubAction.cancelScan)
-
-                            throw new AbortError()
-                        }),
-                        take(CafeHubAction.reScan),
-                    ])
-
-                    // Back to the top of the pre-scan `while` loop.
+                if (is<ReturnType<typeof CafeHubAction.scan>>(retry)) {
                     continue
                 }
 
-                throw e
+                throw new MachineNotFoundError()
             } finally {
                 if ((yield cancelled()) as boolean) {
                     // eslint-disable-next-line no-unsafe-finally
@@ -232,9 +239,11 @@ function requestNotifications(ch: CafeHub, device: Device) {
 
 function pair(ch: CafeHub, device: Device) {
     return call(function* () {
-        yield requestNotifications(ch, device)
+        const task: Task = yield requestNotifications(ch, device)
 
         while (true) {
+            yield phase(Phase.Pairing)
+
             yield call(function* () {
                 const abortController = new AbortController()
 
@@ -263,15 +272,20 @@ function pair(ch: CafeHub, device: Device) {
                 }
             })
 
-            const decision: Record<'abort' | 'pair', unknown> = yield race({
-                abort: take(CafeHubAction.cancelPair),
+            const { abort }: Record<'abort' | 'pair', unknown> = yield race({
+                abort: take(CafeHubAction.abort),
                 pair: take(CafeHubAction.pair),
             })
 
-            if ('abort' in decision) {
-                // Don't pair again.
-                break
+            if (!is<ReturnType<typeof CafeHubAction.abort>>(abort)) {
+                // Pair again!
+                continue
             }
+
+            // Cancel all outstanding forks. Otherwise this saga won't end for millennia.
+            task.cancel()
+
+            break
         }
     })
 }
@@ -280,13 +294,42 @@ function phase(phase: Phase) {
     return put(CafeHubAction.setPhase(phase))
 }
 
+function waitForURL() {
+    return call(function* () {
+        const { connect }: Record<'connect' | 'abort', unknown> = yield race({
+            connect: take(CafeHubAction.connect),
+            abort: take(CafeHubAction.abort),
+        })
+
+        if (!is<ReturnType<typeof CafeHubAction.connect>>(connect)) {
+            throw new AbortError()
+        }
+
+        return connect.payload
+    })
+}
+
 export default function* lifecycle() {
     while (true) {
-        yield phase(Phase.Idle)
+        yield phase(Phase.Disconnected)
 
-        const { payload: url }: ReturnType<typeof CafeHubAction.connect> = yield take(
-            CafeHubAction.connect
-        )
+        let url: string
+
+        try {
+            url = yield waitForURL()
+        } catch (e) {
+            if (e instanceof AbortError) {
+                // This will automatically reset the transient backend URL.
+                yield put(MiscAction.setIsEditingBackendUrl(false))
+
+                continue
+            }
+
+            throw e
+        }
+
+        // Let's store the recent URL.
+        yield put(MiscAction.setBackendUrl(url))
 
         yield phase(Phase.Connecting)
 
@@ -297,11 +340,17 @@ export default function* lifecycle() {
         yield race([
             take(CafeHubAction.close),
             call(function* () {
-                const ch: CafeHub = yield take(CafeHubAction.open)
-
-                yield phase(Phase.Scanning)
+                let teardown: undefined | (() => void)
 
                 try {
+                    const { payload: ch }: ReturnType<typeof CafeHubAction.open> = yield take(
+                        CafeHubAction.open
+                    )
+
+                    teardown = () => {
+                        ch.close()
+                    }
+
                     // Once we know the WebSocket is open we can scan for a DE1 machine.
                     const device: Device | undefined = yield scan(ch)
 
@@ -312,22 +361,21 @@ export default function* lifecycle() {
                         throw new Error('No device found')
                     }
 
-                    yield phase(Phase.Pairing)
-
                     // With a proper device we can proceed to pairing. Pairing here means connecting
                     // CafeHub instance to the actual DE1 machine. The following will block the flow
                     // until get a clear disconnect instruction.
                     yield pair(ch, device)
 
                     // The user no longer wants CafeHub and DE1 connected. Let's dc.
-                    ch.cancel()
+                    ch.close()
                 } catch (e) {
-                    if (e instanceof AbortError) {
-                        // Eventually calls `CafeHubAction.close`.
-                        ch.cancel()
+                    handleError(e)
+                } finally {
+                    if ((yield cancelled()) as boolean) {
+                        if (teardown) {
+                            teardown()
+                        }
                     }
-
-                    throw e
                 }
             }),
         ])

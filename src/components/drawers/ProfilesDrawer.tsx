@@ -1,19 +1,14 @@
 import React from 'react'
 import Drawer from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
-import { MachineAction } from '$/features/machine'
-import { useProfiles, useSelectedProfileId } from '$/features/machine/hooks'
 import { Flag } from '$/features/misc/types'
-import { useDispatch } from 'react-redux'
 import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
 import tw from 'twin.macro'
 
 export default function ProfilesDrawer() {
-    const profiles = useProfiles()
+    const profiles: unknown[] = []
 
-    const dispatch = useDispatch()
-
-    const selectedProfileId = useSelectedProfileId()
+    const selectedProfileId = undefined // TODO
 
     const toggle = useToggleProfilesDrawer()
 
@@ -34,17 +29,17 @@ export default function ProfilesDrawer() {
                     `,
                 ]}
             >
-                {profiles.map(({ id, label }) => (
+                {profiles.map((_, id) => (
                     <li key={id}>
                         <ListItem
-                            id={id}
+                            id={`${id}`}
                             onClick={(id) => {
-                                dispatch(MachineAction.selectProfile(id))
+                                throw new Error(`Not implemented, ${id}`)
                                 toggle(false)
                             }}
                             active={id === selectedProfileId}
                         >
-                            {label}
+                            {id}
                         </ListItem>
                     </li>
                 ))}

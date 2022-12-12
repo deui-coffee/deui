@@ -4,6 +4,7 @@ export interface MiscState {
     }
     settings: {
         backendUrl: string
+        transientBackendUrl: undefined | string
     }
     ui: {
         dark?: true

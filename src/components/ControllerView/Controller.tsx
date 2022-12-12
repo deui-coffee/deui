@@ -1,15 +1,14 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
 import Revolver from '$/components/Revolver'
-import { useProfileLabel } from '$/features/machine/hooks'
-import { MetricId } from '$/features/metric/types'
 import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
+import { MetricId } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 
 export default function Controller() {
-    const profileLabel = useProfileLabel()
+    const profileLabel = 'FIXME'
 
     const toggleProfilesDrawer = useToggleProfilesDrawer()
 

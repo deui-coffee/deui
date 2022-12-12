@@ -11,6 +11,8 @@ export const MiscAction = {
     setIsEditingBackendUrl: createAction<boolean>('misc: set is editing backend url'),
 
     setBackendUrl: createAction<string>('misc: set backend url'),
+
+    setTransientBackendUrl: createAction<undefined | string>('misc: set transient backend url'),
 }
 
 const initialState: MiscState = {
@@ -21,6 +23,7 @@ const initialState: MiscState = {
     },
     settings: {
         backendUrl: localStorage.getItem(StorageKey.BackendUrl) || '',
+        transientBackendUrl: undefined,
     },
 }
 
@@ -43,6 +46,10 @@ const reducer = createReducer(initialState, (builder) => {
 
     builder.addCase(MiscAction.setIsEditingBackendUrl, (state, { payload }) => {
         state.ui.isEditingBackendUrl = payload
+
+        if (!payload) {
+            state.settings.transientBackendUrl = undefined
+        }
     })
 
     builder.addCase(MiscAction.setBackendUrl, (state, { payload }) => {
@@ -53,6 +60,10 @@ const reducer = createReducer(initialState, (builder) => {
         }
 
         state.settings.backendUrl = payload
+    })
+
+    builder.addCase(MiscAction.setTransientBackendUrl, (state, { payload }) => {
+        state.settings.transientBackendUrl = payload
     })
 })
 

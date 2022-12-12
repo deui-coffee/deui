@@ -1,38 +1,52 @@
-import { BackendAction } from '$/features/backend'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import useBackendUrl from '$/hooks/useBackendUrl'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
-import React, { ButtonHTMLAttributes, KeyboardEvent, useEffect, useRef, useState } from 'react'
+import React, {
+    ButtonHTMLAttributes,
+    HTMLAttributes,
+    KeyboardEvent,
+    ReactNode,
+    useEffect,
+    useRef,
+    useState,
+} from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
 import Button, { ButtonTheme } from '../primitives/Button'
 import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
-import StatusIndicator from '../StatusIndicator'
-import useBackendConnectionStatus from '$/hooks/useBackendConnectionStatus'
-import useBackendState from '$/hooks/useBackendState'
+import StatusIndicator, { Status } from '../StatusIndicator'
 import useFlag from '$/hooks/useFlag'
 import { CafeHubState } from 'cafehub-client/types'
+import useCafeHubPhase from '$/hooks/useCafeHubPhase'
+import { Phase } from '$/features/cafehub/types'
+import { CafeHubAction } from '$/features/cafehub'
+import useTransientBackendUrl from '$/hooks/useTransientBackendUrl'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
 
+function getStatus(phase: Phase) {
+    switch (phase) {
+        case Phase.Connecting:
+        case Phase.Pairing:
+        case Phase.Scanning:
+            return Status.Busy
+        case Phase.Paired:
+            return Status.On
+        default:
+            return Status.Off
+    }
+}
+
 export default function BackendAddressControl({ label = 'Backend URL', ...props }: Props) {
-    const backendUrl = useBackendUrl()
+    const backendUrl = useTransientBackendUrl()
 
-    const [value, setValue] = useState<string>(backendUrl)
+    const chPhase = useCafeHubPhase()
 
-    useEffect(() => {
-        setValue(backendUrl)
-    }, [backendUrl])
-
-    const status = useBackendConnectionStatus()
-
-    const backendState = useBackendState()
-
-    const canConnect = !!value && !/\s/.test(value) && backendState === CafeHubState.Disconnected
+    const canConnect = !!backendUrl && !/\s/.test(backendUrl) && chPhase === Phase.Disconnected
 
     const fieldRef = useRef<HTMLInputElement>(null)
 
@@ -40,19 +54,11 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
 
     const isEditingBackendUrl = useIsEditingBackendUrl()
 
-    const isBeingConnected = useFlag(Flag.IsConnectingToBackend)
-
-    const isBeingDisconnected = useFlag(Flag.IsDisconnectingToBackend)
-
-    function onConnectClick() {
-        dispatch(BackendAction.setUrl(value))
-    }
-
     function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Escape') {
             dispatch(MiscAction.setIsEditingBackendUrl(false))
 
-            setValue(backendUrl)
+            dispatch(MiscAction.setTransientBackendUrl(undefined))
 
             if (fieldRef.current) {
                 fieldRef.current.blur()
@@ -65,12 +71,9 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
     return (
         <Form
             onSubmit={() => {
-                dispatch(
-                    BackendAction.connect({
-                        flag: Flag.IsConnectingToBackend,
-                        url: value,
-                    })
-                )
+                if (canConnect) {
+                    dispatch(CafeHubAction.connect(backendUrl))
+                }
             }}
         >
             <Control
@@ -78,26 +81,13 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                 label={
                     <>
                         <span>{label}</span>
-                        {backendState === CafeHubState.Connecting && (
-                            <span
-                                css={[
-                                    tw`
-                                        tracking-normal
-                                        normal-case
-                                        text-medium-grey
-                                        text-[0.75rem]
-                                    `,
-                                ]}
-                            >
-                                Connecting…
-                            </span>
-                        )}
+                        <PhaseLabel phase={chPhase} />
                     </>
                 }
             >
                 <TextFieldDecorator>
                     <StatusIndicator
-                        value={status}
+                        value={getStatus(chPhase)}
                         idleCss={tw`
                             text-[#ddd]
                             dark:text-dark-grey
@@ -106,21 +96,22 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                     <TextField
                         ref={fieldRef}
                         placeholder="Eg. 192.168.1.1:5000"
-                        value={value}
+                        value={backendUrl}
                         onChange={(e) => {
-                            setValue(e.target.value)
+                            dispatch(MiscAction.setTransientBackendUrl(e.target.value))
                         }}
                         onFocus={() => {
                             dispatch(MiscAction.setIsEditingBackendUrl(true))
                         }}
                         onKeyDown={onKeyDown}
-                        readOnly={backendState !== CafeHubState.Disconnected}
+                        readOnly={chPhase !== Phase.Disconnected}
                     />
                 </TextFieldDecorator>
             </Control>
             {isEditingBackendUrl && (
                 <Control>
                     <div
+                        {...props}
                         css={[
                             tw`
                                 flex
@@ -142,15 +133,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                         >
                             <SecondaryButton
                                 onClick={() => {
-                                    dispatch(MiscAction.setIsEditingBackendUrl(false))
-                                    setValue(backendUrl)
-
-                                    if (
-                                        isBeingConnected ||
-                                        backendState === CafeHubState.Connecting
-                                    ) {
-                                        dispatch(BackendAction.abort())
-                                    }
+                                    dispatch(CafeHubAction.abort())
                                 }}
                             >
                                 Cancel
@@ -167,30 +150,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                                 `,
                             ]}
                         >
-                            {(backendState === CafeHubState.Connected || isBeingDisconnected) &&
-                            !isBeingConnected ? (
-                                <PrimaryButton
-                                    key="dc"
-                                    disabled={isBeingDisconnected}
-                                    onClick={() => {
-                                        dispatch(
-                                            BackendAction.disconnect({
-                                                flag: Flag.IsDisconnectingToBackend,
-                                            })
-                                        )
-                                    }}
-                                >
-                                    Disconnect
-                                </PrimaryButton>
-                            ) : (
-                                <PrimaryButton
-                                    disabled={!canConnect}
-                                    onClick={onConnectClick}
-                                    type="submit"
-                                >
-                                    Connect
-                                </PrimaryButton>
-                            )}
+                            <RightAction disabled={!canConnect} />
                         </div>
                     </div>
                 </Control>
@@ -233,4 +193,89 @@ function SecondaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
             ]}
         />
     )
+}
+
+interface PhaseLabelProps extends HTMLAttributes<HTMLSpanElement> {
+    phase: Phase
+}
+
+function PhaseLabel({ phase, ...props }: PhaseLabelProps) {
+    let label
+
+    switch (phase) {
+        case Phase.Connecting:
+            label = 'Connecting…'
+            break
+        case Phase.Pairing:
+            label = 'Pairing…'
+            break
+        case Phase.Scanning:
+            label = 'Scanning…'
+            break
+        default:
+            return null
+    }
+
+    return (
+        <span
+            {...props}
+            css={[
+                tw`
+                    tracking-normal
+                    normal-case
+                    text-medium-grey
+                    text-[0.75rem]
+                `,
+            ]}
+        >
+            {label}
+        </span>
+    )
+}
+
+interface RightActionProps {
+    disabled?: boolean
+}
+
+function RightAction({ disabled = false }: RightActionProps) {
+    const chPhase = useCafeHubPhase()
+
+    const dispatch = useDispatch()
+
+    switch (chPhase) {
+        case Phase.Disconnected:
+            return (
+                <PrimaryButton key={chPhase} disabled={disabled} type="submit">
+                    Connect
+                </PrimaryButton>
+            )
+        case Phase.Unscanned:
+            return (
+                <PrimaryButton
+                    key={chPhase}
+                    onClick={() => {
+                        dispatch(CafeHubAction.scan())
+                    }}
+                >
+                    Scan again
+                </PrimaryButton>
+            )
+        case Phase.Unpaired:
+            return (
+                <PrimaryButton
+                    key={chPhase}
+                    onClick={() => {
+                        dispatch(CafeHubAction.pair())
+                    }}
+                >
+                    Pair again
+                </PrimaryButton>
+            )
+        default:
+            return (
+                <PrimaryButton key={chPhase} disabled>
+                    Connect
+                </PrimaryButton>
+            )
+    }
 }

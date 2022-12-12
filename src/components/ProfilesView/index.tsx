@@ -1,32 +1,29 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import List from '../List'
-import { useProfiles, useSelectedProfileId } from '../../features/machine/hooks'
-import { useDispatch } from 'react-redux'
-import { MachineAction } from '../../features/machine'
 
 export default function Profiles() {
-    const profiles = useProfiles()
+    return <></>
+    // const profiles = useProfiles()
 
-    const selectedProfileId = useSelectedProfileId()
+    // const selectedProfileId = useSelectedProfileId()
 
-    const dispatch = useDispatch()
+    // const dispatch = useDispatch()
 
-    return (
-        <List>
-            {profiles.map(({ id, label }) => (
-                <Item
-                    key={id}
-                    id={id}
-                    onClick={(profileId) => void dispatch(MachineAction.selectProfile(profileId))}
-                    active={selectedProfileId === id}
-                >
-                    {label}
-                </Item>
-            ))}
-        </List>
-    )
+    // return (
+    //     <List>
+    //         {profiles.map(({ id, label }) => (
+    //             <Item
+    //                 key={id}
+    //                 id={id}
+    //                 onClick={(profileId) => void dispatch(MachineAction.selectProfile(profileId))}
+    //                 active={selectedProfileId === id}
+    //             >
+    //                 {label}
+    //             </Item>
+    //         ))}
+    //     </List>
+    // )
 }
 
 type ItemProps = {

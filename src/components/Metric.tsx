@@ -1,8 +1,6 @@
+import { MetricId } from '$/types'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
-import { metrics } from '../consts'
-import { useMetricValue } from '../features/metric/hooks'
-import { MetricId } from '../features/metric/types'
 import Label from './primitives/Label'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
@@ -10,9 +8,11 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 }
 
 export default function Metric({ metricId, ...props }: Props) {
-    const value = useMetricValue(metricId)
+    const value = 0 // TODO
 
-    const { unit, label } = metrics[metricId]
+    const unit = 'j.m.' // TODO
+
+    const label = 'FIXME' // TODO
 
     return (
         <div

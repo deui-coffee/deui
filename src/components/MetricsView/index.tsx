@@ -5,13 +5,12 @@ import { css } from '@emotion/react'
 import Metric from '../Metric'
 import { ViewAction } from '../../features/view'
 import { ViewId } from '../../features/view/types'
-import { MetricId } from '../../features/metric/types'
-import { useProfileLabel } from '../../features/machine/hooks'
+import { MetricId } from '$/types'
 
 export default function Metrics() {
     const dispatch = useDispatch()
 
-    const profileLabel = useProfileLabel()
+    const profileLabel = 'FIXME' // TODO
 
     return (
         <div tw="px-14">

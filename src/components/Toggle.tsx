@@ -1,6 +1,5 @@
 import React, { ButtonHTMLAttributes } from 'react'
 import tw from 'twin.macro'
-import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
 import Button, { ButtonTheme } from './primitives/Button'
 

@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import tw from 'twin.macro'
-import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
 import Button from './primitives/Button'
-import DrawerContext from '$/contexts/DrawerContext'
 
 export interface Option {
     value: string
