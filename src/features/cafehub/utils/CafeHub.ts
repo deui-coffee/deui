@@ -19,6 +19,14 @@ import {
 } from 'cafehub-client/types'
 import { defer, delay } from 'cafehub-client/utils'
 
+const DEBUG = false
+
+function debug(...args: unknown[]) {
+    if (DEBUG) {
+        console.log(...args)
+    }
+}
+
 export enum ManifestType {
     Open = 'open',
     Close = 'close',
@@ -87,8 +95,6 @@ export default class CafeHub {
 
     constructor(url: string) {
         const start = (controller: ReadableStreamDefaultController<Manifest>) => {
-            console.log('START')
-
             this.ws = new WebSocket(`ws://${url}`)
 
             this.ws.addEventListener('open', () => {
@@ -114,6 +120,8 @@ export default class CafeHub {
             })
 
             this.ws.addEventListener('message', (e: MessageEvent<string>) => {
+                debug('RECV', e.data)
+
                 let payload: undefined | RawMessage
 
                 try {
@@ -214,6 +222,8 @@ export default class CafeHub {
         }
 
         this.ws.send(data)
+
+        debug('SEND', data)
     }
 
     async request(data: Request, { timeout, resolveIf, onBeforeSend, abort }: SendOptions = {}) {
