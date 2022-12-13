@@ -4,8 +4,10 @@ import {
     ConnectionStateUpdate,
     Defer,
     Device,
+    ErrorUpdate,
     GATTNotifyUpdate,
     isConnectionStateUpdate,
+    isErrorUpdate,
     isGATTNotifyUpdate,
     isScanResultUpdate,
     isUpdateMessage,
@@ -35,6 +37,7 @@ export enum ManifestType {
     Device = 'device',
     Update = 'update',
     ConnectionState = 'connectionState',
+    ExecutionError = 'executionError',
 }
 
 interface OpenManifest {
@@ -71,6 +74,11 @@ interface ConnectionStateManifest {
     payload: ConnectionStateUpdate
 }
 
+interface ExecutionErrorManifest {
+    type: ManifestType.ExecutionError
+    payload: ErrorUpdate
+}
+
 export type Manifest =
     | OpenManifest
     | CloseManifest
@@ -79,6 +87,7 @@ export type Manifest =
     | DeviceManifest
     | UpdateManifest
     | ConnectionStateManifest
+    | ExecutionErrorManifest
 
 const MaxRequestId = 1000000000
 
@@ -160,10 +169,19 @@ export default class CafeHub {
                 // *Try* to resolve associated `sendRequest` promise. Possibly a noop, see `resolveIf`.
                 this.requests[payload.id].resolve(payload)
 
+                if (isErrorUpdate(payload)) {
+                    controller.enqueue({
+                        type: ManifestType.ExecutionError,
+                        payload,
+                    })
+
+                    return
+                }
+
                 if (isConnectionStateUpdate(payload)) {
                     controller.enqueue({
                         type: ManifestType.ConnectionState,
-                        payload: payload,
+                        payload,
                     })
 
                     return

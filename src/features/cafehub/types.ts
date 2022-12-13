@@ -6,12 +6,13 @@ export interface CafeHubState {
 }
 
 export enum Phase {
-    Disconnected,
-    Connecting,
-    Connected,
-    Scanning,
-    Unscanned,
-    Pairing,
-    Paired,
-    Unpaired,
+    Connected = 'connected',
+    Connecting = 'connecting',
+    Disconnected = 'disconnected',
+    Disconnecting = 'disconnecting',
+    Paired = 'paired',
+    Pairing = 'pairing',
+    Scanning = 'scanning',
+    Unpaired = 'unpaired',
+    Unscanned = 'unscanned',
 }

@@ -13,7 +13,7 @@ import {
     RequestCommand,
 } from 'cafehub-client/types'
 import { Task } from 'redux-saga'
-import { call, cancelled, fork, put, race, take } from 'redux-saga/effects'
+import { call, cancelled, delay, fork, put, race, take } from 'redux-saga/effects'
 
 function connect(url: string) {
     return fork(function* () {
@@ -45,6 +45,9 @@ function connect(url: string) {
                             break
                         case ManifestType.ConnectionState:
                             yield put(CafeHubAction.connectionState(msg.payload))
+                            break
+                        case ManifestType.ExecutionError:
+                            yield put(CafeHubAction.execError(msg.payload))
                             break
                         default:
                     }
@@ -181,96 +184,177 @@ function subscribeToNotifications(ch: CafeHub, device: Device, char: CharAddr) {
     })
 }
 
-function requestNotifications(ch: CafeHub, device: Device) {
-    return fork(function* () {
-        let recentState
+function gattDisconnect(ch: CafeHub, device: Device) {
+    return call(function* () {
+        const abortController = new AbortController()
 
-        let tasks: Task[] = []
+        try {
+            yield ch.request(
+                {
+                    command: RequestCommand.GATTDisconnect,
+                    params: {
+                        MAC: device.MAC,
+                    },
+                },
+                {
+                    abort: abortController.signal,
+                }
+            )
+        } catch (e) {
+            handleError(e)
+        } finally {
+            if ((yield cancelled()) as boolean) {
+                abortController.abort()
+            }
+        }
+    })
+}
+
+function watchConnection(ch: CafeHub, device: Device) {
+    return fork(function* () {
+        const { abort }: Record<'abort' | 'watch', unknown> = yield race({
+            abort: take(CafeHubAction.unpair),
+            watch: call(function* () {
+                let recentState
+
+                let tasks: Task[] = []
+
+                while (true) {
+                    const {
+                        payload: {
+                            results: { MAC: mac, CState: connectionState },
+                        },
+                    }: ReturnType<typeof CafeHubAction.connectionState> = yield take(
+                        CafeHubAction.connectionState
+                    )
+
+                    if (device.MAC !== mac) {
+                        continue
+                    }
+
+                    if (recentState === connectionState) {
+                        continue
+                    }
+
+                    recentState = connectionState
+
+                    tasks.forEach((task) => {
+                        task.cancel()
+                    })
+
+                    tasks = []
+
+                    if (connectionState !== ConnectionState.Connected) {
+                        yield phase(Phase.Unpaired)
+
+                        continue
+                    }
+
+                    yield phase(Phase.Paired)
+
+                    tasks.push(
+                        yield fork(function* () {
+                            // yield subscribeToNotifications(ch, device, CharAddr.WaterLevels)
+                            // yield subscribeToNotifications(ch, device, CharAddr.Temperatures)
+                        })
+                    )
+
+                    tasks.push(
+                        yield fork(function () {
+                            // takeEvery GATT write and dispatch a write.
+                        })
+                    )
+                }
+            }),
+        })
+
+        if (!abort) {
+            return
+        }
+
+        yield phase(Phase.Disconnecting)
+
+        yield gattDisconnect(ch, device)
+
+        yield put(CafeHubAction.close(null))
+    })
+}
+
+function requestPair(ch: CafeHub, device: Device) {
+    // This will make an attempt to connect DE1 and CH, and if they're already connected
+    // from before, it'll clean that up (dc) and connect them again. Cool, eh? On paper.
+
+    return call(function* () {
+        let attempts = 0
 
         while (true) {
-            const {
-                payload: {
-                    results: { MAC: mac, CState: connectionState },
-                },
-            }: ReturnType<typeof CafeHubAction.connectionState> = yield take(
-                CafeHubAction.connectionState
-            )
+            const result: Record<'clean' | 'dirty', unknown> = yield race({
+                dirty: call(function* () {
+                    while (true) {
+                        const {
+                            payload: {
+                                results: { eid },
+                            },
+                        }: ReturnType<typeof CafeHubAction.execError> = yield take(
+                            CafeHubAction.execError
+                        )
 
-            if (device.MAC !== mac) {
-                continue
-            }
+                        if (eid === 6) {
+                            // CH and DE1 are already paired before we even started. A no-no.
+                            break
+                        }
+                    }
+                }),
+                clean: call(function* () {
+                    const abortController = new AbortController()
 
-            if (recentState === connectionState) {
-                continue
-            }
-
-            recentState = connectionState
-
-            tasks.forEach((task) => {
-                task.cancel()
+                    try {
+                        yield ch.request(
+                            {
+                                command: RequestCommand.GATTConnect,
+                                params: {
+                                    MAC: device.MAC,
+                                },
+                            },
+                            {
+                                abort: abortController.signal,
+                                resolveIf(msg) {
+                                    return (
+                                        isConnectionStateUpdate(msg) &&
+                                        msg.results.CState === ConnectionState.Disconnected
+                                    )
+                                },
+                            }
+                        )
+                    } finally {
+                        if ((yield cancelled()) as boolean) {
+                            abortController.abort()
+                        }
+                    }
+                }),
             })
 
-            tasks = []
-
-            if (connectionState !== ConnectionState.Connected) {
-                yield phase(Phase.Unpaired)
-
-                continue
+            if ('clean' in result || attempts === 1) {
+                break
             }
 
-            yield phase(Phase.Paired)
+            // We've detected an old connection betweeb CH and DE1. Let's disconnect it and
+            // try to connect them again (it's a `while` loop, still).
+            yield gattDisconnect(ch, device)
 
-            tasks.push(
-                yield fork(function* () {
-                    yield subscribeToNotifications(ch, device, CharAddr.WaterLevels)
-
-                    yield subscribeToNotifications(ch, device, CharAddr.Temperatures)
-                })
-            )
-
-            tasks.push(
-                yield fork(function () {
-                    // takeEvery GATT write and dispatch a write.
-                })
-            )
+            attempts++
         }
     })
 }
 
 function pair(ch: CafeHub, device: Device) {
     return call(function* () {
-        const task: Task = yield requestNotifications(ch, device)
+        const task: Task = yield watchConnection(ch, device)
 
         while (true) {
             yield phase(Phase.Pairing)
 
-            yield call(function* () {
-                const abortController = new AbortController()
-
-                try {
-                    yield ch.request(
-                        {
-                            command: RequestCommand.GATTConnect,
-                            params: {
-                                MAC: device.MAC,
-                            },
-                        },
-                        {
-                            abort: abortController.signal,
-                            resolveIf(msg) {
-                                return (
-                                    isConnectionStateUpdate(msg) &&
-                                    msg.results.CState === ConnectionState.Disconnected
-                                )
-                            },
-                        }
-                    )
-                } finally {
-                    if ((yield cancelled()) as boolean) {
-                        abortController.abort()
-                    }
-                }
-            })
+            yield requestPair(ch, device)
 
             const { abort }: Record<'abort' | 'pair', unknown> = yield race({
                 abort: take(CafeHubAction.abort),

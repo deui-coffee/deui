@@ -7,6 +7,7 @@ import { createAction, createReducer } from '@reduxjs/toolkit'
 import {
     ConnectionStateUpdate,
     Device,
+    ErrorUpdate,
     GATTNotifyUpdate,
     UpdateMessage,
 } from 'cafehub-client/types'
@@ -48,6 +49,8 @@ export const CafeHubAction = {
 
     pair: createAction('cafehub: pair'),
 
+    unpair: createAction('cafehub: unpair'),
+
     error: createAction<Event>('cafehub: error'),
 
     notification: createAction<GATTNotifyUpdate>('cafehub: notification'),
@@ -57,6 +60,8 @@ export const CafeHubAction = {
     update: createAction<UpdateMessage>('cafehub: update'),
 
     connectionState: createAction<ConnectionStateUpdate>('cafehub: new connection state'),
+
+    execError: createAction<ErrorUpdate>('cafehub: exec error'),
 
     reset: createAction('cafehub: reset'),
 

@@ -1,7 +1,13 @@
 import { MiscAction } from '$/features/misc'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
-import React, { ButtonHTMLAttributes, HTMLAttributes, KeyboardEvent, useRef } from 'react'
+import React, {
+    ButtonHTMLAttributes,
+    HTMLAttributes,
+    KeyboardEvent,
+    useEffect,
+    useRef,
+} from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
@@ -18,6 +24,7 @@ type Props = Omit<ControlProps, 'fill' | 'pad'>
 
 function getStatus(phase: Phase) {
     switch (phase) {
+        case Phase.Disconnecting:
         case Phase.Connecting:
         case Phase.Pairing:
         case Phase.Scanning:
@@ -33,6 +40,10 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
     const backendUrl = useTransientBackendUrl()
 
     const chPhase = useCafeHubPhase()
+
+    useEffect(() => {
+        console.log('Phase', chPhase)
+    }, [chPhase])
 
     const canConnect = !!backendUrl && !/\s/.test(backendUrl) && chPhase === Phase.Disconnected
 
@@ -120,7 +131,11 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                             ]}
                         >
                             <SecondaryButton
-                                disabled={chPhase === Phase.Paired || chPhase === Phase.Pairing}
+                                disabled={[
+                                    Phase.Paired,
+                                    Phase.Pairing,
+                                    Phase.Disconnecting,
+                                ].includes(chPhase)}
                                 onClick={() => {
                                     dispatch(CafeHubAction.abort())
                                 }}
@@ -201,6 +216,9 @@ function PhaseLabel({ phase, ...props }: PhaseLabelProps) {
         case Phase.Scanning:
             label = 'Scanning…'
             break
+        case Phase.Disconnecting:
+            label = 'Disconnecting…'
+            break
         default:
             return null
     }
@@ -265,7 +283,7 @@ function RightAction({ disabled = false }: RightActionProps) {
                 <PrimaryButton
                     key={chPhase}
                     onClick={() => {
-                        dispatch(CafeHubAction.close(null))
+                        dispatch(CafeHubAction.unpair())
                     }}
                 >
                     Disconnect
