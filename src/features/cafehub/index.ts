@@ -2,7 +2,7 @@ import lifecycle from '$/features/cafehub/sagas/lifecycle.saga'
 import { CafeHubState, Phase } from '$/features/cafehub/types'
 import CafeHub from '$/features/cafehub/utils/CafeHub'
 import parseCharUpdate from '$/features/cafehub/utils/parseCharUpdate'
-import { MetricId } from '$/types'
+import { MetricId, StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import {
     ConnectionStateUpdate,
@@ -28,6 +28,7 @@ function getDefaultMetrics(): Record<MetricId, number> {
 const initialState: CafeHubState = {
     metrics: getDefaultMetrics(),
     phase: Phase.Disconnected,
+    recentMAC: localStorage.getItem(StorageKey.RecentMAC) || undefined,
 }
 
 export const CafeHubAction = {
@@ -70,6 +71,8 @@ export const CafeHubAction = {
     write: createAction('cafehub: GATT write'),
 
     storeUrl: createAction<string>('cafehub: store url'),
+
+    setRecentMAC: createAction<string | undefined>('cafehub: set recent mac'),
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -86,6 +89,16 @@ const reducer = createReducer(initialState, (builder) => {
 
     builder.addCase(CafeHubAction.setPhase, (state, { payload }) => {
         state.phase = payload
+    })
+
+    builder.addCase(CafeHubAction.setRecentMAC, (state, { payload }) => {
+        if (payload) {
+            localStorage.setItem(StorageKey.RecentMAC, payload)
+        } else {
+            localStorage.removeItem(StorageKey.RecentMAC)
+        }
+
+        state.recentMAC = payload
     })
 })
 

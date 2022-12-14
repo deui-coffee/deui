@@ -2,6 +2,7 @@ import { CafeHubAction } from '$/features/cafehub'
 import { Phase } from '$/features/cafehub/types'
 import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHub'
 import { MiscAction } from '$/features/misc'
+import selectCafeHubRecentMAC from '$/selectors/selectCafeHubRecentMAC'
 import handleError from '$/utils/handleError'
 import { AbortError, MachineNotFoundError } from 'cafehub-client/errors'
 import {
@@ -13,7 +14,7 @@ import {
     RequestCommand,
 } from 'cafehub-client/types'
 import { Task } from 'redux-saga'
-import { call, cancelled, delay, fork, put, race, take } from 'redux-saga/effects'
+import { call, cancelled, fork, put, race, select, take } from 'redux-saga/effects'
 
 function connect(url: string) {
     return fork(function* () {
@@ -73,8 +74,14 @@ function scan(ch: CafeHub) {
     return call(function* () {
         let device: Device | undefined
 
+        let attempts = 0
+
         while (true) {
             yield phase(Phase.Scanning)
+
+            if (attempts > 0) {
+                yield dattDisconnectRecentMAC(ch)
+            }
 
             try {
                 yield fork(function* () {
@@ -91,7 +98,6 @@ function scan(ch: CafeHub) {
                                         },
                                     },
                                     {
-                                        timeout: 2000,
                                         abort: abortController.signal,
                                         resolveIf(msg) {
                                             return isScanResultUpdate(msg) && !msg.results.MAC
@@ -134,6 +140,8 @@ function scan(ch: CafeHub) {
                     retry: take(CafeHubAction.scan),
                     abort: take(CafeHubAction.abort),
                 })
+
+                attempts++
 
                 if (is<ReturnType<typeof CafeHubAction.scan>>(retry)) {
                     continue
@@ -184,7 +192,7 @@ function subscribeToNotifications(ch: CafeHub, device: Device, char: CharAddr) {
     })
 }
 
-function gattDisconnect(ch: CafeHub, device: Device) {
+function gattDisconnect(ch: CafeHub, mac: string) {
     return call(function* () {
         const abortController = new AbortController()
 
@@ -193,13 +201,15 @@ function gattDisconnect(ch: CafeHub, device: Device) {
                 {
                     command: RequestCommand.GATTDisconnect,
                     params: {
-                        MAC: device.MAC,
+                        MAC: mac,
                     },
                 },
                 {
                     abort: abortController.signal,
                 }
             )
+
+            yield put(CafeHubAction.setRecentMAC(undefined))
         } catch (e) {
             handleError(e)
         } finally {
@@ -207,6 +217,18 @@ function gattDisconnect(ch: CafeHub, device: Device) {
                 abortController.abort()
             }
         }
+    })
+}
+
+function dattDisconnectRecentMAC(ch: CafeHub) {
+    return call(function* () {
+        const mac: undefined | string = yield select(selectCafeHubRecentMAC)
+
+        if (!mac) {
+            return
+        }
+
+        yield gattDisconnect(ch, mac)
     })
 }
 
@@ -219,9 +241,12 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                 let tasks: Task[] = []
 
+                let connectorRequestId: undefined | number
+
                 while (true) {
                     const {
                         payload: {
+                            id,
                             results: { MAC: mac, CState: connectionState },
                         },
                     }: ReturnType<typeof CafeHubAction.connectionState> = yield take(
@@ -238,6 +263,16 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                     recentState = connectionState
 
+                    if (connectionState === ConnectionState.Connected) {
+                        connectorRequestId = id
+                    }
+
+                    if (connectorRequestId !== id) {
+                        // Skip connection state changes that were caused by requests that have
+                        // not resolved to establish a connection.
+                        continue
+                    }
+
                     tasks.forEach((task) => {
                         task.cancel()
                     })
@@ -245,12 +280,18 @@ function watchConnection(ch: CafeHub, device: Device) {
                     tasks = []
 
                     if (connectionState !== ConnectionState.Connected) {
+                        yield put(CafeHubAction.setRecentMAC(undefined))
+
                         yield phase(Phase.Unpaired)
 
                         continue
                     }
 
                     yield phase(Phase.Paired)
+
+                    connectorRequestId = id
+
+                    yield put(CafeHubAction.setRecentMAC(device.MAC))
 
                     tasks.push(
                         yield fork(function* () {
@@ -274,7 +315,7 @@ function watchConnection(ch: CafeHub, device: Device) {
 
         yield phase(Phase.Disconnecting)
 
-        yield gattDisconnect(ch, device)
+        yield gattDisconnect(ch, device.MAC)
 
         yield put(CafeHubAction.close(null))
     })
@@ -340,7 +381,7 @@ function requestPair(ch: CafeHub, device: Device) {
 
             // We've detected an old connection betweeb CH and DE1. Let's disconnect it and
             // try to connect them again (it's a `while` loop, still).
-            yield gattDisconnect(ch, device)
+            yield gattDisconnect(ch, device.MAC)
 
             attempts++
         }

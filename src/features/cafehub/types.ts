@@ -3,6 +3,7 @@ import { MetricId } from '$/types'
 export interface CafeHubState {
     metrics: Record<MetricId, number>
     phase: Phase
+    recentMAC: undefined | string
 }
 
 export enum Phase {

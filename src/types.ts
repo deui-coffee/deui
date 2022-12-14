@@ -6,6 +6,7 @@ export enum StorageKey {
     Theme = 'deui/theme',
     Profile = 'deui/profile',
     BackendUrl = 'deui/backendUrl',
+    RecentMAC = 'deui/recentMAC',
 }
 
 export enum Theme {
