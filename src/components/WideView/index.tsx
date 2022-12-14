@@ -4,17 +4,18 @@ import Clock from '$/components/ControllerView/Clock'
 import { css } from '@emotion/react'
 import Label from '../primitives/Label'
 import PowerToggle from '../PowerToggle'
-import StatusIndicator, { Status } from '../StatusIndicator'
+import StatusIndicator from '../StatusIndicator'
 import { useDispatch } from 'react-redux'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
 import Button from '../primitives/Button'
 import Toolbar from '../Toolbar'
+import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
 
-    const connectionStatus = Status.Off // TODO
+    const connectionStatus = useCafeHubPhaseStatus()
 
     return (
         <div

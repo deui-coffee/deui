@@ -14,32 +14,21 @@ import Control, { ControlProps } from '../Control'
 import Button, { ButtonTheme } from '../primitives/Button'
 import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
-import StatusIndicator, { Status } from '../StatusIndicator'
+import StatusIndicator from '../StatusIndicator'
 import useCafeHubPhase from '$/hooks/useCafeHubPhase'
 import { Phase } from '$/features/cafehub/types'
 import { CafeHubAction } from '$/features/cafehub'
 import useTransientBackendUrl from '$/hooks/useTransientBackendUrl'
+import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
-
-function getStatus(phase: Phase) {
-    switch (phase) {
-        case Phase.Disconnecting:
-        case Phase.Connecting:
-        case Phase.Pairing:
-        case Phase.Scanning:
-            return Status.Busy
-        case Phase.Paired:
-            return Status.On
-        default:
-            return Status.Off
-    }
-}
 
 export default function BackendAddressControl({ label = 'Backend URL', ...props }: Props) {
     const backendUrl = useTransientBackendUrl()
 
     const chPhase = useCafeHubPhase()
+
+    const status = useCafeHubPhaseStatus()
 
     useEffect(() => {
         console.log('Phase', chPhase)
@@ -86,7 +75,7 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
             >
                 <TextFieldDecorator>
                     <StatusIndicator
-                        value={getStatus(chPhase)}
+                        value={status}
                         idleCss={tw`
                             text-[#ddd]
                             dark:text-dark-grey

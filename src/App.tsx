@@ -9,11 +9,14 @@ import BLEDrawer from '$/components/drawers/BLEDrawer'
 import WideView from './components/WideView'
 import SettingsDrawer from './components/drawers/SettingsDrawer'
 import useAutoConnectEffect from './hooks/useAutoConnectEffect'
+import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
 
 const App = () => {
     const theme = useTheme()
 
     useAutoConnectEffect()
+
+    usePreventNavigatingAwayEffect()
 
     return (
         <>
