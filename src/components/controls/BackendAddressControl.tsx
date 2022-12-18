@@ -1,13 +1,7 @@
 import { MiscAction } from '$/features/misc'
 import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
-import React, {
-    ButtonHTMLAttributes,
-    HTMLAttributes,
-    KeyboardEvent,
-    useEffect,
-    useRef,
-} from 'react'
+import React, { ButtonHTMLAttributes, HTMLAttributes, KeyboardEvent, useRef } from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
@@ -16,10 +10,11 @@ import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
 import StatusIndicator from '../StatusIndicator'
 import useCafeHubPhase from '$/hooks/useCafeHubPhase'
-import { Phase } from '$/features/cafehub/types'
+import { Phase, Property } from '$/features/cafehub/types'
 import { CafeHubAction } from '$/features/cafehub'
 import useTransientBackendUrl from '$/hooks/useTransientBackendUrl'
 import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
+import useProperty from '$/hooks/useProperty'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
 
@@ -29,10 +24,6 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
     const chPhase = useCafeHubPhase()
 
     const status = useCafeHubPhaseStatus()
-
-    useEffect(() => {
-        console.log('Phase', chPhase)
-    }, [chPhase])
 
     const canConnect = !!backendUrl && !/\s/.test(backendUrl) && chPhase === Phase.Disconnected
 

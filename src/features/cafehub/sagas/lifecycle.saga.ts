@@ -1,6 +1,8 @@
+import { Buffer } from 'buffer'
 import { CafeHubAction } from '$/features/cafehub'
 import { Phase } from '$/features/cafehub/types'
 import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHub'
+import parseChar from '$/features/cafehub/utils/parseChar'
 import { MiscAction } from '$/features/misc'
 import selectCafeHubRecentMAC from '$/selectors/selectCafeHubRecentMAC'
 import handleError from '$/utils/handleError'
@@ -9,12 +11,14 @@ import {
     CharAddr,
     ConnectionState,
     Device,
+    GATTReadResponse,
     isConnectionStateUpdate,
     isScanResultUpdate,
+    isUpdateMessage,
     RequestCommand,
 } from 'cafehub-client/types'
 import { Task } from 'redux-saga'
-import { call, cancelled, fork, put, race, select, take } from 'redux-saga/effects'
+import { call, cancelled, fork, put, race, select, take, takeEvery } from 'redux-saga/effects'
 
 function connect(url: string) {
     return fork(function* () {
@@ -39,7 +43,11 @@ function connect(url: string) {
                             yield put(CafeHubAction.device(msg.payload))
                             break
                         case ManifestType.Notification:
-                            yield put(CafeHubAction.notification(msg.payload))
+                            yield put(
+                                CafeHubAction.updateMachine(
+                                    parseChar(msg.payload.results.Char, msg.payload.results.Data)
+                                )
+                            )
                             break
                         case ManifestType.Update:
                             yield put(CafeHubAction.update(msg.payload))
@@ -100,7 +108,11 @@ function scan(ch: CafeHub) {
                                     {
                                         abort: abortController.signal,
                                         resolveIf(msg) {
-                                            return isScanResultUpdate(msg) && !msg.results.MAC
+                                            return (
+                                                isUpdateMessage(msg) &&
+                                                isScanResultUpdate(msg) &&
+                                                !msg.results.MAC
+                                            )
                                         },
                                     }
                                 )
@@ -161,7 +173,7 @@ function scan(ch: CafeHub) {
 }
 
 function subscribeToNotifications(ch: CafeHub, device: Device, char: CharAddr) {
-    return call(function* () {
+    return fork(function* () {
         const abortController = new AbortController()
 
         try {
@@ -178,12 +190,34 @@ function subscribeToNotifications(ch: CafeHub, device: Device, char: CharAddr) {
                     abort: abortController.signal,
                 }
             )
-        } catch (e) {
-            if (e instanceof AbortError) {
-                return
+        } finally {
+            if ((yield cancelled()) as boolean) {
+                abortController.abort()
             }
+        }
+    })
+}
 
-            throw e
+function readCharacteristic(ch: CafeHub, device: Device, char: CharAddr) {
+    return fork(function* () {
+        const abortController = new AbortController()
+
+        try {
+            const resp: GATTReadResponse = yield ch.request(
+                {
+                    command: RequestCommand.GATTRead,
+                    params: {
+                        MAC: device.MAC,
+                        Char: char,
+                        Len: 0,
+                    },
+                },
+                {
+                    abort: abortController.signal,
+                }
+            )
+
+            yield put(CafeHubAction.updateMachine(parseChar(char, resp.results.Data)))
         } finally {
             if ((yield cancelled()) as boolean) {
                 abortController.abort()
@@ -293,16 +327,45 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                     yield put(CafeHubAction.setRecentMAC(device.MAC))
 
-                    tasks.push(
-                        yield fork(function* () {
-                            // yield subscribeToNotifications(ch, device, CharAddr.WaterLevels)
-                            // yield subscribeToNotifications(ch, device, CharAddr.Temperatures)
-                        })
-                    )
+                    const chars = [CharAddr.WaterLevels, CharAddr.Temperatures, CharAddr.StateInfo]
+
+                    for (let i = 0; i < chars.length; i++) {
+                        tasks.push(yield subscribeToNotifications(ch, device, chars[i]))
+
+                        tasks.push(yield readCharacteristic(ch, device, chars[i]))
+                    }
 
                     tasks.push(
-                        yield fork(function () {
-                            // takeEvery GATT write and dispatch a write.
+                        yield fork(function* () {
+                            yield takeEvery(
+                                CafeHubAction.write,
+                                function* ({
+                                    payload: { char: Char, data },
+                                }: ReturnType<typeof CafeHubAction.write>) {
+                                    const abortController = new AbortController()
+
+                                    try {
+                                        yield ch.request(
+                                            {
+                                                command: RequestCommand.GATTWrite,
+                                                params: {
+                                                    MAC: device.MAC,
+                                                    Char,
+                                                    Data: data.toString('base64'),
+                                                    RR: false,
+                                                },
+                                            },
+                                            {
+                                                abort: abortController.signal,
+                                            }
+                                        )
+                                    } finally {
+                                        if ((yield cancelled()) as boolean) {
+                                            abortController.abort()
+                                        }
+                                    }
+                                }
+                            )
                         })
                     )
                 }
@@ -361,6 +424,7 @@ function requestPair(ch: CafeHub, device: Device) {
                                 abort: abortController.signal,
                                 resolveIf(msg) {
                                     return (
+                                        isUpdateMessage(msg) &&
                                         isConnectionStateUpdate(msg) &&
                                         msg.results.CState === ConnectionState.Disconnected
                                     )

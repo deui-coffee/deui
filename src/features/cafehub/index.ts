@@ -1,32 +1,23 @@
 import lifecycle from '$/features/cafehub/sagas/lifecycle.saga'
-import { CafeHubState, Phase } from '$/features/cafehub/types'
+import { CafeHubState, Machine, Phase } from '$/features/cafehub/types'
 import CafeHub from '$/features/cafehub/utils/CafeHub'
-import parseCharUpdate from '$/features/cafehub/utils/parseCharUpdate'
-import { MetricId, StorageKey } from '$/types'
+import { StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import {
+    CharAddr,
     ConnectionStateUpdate,
     Device,
     ErrorUpdate,
-    GATTNotifyUpdate,
     UpdateMessage,
 } from 'cafehub-client/types'
 import { all } from 'redux-saga/effects'
 
-function getDefaultMetrics(): Record<MetricId, number> {
-    return {
-        [MetricId.MetalTemp]: 0,
-        [MetricId.Pressure]: 0,
-        [MetricId.FlowRate]: 0,
-        [MetricId.ShotTime]: 0,
-        [MetricId.Weight]: 0,
-        [MetricId.WaterLevel]: 0,
-        [MetricId.WaterTankCapacity]: 1500, // 1.5L
-    }
+function getDefaultMachine(): Machine {
+    return {}
 }
 
 const initialState: CafeHubState = {
-    metrics: getDefaultMetrics(),
+    machine: getDefaultMachine(),
     phase: Phase.Disconnected,
     recentMAC: localStorage.getItem(StorageKey.RecentMAC) || undefined,
 }
@@ -54,8 +45,6 @@ export const CafeHubAction = {
 
     error: createAction<Event>('cafehub: error'),
 
-    notification: createAction<GATTNotifyUpdate>('cafehub: notification'),
-
     device: createAction<Device>('cafehub: device'),
 
     update: createAction<UpdateMessage>('cafehub: update'),
@@ -64,31 +53,27 @@ export const CafeHubAction = {
 
     execError: createAction<ErrorUpdate>('cafehub: exec error'),
 
-    reset: createAction('cafehub: reset'),
-
     setPhase: createAction<Phase>('cafehub: set lifecycle phase'),
 
-    write: createAction('cafehub: GATT write'),
+    write: createAction<{
+        char: CharAddr
+        data: Buffer
+    }>('cafehub: GATT write'),
 
     storeUrl: createAction<string>('cafehub: store url'),
 
     setRecentMAC: createAction<string | undefined>('cafehub: set recent mac'),
+
+    updateMachine: createAction<Machine>('cafehub: update machine'),
 }
 
 const reducer = createReducer(initialState, (builder) => {
-    builder.addCase(CafeHubAction.notification, (state, { payload: { results } }) => {
-        state.metrics = {
-            ...state.metrics,
-            ...parseCharUpdate(results.Char, results.Data),
-        }
-    })
-
-    builder.addCase(CafeHubAction.reset, (state) => {
-        state.metrics = getDefaultMetrics()
-    })
-
     builder.addCase(CafeHubAction.setPhase, (state, { payload }) => {
         state.phase = payload
+
+        if (payload !== Phase.Connected) {
+            state.machine = getDefaultMachine()
+        }
     })
 
     builder.addCase(CafeHubAction.setRecentMAC, (state, { payload }) => {
@@ -99,6 +84,13 @@ const reducer = createReducer(initialState, (builder) => {
         }
 
         state.recentMAC = payload
+    })
+
+    builder.addCase(CafeHubAction.updateMachine, (state, { payload }) => {
+        state.machine = {
+            ...state.machine,
+            ...payload,
+        }
     })
 })
 

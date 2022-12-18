@@ -22,7 +22,7 @@ export default function Toggle({
 
     function onItemClick(newValue: boolean) {
         if (typeof onChange === 'function') {
-            onChange(newValue)
+            onChange(reverse ? !newValue : newValue)
         }
     }
 

@@ -1,7 +1,7 @@
-import { MetricId } from '$/types'
+import { MajorState, MinorState } from '$/consts'
 
 export interface CafeHubState {
-    metrics: Record<MetricId, number>
+    machine: Machine
     phase: Phase
     recentMAC: undefined | string
 }
@@ -17,3 +17,14 @@ export enum Phase {
     Unpaired = 'unpaired',
     Unscanned = 'unscanned',
 }
+
+export enum Property {
+    Temperature = 'temperature',
+    WaterLevel = 'waterLevel',
+    MajorState = 'minor',
+    MinorState = 'major',
+}
+
+export type Machine = Partial<
+    { minor: MajorState; major: MinorState } & Omit<Record<Property, number>, 'minor' | 'major'>
+>

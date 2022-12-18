@@ -6,11 +6,14 @@ import {
     Device,
     ErrorUpdate,
     GATTNotifyUpdate,
+    GATTReadResponse,
     isConnectionStateUpdate,
     isErrorUpdate,
     isGATTNotifyUpdate,
+    isGATTReadResponse,
     isScanResultUpdate,
     isUpdateMessage,
+    Message,
     MessageType,
     RawMessage,
     Request,
@@ -38,6 +41,7 @@ export enum ManifestType {
     Update = 'update',
     ConnectionState = 'connectionState',
     ExecutionError = 'executionError',
+    Read = 'read',
 }
 
 interface OpenManifest {
@@ -128,6 +132,82 @@ export default class CafeHub {
                 })
             })
 
+            const tryToResolve = (msg: Message) => {
+                if (!this.requests[msg.id]) {
+                    // We don't have a record of sending a message with this `id`.
+                    return false
+                }
+
+                // *Try* to resolve associated `sendRequest` promise. Possibly a noop, see `resolveIf`.
+                this.requests[msg.id].resolve(msg)
+
+                return true
+            }
+
+            const handleUpdate = (msg: UpdateMessage) => {
+                if (msg.id === 0) {
+                    if (!isGATTNotifyUpdate(msg)) {
+                        return
+                    }
+
+                    controller.enqueue({
+                        type: ManifestType.Notification,
+                        payload: msg,
+                    })
+
+                    return
+                }
+
+                if (!tryToResolve(msg)) {
+                    return
+                }
+
+                if (isErrorUpdate(msg)) {
+                    controller.enqueue({
+                        type: ManifestType.ExecutionError,
+                        payload: msg,
+                    })
+
+                    return
+                }
+
+                if (isConnectionStateUpdate(msg)) {
+                    controller.enqueue({
+                        type: ManifestType.ConnectionState,
+                        payload: msg,
+                    })
+
+                    return
+                }
+
+                if (isScanResultUpdate(msg)) {
+                    if (msg.results.MAC && msg.results.Name === 'DE1') {
+                        controller.enqueue({
+                            type: ManifestType.Device,
+                            payload: {
+                                ...msg.results,
+                                connectionState: ConnectionState.Disconnected,
+                            },
+                        })
+                    }
+
+                    return
+                }
+
+                controller.enqueue({
+                    type: ManifestType.Update,
+                    payload: msg,
+                })
+            }
+
+            function handleRead(msg: GATTReadResponse) {
+                if (!isGATTReadResponse(msg)) {
+                    return
+                }
+
+                tryToResolve(msg)
+            }
+
             this.ws.addEventListener('message', (e: MessageEvent<string>) => {
                 debug('RECV', e.data)
 
@@ -144,67 +224,13 @@ export default class CafeHub {
                     return
                 }
 
-                if (!isUpdateMessage(payload)) {
-                    return
+                if (isUpdateMessage(payload)) {
+                    handleUpdate(payload)
                 }
 
-                if (payload.id === 0) {
-                    if (!isGATTNotifyUpdate(payload)) {
-                        return
-                    }
-
-                    controller.enqueue({
-                        type: ManifestType.Notification,
-                        payload,
-                    })
-
-                    return
+                if (isGATTReadResponse(payload)) {
+                    handleRead(payload)
                 }
-
-                if (!this.requests[payload.id]) {
-                    // We don't have a record of sending a message with this `id`.
-                    return
-                }
-
-                // *Try* to resolve associated `sendRequest` promise. Possibly a noop, see `resolveIf`.
-                this.requests[payload.id].resolve(payload)
-
-                if (isErrorUpdate(payload)) {
-                    controller.enqueue({
-                        type: ManifestType.ExecutionError,
-                        payload,
-                    })
-
-                    return
-                }
-
-                if (isConnectionStateUpdate(payload)) {
-                    controller.enqueue({
-                        type: ManifestType.ConnectionState,
-                        payload,
-                    })
-
-                    return
-                }
-
-                if (isScanResultUpdate(payload)) {
-                    if (payload.results.MAC && payload.results.Name === 'DE1') {
-                        controller.enqueue({
-                            type: ManifestType.Device,
-                            payload: {
-                                ...payload.results,
-                                connectionState: ConnectionState.Disconnected,
-                            },
-                        })
-                    }
-
-                    return
-                }
-
-                controller.enqueue({
-                    type: ManifestType.Update,
-                    payload,
-                })
             })
         }
 
@@ -251,10 +277,10 @@ export default class CafeHub {
             type: MessageType.Request,
         }
 
-        const { resolve, reject, promise } = await defer<UpdateMessage>()
+        const { resolve, reject, promise } = await defer<Message>()
 
         const settlers: Defer = {
-            resolve(msg: UpdateMessage) {
+            resolve(msg: Message) {
                 if (msg.id !== payload.id) {
                     return
                 }
