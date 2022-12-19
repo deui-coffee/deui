@@ -23,8 +23,14 @@ export enum Property {
     WaterLevel = 'waterLevel',
     MajorState = 'minor',
     MinorState = 'major',
+    WaterCapacity = 'waterCapacity',
 }
 
 export type Machine = Partial<
-    { minor: MajorState; major: MinorState } & Omit<Record<Property, number>, 'minor' | 'major'>
->
+    { [Property.MajorState]: MajorState; [Property.MinorState]: MinorState } & Omit<
+        Record<Property, number>,
+        typeof Property.MinorState | typeof Property.MajorState | typeof Property.WaterCapacity
+    >
+> & {
+    [Property.WaterCapacity]: number
+}

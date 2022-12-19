@@ -1,9 +1,9 @@
-import React, { HTMLAttributes } from 'react'
+import React, { HTMLAttributes, ReactNode } from 'react'
 import tw from 'twin.macro'
 import Clock from '$/components/ControllerView/Clock'
 import { css } from '@emotion/react'
 import Label from '../primitives/Label'
-import PowerToggle from '../PowerToggle'
+import PowerToggle from '../ui/PowerToggle'
 import StatusIndicator from '../StatusIndicator'
 import { useDispatch } from 'react-redux'
 import { MiscAction } from '$/features/misc'
@@ -11,11 +11,23 @@ import { Flag } from '$/features/misc/types'
 import Button from '../primitives/Button'
 import Toolbar from '../Toolbar'
 import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
+import WaterBar from '$/components/ui/WaterBar'
+import useWaterCapacity from '$/hooks/useWaterCapacity'
+import useProperty from '$/hooks/useProperty'
+import { Property } from '$/features/cafehub/types'
+
+function getCapacityInL(capacityInMl: number) {
+    return (capacityInMl / 1000).toFixed(1)
+}
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
 
     const connectionStatus = useCafeHubPhaseStatus()
+
+    const capacity = useWaterCapacity()
+
+    const water = useProperty(Property.WaterLevel)
 
     return (
         <div
@@ -54,6 +66,18 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
             </div>
             <Toolbar>
                 <Pane />
+                {typeof water === 'number' && (
+                    <Pane
+                        title={
+                            <>
+                                <span>Water</span>
+                                <span>{getCapacityInL(capacity)}L MAX</span>
+                            </>
+                        }
+                    >
+                        <WaterBar />
+                    </Pane>
+                )}
                 <Pane title="Settings">
                     <Button
                         onClick={() => {
@@ -78,7 +102,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
 }
 
 type PaneProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
-    title?: string
+    title?: ReactNode
 }
 
 function Pane({ children, title, ...props }: PaneProps) {

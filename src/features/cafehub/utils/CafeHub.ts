@@ -24,7 +24,7 @@ import {
 } from 'cafehub-client/types'
 import { defer, delay } from 'cafehub-client/utils'
 
-const DEBUG = false
+const DEBUG = true
 
 function debug(...args: unknown[]) {
     if (DEBUG) {

@@ -5,9 +5,8 @@ import { useMajorState } from '$/hooks/useMajorState'
 import { CharAddr } from 'cafehub-client/types'
 import React from 'react'
 import { useDispatch } from 'react-redux'
-import { Status } from './StatusIndicator'
-import Toggle from './Toggle'
-import { useMinorState } from '$/hooks/useMinorState'
+import { Status } from '../StatusIndicator'
+import Toggle from '../Toggle'
 
 const labels = ['Sleep']
 
@@ -26,8 +25,6 @@ export default function PowerToggle() {
     const status = useStatus()
 
     const state = useMajorState()
-
-    console.log(state, useMinorState())
 
     const dispatch = useDispatch()
 

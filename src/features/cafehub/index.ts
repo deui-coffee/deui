@@ -1,5 +1,5 @@
 import lifecycle from '$/features/cafehub/sagas/lifecycle.saga'
-import { CafeHubState, Machine, Phase } from '$/features/cafehub/types'
+import { CafeHubState, Machine, Phase, Property } from '$/features/cafehub/types'
 import CafeHub from '$/features/cafehub/utils/CafeHub'
 import { StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
@@ -13,7 +13,9 @@ import {
 import { all } from 'redux-saga/effects'
 
 function getDefaultMachine(): Machine {
-    return {}
+    return {
+        [Property.WaterCapacity]: 1500,
+    }
 }
 
 const initialState: CafeHubState = {
@@ -71,7 +73,7 @@ const reducer = createReducer(initialState, (builder) => {
     builder.addCase(CafeHubAction.setPhase, (state, { payload }) => {
         state.phase = payload
 
-        if (payload !== Phase.Connected) {
+        if ([Phase.Unpaired, Phase.Disconnected].includes(payload)) {
             state.machine = getDefaultMachine()
         }
     })

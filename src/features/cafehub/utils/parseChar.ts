@@ -2,7 +2,7 @@ import { Machine, Property } from '$/features/cafehub/types'
 import { Buffer } from 'buffer'
 import { CharAddr } from 'cafehub-client/types'
 
-type Fn = (wireBytes: Buffer) => Machine
+type Fn = (wireBytes: Buffer) => Partial<Machine>
 
 type Fns = Partial<Record<CharAddr, Fn>>
 
@@ -32,6 +32,6 @@ const fns: Fns = {
     },
 }
 
-export default function parseChar(char: CharAddr, encodedWireBytes: string): Machine {
+export default function parseChar(char: CharAddr, encodedWireBytes: string): ReturnType<Fn> {
     return (fns[char] || fallbackFn)(Buffer.from(encodedWireBytes, 'base64'))
 }

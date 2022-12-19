@@ -1,4 +1,3 @@
-import { Buffer } from 'buffer'
 import { CafeHubAction } from '$/features/cafehub'
 import { Phase } from '$/features/cafehub/types'
 import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHub'
@@ -327,6 +326,8 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                     yield put(CafeHubAction.setRecentMAC(device.MAC))
 
+                    yield put(MiscAction.setIsEditingBackendUrl(false))
+
                     const chars = [CharAddr.WaterLevels, CharAddr.Temperatures, CharAddr.StateInfo]
 
                     for (let i = 0; i < chars.length; i++) {
@@ -334,6 +335,16 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                         tasks.push(yield readCharacteristic(ch, device, chars[i]))
                     }
+
+                    tasks.push(
+                        yield fork(function* () {
+                            while (true) {
+                                yield take(CafeHubAction.abort)
+
+                                yield put(MiscAction.setIsEditingBackendUrl(false))
+                            }
+                        })
+                    )
 
                     tasks.push(
                         yield fork(function* () {
