@@ -1,35 +1,30 @@
-import getModeLabel from '$/utils/getModeLabel'
-import { css } from '@emotion/react'
-import React, { ButtonHTMLAttributes, useState } from 'react'
-import { useSwipeable } from 'react-swipeable'
+import useMode, { Mode } from '$/hooks/useMode'
+import React, { HTMLAttributes, useState } from 'react'
 import tw from 'twin.macro'
 
-type ItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'onClick' | 'type'> & {
-    modeId: number
-    onClick?: (id: number) => void
+interface ItemProps extends HTMLAttributes<HTMLDivElement> {
+    mode: Mode
 }
 
-function Item({ modeId, onClick, ...props }: ItemProps) {
-    const active = false // TODO
+function Item({ mode, ...props }: ItemProps) {
+    const active = useMode() === mode
 
     return (
-        <button
+        <div
             {...props}
-            type="button"
             css={[
-                css`
-                    -webkit-tap-highlight-color: transparent;
-                `,
                 tw`
+                    items-center
                     absolute
                     px-10
-                    block
+                    flex
                     w-full
                     text-left
                     h-[70px]
                     top-0
                     left-0
                     font-medium
+                    select-none
                     text-light-grey
                     dark:text-medium-grey
                 `,
@@ -39,47 +34,23 @@ function Item({ modeId, onClick, ...props }: ItemProps) {
                         dark:text-lighter-grey
                     `,
             ]}
-            onClick={() => {
-                if (typeof onClick === 'function') {
-                    onClick(modeId)
-                }
-            }}
         >
-            {getModeLabel(modeId)}
-        </button>
+            {mode}
+        </div>
     )
 }
 
-const lineup = [0, 1, 2, 3]
+const lineup = [Mode.Espresso, Mode.Steam, Mode.Flush, Mode.Water]
 
 const n = lineup.length
 
 const limit = 500
 
 export default function Revolver() {
-    const [phase, setPhase] = useState<number>(0)
-
-    const [, setModeId] = useState<number>(0)
-
-    const handlers = useSwipeable({
-        preventDefaultTouchmoveEvent: true,
-        onSwipedUp() {
-            if (phase + 1 < limit) {
-                setModeId(lineup[(((phase + 1) % n) + n) % n])
-                setPhase(phase + 1)
-            }
-        },
-        onSwipedDown() {
-            if (phase - 1 > -limit) {
-                setModeId(lineup[(((phase - 1) % n) + n) % n])
-                setPhase(phase - 1)
-            }
-        },
-    })
+    const [phase] = useState<number>(0)
 
     return (
         <div
-            {...handlers}
             css={[
                 tw`
                     h-full
@@ -105,13 +76,9 @@ export default function Revolver() {
                         Math.abs(phase + i) < limit && (
                             <Item
                                 key={phase + i}
-                                modeId={lineup[(((phase + i) % n) + n) % n]}
+                                mode={lineup[(((phase + i) % n) + n) % n]}
                                 style={{
                                     top: `${(phase + i) * 70}px`,
-                                }}
-                                onClick={(mid) => {
-                                    setModeId(mid)
-                                    setPhase(phase + i)
                                 }}
                             />
                         )

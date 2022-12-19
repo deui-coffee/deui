@@ -1,6 +1,6 @@
 import React, { HTMLAttributes, ReactNode } from 'react'
 import tw from 'twin.macro'
-import Clock from '$/components/ControllerView/Clock'
+import Clock from '$/components/ui/Clock'
 import { css } from '@emotion/react'
 import Label from '../primitives/Label'
 import PowerToggle from '../ui/PowerToggle'
@@ -15,6 +15,9 @@ import WaterBar from '$/components/ui/WaterBar'
 import useWaterCapacity from '$/hooks/useWaterCapacity'
 import useProperty from '$/hooks/useProperty'
 import { Property } from '$/features/cafehub/types'
+import { useMajorState } from '$/hooks/useMajorState'
+import { MajorState } from '$/consts'
+import Controller from '$/components/ui/Controller'
 
 function getCapacityInL(capacityInMl: number) {
     return (capacityInMl / 1000).toFixed(1)
@@ -28,6 +31,8 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const capacity = useWaterCapacity()
 
     const water = useProperty(Property.WaterLevel)
+
+    const ready = ![MajorState.Unknown, MajorState.Sleep].includes(useMajorState())
 
     return (
         <div
@@ -61,7 +66,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                         `,
                     ]}
                 >
-                    <Clock />
+                    {ready ? <Controller /> : <Clock />}
                 </div>
             </div>
             <Toolbar>

@@ -19,11 +19,29 @@ export enum Phase {
 }
 
 export enum Property {
-    Temperature = 'temperature',
-    WaterLevel = 'waterLevel',
+    WaterHeater = 'waterHeater',
+    SteamHeater = 'steamHeater',
+    GroupHeater = 'groupHeater',
+    ColdWater = 'coldWater',
+    TargetWaterHeater = 'targetWaterHeater',
+    TargetSteamHeater = 'targetSteamHeater',
+    TargetGroupHeater = 'targetGroupHeater',
+    TargetColdWater = 'targetColdWater',
     MajorState = 'minor',
     MinorState = 'major',
     WaterCapacity = 'waterCapacity',
+    WaterLevel = 'waterLevel',
+    ShotSampleTime = 'shotSampleTime',
+    ShotGroupPressure = 'shotGroupPressure',
+    ShotGroupFlow = 'shotGroupFlow',
+    ShotMixTemp = 'shotMixTemp',
+    ShotHeadTemp = 'shotHeadTemp',
+    ShotSetMixTemp = 'shotSetMixTemp',
+    ShotSetHeadTemp = 'shotSetHeadTemp',
+    ShotSetGroupPressure = 'shotSetGroupPressure',
+    ShotSetGroupFlow = 'shotSetGroupFlow',
+    ShotFrameNumber = 'shotFrameNumber',
+    ShotSteamTemp = 'shotSteamTemp',
 }
 
 export type Machine = Partial<

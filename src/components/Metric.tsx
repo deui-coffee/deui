@@ -1,18 +1,28 @@
-import { MetricId } from '$/types'
+import { Property } from '$/features/cafehub/types'
+import useProperty from '$/hooks/useProperty'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Label from './primitives/Label'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
-    metricId: MetricId
+    property: Property
+    label: string
+    unit: string
+    formatFn?: (value: number) => string
 }
 
-export default function Metric({ metricId, ...props }: Props) {
-    const value = 0 // TODO
+function defaultFormatFn(value: number) {
+    return `${value}`
+}
 
-    const unit = 'j.m.' // TODO
-
-    const label = 'FIXME' // TODO
+export default function Metric({
+    property,
+    label = 'Label',
+    unit = 'IU',
+    formatFn = defaultFormatFn,
+    ...props
+}: Props) {
+    const value = useProperty(property)
 
     return (
         <div
@@ -20,6 +30,7 @@ export default function Metric({ metricId, ...props }: Props) {
             css={[
                 tw`
                     font-medium
+                    select-none
                 `,
             ]}
         >
@@ -30,7 +41,11 @@ export default function Metric({ metricId, ...props }: Props) {
                         -mt-1
                         text-t2
                         lg:text-[2.5rem]
-                      `,
+                    `,
+                    !value &&
+                        tw`
+                            opacity-20
+                        `,
                 ]}
             >
                 <span
@@ -41,9 +56,7 @@ export default function Metric({ metricId, ...props }: Props) {
                         `,
                     ]}
                 >
-                    {metricId === MetricId.MetalTemp || typeof value === 'undefined'
-                        ? value
-                        : value.toFixed(1)}
+                    {formatFn(typeof value === 'undefined' ? 0 : value)}
                 </span>
                 <span
                     css={[
