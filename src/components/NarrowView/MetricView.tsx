@@ -5,7 +5,7 @@ import { css } from '@emotion/react'
 import Metric from '../Metric'
 import { ViewAction } from '../../features/view'
 import { ViewId } from '../../features/view/types'
-import { MetricId } from '$/types'
+import { Property } from '$/features/cafehub/types'
 
 export default function Metrics() {
     const dispatch = useDispatch()
@@ -95,11 +95,26 @@ export default function Metrics() {
                     `,
                 ]}
             >
-                <Metric metricId={MetricId.MetalTemp} />
-                <Metric metricId={MetricId.Pressure} />
-                <Metric metricId={MetricId.FlowRate} />
-                <Metric metricId={MetricId.ShotTime} />
-                <Metric metricId={MetricId.Weight} />
+                <Metric label="Goal temp" property={Property.TargetWaterHeater} unit="°C" />
+                <Metric label="Metal temp" property={Property.WaterHeater} unit="°C" />
+                <Metric
+                    label="Pressure"
+                    property={Property.ShotGroupPressure}
+                    unit="bar"
+                    formatFn={(v) => v.toFixed(1)}
+                />
+                <Metric
+                    label="Flow rate"
+                    property={Property.ShotGroupFlow}
+                    unit="ml/s"
+                    formatFn={(v) => v.toFixed(1)}
+                />
+                <Metric
+                    label="Shot time"
+                    property={Property.ShotSampleTime}
+                    unit="s"
+                    formatFn={(v) => v.toFixed(1)}
+                />
             </div>
         </div>
     )

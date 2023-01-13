@@ -1,6 +1,6 @@
 import React from 'react'
-import Control, { ControlProps } from '../Control'
-import WaterLevel from '../WaterLevel'
+import Control, { ControlProps } from '../../Control'
+import WaterLevel from '../../WaterLevel'
 
 type Props = Omit<ControlProps, 'label'>
 

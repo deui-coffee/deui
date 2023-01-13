@@ -1,10 +1,10 @@
 import { createAction, createReducer } from '@reduxjs/toolkit'
-import SettingsView from '../../components/SettingsView'
+import SettingsView from '../../components/NarrowView/SettingsView'
 import MetricsIcon from '../../icons/MetricsIcon'
 import ProfilesIcon from '../../icons/ProfilesIcon'
 import SettingsIcon from '../../icons/SettingsIcon'
-import MetricsView from '../../components/MetricsView'
-import ProfilesView from '../../components/ProfilesView'
+import MetricsView from '../../components/NarrowView/MetricView'
+import ProfilesView from '../../components/NarrowView/ProfilesView'
 import { View, ViewId, ViewState } from './types'
 
 export const lineup: View[] = [

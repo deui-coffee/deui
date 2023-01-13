@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
-import Control, { ControlProps } from '../Control'
-import Select, { Option } from '../Select'
-import { Status } from '../StatusIndicator'
+import Control, { ControlProps } from '../../Control'
+import Select, { Option } from '../../Select'
+import { Status } from '../../StatusIndicator'
 
 const VisualizerOptions: Option[] = [{ value: 'viewShot', label: 'View shot' }]
 

@@ -1,6 +1,6 @@
 import React from 'react'
 import Control, { ControlProps } from '$/components/Control'
-import Toggle from '../Toggle'
+import Toggle from '../../Toggle'
 
 const labels = ['Sleep']
 

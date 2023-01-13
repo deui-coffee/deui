@@ -2,14 +2,14 @@ import React, { HTMLAttributes, ReactNode } from 'react'
 import tw from 'twin.macro'
 import Clock from '$/components/ui/Clock'
 import { css } from '@emotion/react'
-import Label from '../primitives/Label'
-import PowerToggle from '../ui/PowerToggle'
-import StatusIndicator from '../StatusIndicator'
+import Label from './primitives/Label'
+import PowerToggle from './ui/PowerToggle'
+import StatusIndicator from './StatusIndicator'
 import { useDispatch } from 'react-redux'
 import { MiscAction } from '$/features/misc'
 import { Flag } from '$/features/misc/types'
-import Button from '../primitives/Button'
-import Toolbar from '../Toolbar'
+import Button from './primitives/Button'
+import Toolbar from './Toolbar'
 import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
 import WaterBar from '$/components/ui/WaterBar'
 import useWaterCapacity from '$/hooks/useWaterCapacity'
@@ -18,10 +18,7 @@ import { Property } from '$/features/cafehub/types'
 import { useMajorState } from '$/hooks/useMajorState'
 import { MajorState } from '$/consts'
 import Controller from '$/components/ui/Controller'
-
-function getCapacityInL(capacityInMl: number) {
-    return (capacityInMl / 1000).toFixed(1)
-}
+import mlToL from '$/utils/mlToL'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
@@ -76,7 +73,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                         title={
                             <>
                                 <span>Water</span>
-                                <span>{getCapacityInL(capacity)}L MAX</span>
+                                <span>{mlToL(capacity)}L MAX</span>
                             </>
                         }
                     >

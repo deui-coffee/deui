@@ -1,15 +1,15 @@
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import Page from './Page'
+import Page from '../Page'
 import { useSwipeable } from 'react-swipeable'
 import { useDispatch } from 'react-redux'
-import { lineup, ViewAction } from '../features/view'
-import { useViewId, useViewIndex } from '../features/view/hooks'
+import { lineup, ViewAction } from '../../features/view'
+import { useViewId, useViewIndex } from '../../features/view/hooks'
 
 const count = lineup.length
 
-export default function Viewport(props: HTMLAttributes<HTMLDivElement>) {
+export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
     const dispatch = useDispatch()
 
     const handlers = useSwipeable({
