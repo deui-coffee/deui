@@ -11,6 +11,7 @@ import SettingsDrawer from './components/drawers/SettingsDrawer'
 import useAutoConnectEffect from './hooks/useAutoConnectEffect'
 import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
 import Debug from '$/components/ui/Debug'
+import NarrowView from '$/components/NarrowView'
 
 const App = () => {
     const theme = useTheme()
@@ -35,7 +36,7 @@ const App = () => {
             >
                 <WideView tw="hidden lg:block" />
                 <Debug />
-                {/* <Viewport tw="lg:hidden" /> */}
+                <NarrowView tw="lg:hidden" />
             </div>
             <ProfilesDrawer />
             <BLEDrawer />
