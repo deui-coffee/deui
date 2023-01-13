@@ -1,6 +1,9 @@
 import lifecycle from '$/features/cafehub/sagas/lifecycle.saga'
-import { CafeHubState, Machine, Phase, Property } from '$/features/cafehub/types'
+import { CafeHubState, Machine, Phase, Property, Shot } from '$/features/cafehub/types'
 import CafeHub from '$/features/cafehub/utils/CafeHub'
+import parseChar from '$/features/cafehub/utils/parseChar'
+import parseShotFrame from '$/features/cafehub/utils/parseShotFrame'
+import parseShotHeader from '$/features/cafehub/utils/parseShotHeader'
 import { StorageKey } from '$/types'
 import { createAction, createReducer } from '@reduxjs/toolkit'
 import {
@@ -18,8 +21,22 @@ function getDefaultMachine(): Machine {
     }
 }
 
+function getDefaultShot(): Shot {
+    return {
+        header: {
+            HeaderV: 1,
+            NumberOfFrames: 0,
+            NumberOfPreinfuseFrames: 0,
+            MinimumPressure: 0,
+            MaximumFlow: 0,
+        },
+        frames: [],
+    }
+}
+
 const initialState: CafeHubState = {
     machine: getDefaultMachine(),
+    shot: getDefaultShot(),
     phase: Phase.Disconnected,
     recentMAC: localStorage.getItem(StorageKey.RecentMAC) || undefined,
 }
@@ -67,6 +84,13 @@ export const CafeHubAction = {
     setRecentMAC: createAction<string | undefined>('cafehub: set recent mac'),
 
     updateMachine: createAction<Machine>('cafehub: update machine'),
+
+    store: createAction<{
+        char: CharAddr
+        data: string
+    }>('cafehub: store'),
+
+    raw: createAction<Record<string, unknown>>('cafehub: raw'),
 }
 
 const reducer = createReducer(initialState, (builder) => {
@@ -75,6 +99,8 @@ const reducer = createReducer(initialState, (builder) => {
 
         if ([Phase.Unpaired, Phase.Disconnected].includes(payload)) {
             state.machine = getDefaultMachine()
+
+            state.shot = getDefaultShot()
         }
     })
 
@@ -88,10 +114,19 @@ const reducer = createReducer(initialState, (builder) => {
         state.recentMAC = payload
     })
 
-    builder.addCase(CafeHubAction.updateMachine, (state, { payload }) => {
-        state.machine = {
-            ...state.machine,
-            ...payload,
+    builder.addCase(CafeHubAction.store, (state, { payload: { char, data } }) => {
+        switch (char) {
+            case CharAddr.HeaderWrite:
+                state.shot.header = parseShotHeader(data)
+                break
+            case CharAddr.FrameWrite:
+                state.shot.frames = parseShotFrame(state.shot.frames, data)
+                break
+            default:
+                state.machine = {
+                    ...state.machine,
+                    ...parseChar(char, data),
+                }
         }
     })
 })

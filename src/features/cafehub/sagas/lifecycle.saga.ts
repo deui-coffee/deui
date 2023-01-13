@@ -1,7 +1,6 @@
 import { CafeHubAction } from '$/features/cafehub'
 import { Phase } from '$/features/cafehub/types'
 import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHub'
-import parseChar from '$/features/cafehub/utils/parseChar'
 import { MiscAction } from '$/features/misc'
 import selectCafeHubRecentMAC from '$/selectors/selectCafeHubRecentMAC'
 import handleError from '$/utils/handleError'
@@ -43,9 +42,10 @@ function connect(url: string) {
                             break
                         case ManifestType.Notification:
                             yield put(
-                                CafeHubAction.updateMachine(
-                                    parseChar(msg.payload.results.Char, msg.payload.results.Data)
-                                )
+                                CafeHubAction.store({
+                                    char: msg.payload.results.Char,
+                                    data: msg.payload.results.Data,
+                                })
                             )
                             break
                         case ManifestType.Update:
@@ -216,7 +216,12 @@ function readCharacteristic(ch: CafeHub, device: Device, char: CharAddr) {
                 }
             )
 
-            yield put(CafeHubAction.updateMachine(parseChar(char, resp.results.Data)))
+            yield put(
+                CafeHubAction.store({
+                    char,
+                    data: resp.results.Data,
+                })
+            )
         } finally {
             if ((yield cancelled()) as boolean) {
                 abortController.abort()
@@ -328,7 +333,13 @@ function watchConnection(ch: CafeHub, device: Device) {
 
                     yield put(MiscAction.setIsEditingBackendUrl(false))
 
-                    const chars = [CharAddr.WaterLevels, CharAddr.Temperatures, CharAddr.StateInfo]
+                    const chars = [
+                        CharAddr.WaterLevels,
+                        CharAddr.Temperatures,
+                        CharAddr.StateInfo,
+                        CharAddr.HeaderWrite,
+                        CharAddr.FrameWrite,
+                    ]
 
                     for (let i = 0; i < chars.length; i++) {
                         tasks.push(yield subscribeToNotifications(ch, device, chars[i]))
@@ -377,6 +388,21 @@ function watchConnection(ch: CafeHub, device: Device) {
                                     }
                                 }
                             )
+                        })
+                    )
+
+                    tasks.push(
+                        yield fork(function* () {
+                            while (true) {
+                                const { payload }: ReturnType<typeof CafeHubAction.raw> =
+                                    yield take(CafeHubAction.raw)
+
+                                try {
+                                    ch.send(JSON.stringify(payload))
+                                } catch (e) {
+                                    handleError(e)
+                                }
+                            }
                         })
                     )
                 }

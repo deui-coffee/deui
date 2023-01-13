@@ -10,6 +10,7 @@ import WideView from './components/WideView'
 import SettingsDrawer from './components/drawers/SettingsDrawer'
 import useAutoConnectEffect from './hooks/useAutoConnectEffect'
 import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
+import Debug from '$/components/ui/Debug'
 
 const App = () => {
     const theme = useTheme()
@@ -33,6 +34,7 @@ const App = () => {
                 ]}
             >
                 <WideView tw="hidden lg:block" />
+                <Debug />
                 {/* <Viewport tw="lg:hidden" /> */}
             </div>
             <ProfilesDrawer />
