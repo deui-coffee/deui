@@ -19,10 +19,12 @@ export default function WaterBar() {
                     w-full
                     rounded-lg
                     overflow-hidden
+                    bg-white
+                    dark:bg-black
                     lg:border
                     lg:border-lighter-grey
-                    dark:lg:border-0
                     lg:bg-white
+                    dark:lg:border-0
                     dark:lg:bg-darkish-grey
                 `,
             ]}
@@ -31,9 +33,8 @@ export default function WaterBar() {
                 css={[
                     tw`
                         absolute
-                        bg-blue
-                        lg:bg-[#CAE6FF]
-                        dark:lg:bg-dark-blue
+                        bg-lightBlue
+                        dark:bg-navy
                         h-full
                         left-0
                         top-0
