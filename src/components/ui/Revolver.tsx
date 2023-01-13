@@ -1,5 +1,4 @@
-import { MinorState } from '$/consts'
-import { useMinorState } from '$/hooks/useMinorState'
+import SubstateSwitch from '$/components/SubstateSwitch'
 import useMode, { Mode } from '$/hooks/useMode'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
@@ -52,8 +51,6 @@ const limit = 500
 
 export default function Revolver() {
     const phase = lineup.indexOf(useMode())
-
-    const substate = useMinorState()
 
     return (
         <div
@@ -119,44 +116,8 @@ export default function Revolver() {
                     `,
                 ]}
             >
-                &zwnj;
-                <Substate active={substate === MinorState.HeatWaterHeater}>Warming up</Substate>
-                <Substate active={substate === MinorState.Pour}>Pouring</Substate>
+                <SubstateSwitch />
             </div>
         </div>
-    )
-}
-
-interface SubstateProps extends HTMLAttributes<HTMLSpanElement> {
-    active?: boolean
-}
-
-function Substate({ active = false, ...props }: SubstateProps) {
-    return (
-        <span
-            {...props}
-            css={[
-                css`
-                    transition: 200ms ease-out;
-                    transition-property: visibility, opacity;
-                    transition-delay: 100ms, 0s;
-                `,
-                tw`
-                    absolute
-                    invisible
-                    opacity-0
-                `,
-                active &&
-                    tw`
-                        visible
-                        opacity-100
-                    `,
-                active &&
-                    css`
-                        transition-delay: 200ms;
-                        transition-timing-function: ease-in;
-                    `,
-            ]}
-        />
     )
 }

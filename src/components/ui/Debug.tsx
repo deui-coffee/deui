@@ -1,6 +1,6 @@
 import { MajorState, MinorState } from '$/consts'
 import { CafeHubAction } from '$/features/cafehub'
-import React, { useState } from 'react'
+import React, { useReducer, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 
@@ -11,6 +11,8 @@ export default function Debug() {
 
     const dispatch = useDispatch()
 
+    const [visible, toggle] = useReducer((x) => !x, true)
+
     return (
         <form
             css={[
@@ -20,6 +22,7 @@ export default function Debug() {
                     right-4
                     bg-white
                     rounded-md
+                    z-10
                 `,
             ]}
             onSubmit={(e) => {
@@ -34,55 +37,80 @@ export default function Debug() {
                 )
             }}
         >
-            <div
-                css={[
-                    tw`
+            {visible && (
+                <>
+                    <div
+                        css={[
+                            tw`
                         p-5
                     `,
-                ]}
-            >
-                Major
-                <br />
-                <select
-                    value={major}
-                    onChange={(e) => {
-                        const v = e.currentTarget.value
+                        ]}
+                    >
+                        Major
+                        <br />
+                        <select
+                            value={major}
+                            onChange={(e) => {
+                                const v = e.currentTarget.value
 
-                        if (v) {
-                            setMajor(+v)
-                        }
-                    }}
-                >
-                    <option value={MajorState.Idle}>Idle</option>
-                    <option value={MajorState.Sleep}>Sleep</option>
-                    <option value={MajorState.Espresso}>Espresso</option>
-                    <option value={MajorState.Steam}>Steam</option>
-                    <option value={MajorState.Clean}>Flush</option>
-                    <option value={MajorState.HotWater}>Water</option>
-                </select>
-            </div>
-            <hr />
-            <div
-                css={[
-                    tw`
+                                if (v) {
+                                    setMajor(+v)
+                                }
+                            }}
+                        >
+                            <option value={MajorState.Idle}>Idle</option>
+                            <option value={MajorState.Sleep}>Sleep</option>
+                            <option value={MajorState.Espresso}>Espresso</option>
+                            <option value={MajorState.Steam}>Steam</option>
+                            <option value={MajorState.Clean}>Flush</option>
+                            <option value={MajorState.HotWater}>Water</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <div
+                        css={[
+                            tw`
                         p-5
                     `,
-                ]}
-            >
-                Minor
-                <br />
-                <select
-                    value={minor}
-                    onChange={(e) => {
-                        setMinor(+e.currentTarget.value)
-                    }}
-                >
-                    <option value={MinorState.NoState}>NoState</option>
-                    <option value={MinorState.HeatWaterHeater}>HeatWaterHeater</option>
-                    <option value={MinorState.Pour}>Pour</option>
-                </select>
-            </div>
-            <hr />
+                        ]}
+                    >
+                        Minor
+                        <br />
+                        <select
+                            value={minor}
+                            onChange={(e) => {
+                                setMinor(+e.currentTarget.value)
+                            }}
+                        >
+                            <option value={MinorState.NoState}>NoState</option>
+                            <option value={MinorState.HeatWaterHeater}>HeatWaterHeater</option>
+                            <option value={MinorState.Pour}>Pour</option>
+                        </select>
+                    </div>
+                    <hr />
+                    <div
+                        css={[
+                            tw`
+                        p-2
+                    `,
+                        ]}
+                    >
+                        <button
+                            type="submit"
+                            css={[
+                                tw`
+                            bg-[#eee]
+                            w-full
+                            py-2
+                        `,
+                            ]}
+                        >
+                            Send
+                        </button>
+                    </div>
+                    <hr />
+                </>
+            )}
             <div
                 css={[
                     tw`
@@ -91,7 +119,8 @@ export default function Debug() {
                 ]}
             >
                 <button
-                    type="submit"
+                    onClick={() => void toggle()}
+                    type="button"
                     css={[
                         tw`
                             bg-[#eee]
@@ -100,7 +129,7 @@ export default function Debug() {
                         `,
                     ]}
                 >
-                    Send
+                    {visible ? 'Hide' : 'Show'}
                 </button>
             </div>
         </form>

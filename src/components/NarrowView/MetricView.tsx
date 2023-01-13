@@ -6,11 +6,16 @@ import Metric from '../Metric'
 import { ViewAction } from '../../features/view'
 import { ViewId } from '../../features/view/types'
 import { Property } from '$/features/cafehub/types'
+import SubstateSwitch from '$/components/SubstateSwitch'
+import TextSwitch from '$/components/TextSwitch'
+import useMode, { Mode } from '$/hooks/useMode'
 
 export default function Metrics() {
     const dispatch = useDispatch()
 
     const profileLabel = 'FIXME' // TODO
+
+    const mode = useMode()
 
     return (
         <div tw="px-14">
@@ -24,7 +29,10 @@ export default function Metrics() {
                         `,
                     ]}
                 >
-                    Espresso
+                    <TextSwitch
+                        items={[[Mode.Espresso], [Mode.Steam], [Mode.Flush], [Mode.Water]]}
+                        value={mode}
+                    />
                 </h1>
                 <p
                     css={[
@@ -37,7 +45,7 @@ export default function Metrics() {
                         `,
                     ]}
                 >
-                    Warming up
+                    <SubstateSwitch />
                 </p>
             </header>
             <button
@@ -49,7 +57,8 @@ export default function Metrics() {
                     tw`
                         appearance-none
                         border-b
-                        border-heavy-grey
+                        border-offish-white
+                        dark:border-heavy-grey
                         border-t
                         flex
                         font-medium
