@@ -1,0 +1,15 @@
+FROM kivy
+
+RUN apt-get install -y git zip
+
+RUN pip3 install https://github.com/kivy/buildozer/archive/master.zip
+
+WORKDIR /root
+
+RUN git clone https://github.com/rheasman/cafehub/
+
+WORKDIR /root/cafehub
+
+RUN yes | buildozer android update
+
+ENTRYPOINT bash

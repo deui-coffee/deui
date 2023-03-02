@@ -1,12 +1,14 @@
-FROM python:latest
+FROM python:3.10
 
 RUN apt-get update
 
-RUN apt-get install -y bluez bluetooth libmtdev-dev vim xauth
+RUN apt-get install -y bluez bluetooth libmtdev-dev vim xauth libgstreamer1.0-dev libgstreamer-plugins-base1.0-dev libsdl2-dev libsdl2-ttf-dev libsdl2-mixer-dev libsdl2-image-dev libsdl-pango-dev
 
 RUN apt-get install -y openjdk-17-jdk
 
-ENV JDK_HOME=/usr/lib/jvm/java-17-openjdk-arm64
+RUN ln -s "/usr/lib/jvm/`ls /usr/lib/jvm/ | grep java-17`" /usr/lib/jvm/jdk
+
+RUN JDK_HOME=/usr/lib/jvm/jdk
 
 RUN python -m pip install --upgrade pip
 

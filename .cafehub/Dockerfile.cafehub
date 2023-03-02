@@ -1,4 +1,4 @@
-FROM bt
+FROM kivy
 
 RUN apt-get install -y git
 
