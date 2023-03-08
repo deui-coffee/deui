@@ -1,0 +1,5 @@
+FROM buildozer
+
+WORKDIR /root/cafehub
+
+ENTRYPOINT yes | buildozer android debug
