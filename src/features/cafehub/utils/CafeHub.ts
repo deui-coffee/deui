@@ -1,4 +1,6 @@
-import { AbortError, SocketNotReadyError, TimeoutError } from 'cafehub-client/errors'
+import AbortError from '$/errors/AbortError'
+import SocketNotReadyError from '$/errors/SocketNotReadyError'
+import TimeoutError from '$/errors/TimeoutError'
 import {
     ConnectionState,
     ConnectionStateUpdate,
@@ -21,8 +23,9 @@ import {
     Requests,
     SendOptions,
     UpdateMessage,
-} from 'cafehub-client/types'
-import { defer, delay } from 'cafehub-client/utils'
+} from '$/features/cafehub/utils/types'
+import defer from '$/utils/defer'
+import delay from '$/utils/delay'
 
 const DEBUG = true
 

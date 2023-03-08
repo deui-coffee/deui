@@ -12,7 +12,7 @@ import {
     Device,
     ErrorUpdate,
     UpdateMessage,
-} from 'cafehub-client/types'
+} from '$/features/cafehub/utils/types'
 import { all } from 'redux-saga/effects'
 
 function getDefaultMachine(): Machine {

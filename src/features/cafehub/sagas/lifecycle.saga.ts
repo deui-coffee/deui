@@ -4,7 +4,8 @@ import CafeHub, { Manifest, ManifestType } from '$/features/cafehub/utils/CafeHu
 import { MiscAction } from '$/features/misc'
 import selectCafeHubRecentMAC from '$/selectors/selectCafeHubRecentMAC'
 import handleError from '$/utils/handleError'
-import { AbortError, MachineNotFoundError } from 'cafehub-client/errors'
+import AbortError from '$/errors/AbortError'
+import MachineNotFoundError from '$/errors/MachineNotFoundError'
 import {
     CharAddr,
     ConnectionState,
@@ -14,7 +15,7 @@ import {
     isScanResultUpdate,
     isUpdateMessage,
     RequestCommand,
-} from 'cafehub-client/types'
+} from '$/features/cafehub/utils/types'
 import { Task } from 'redux-saga'
 import { call, cancelled, fork, put, race, select, take, takeEvery } from 'redux-saga/effects'
 

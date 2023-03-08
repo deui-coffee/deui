@@ -1,6 +1,6 @@
 import { Machine, Property } from '$/features/cafehub/types'
 import { Buffer } from 'buffer'
-import { CharAddr } from 'cafehub-client/types'
+import { CharAddr } from '$/features/cafehub/utils/types'
 
 type Fn = (wireBytes: Buffer) => Partial<Machine>
 

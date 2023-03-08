@@ -5,7 +5,7 @@ import { Flag } from '$/features/misc/types'
 import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import { MiscAction } from '$/features/misc'
-import { Device } from 'cafehub-client/types'
+import { Device } from '$/features/cafehub/utils/types'
 
 export default function BLEDrawer() {
     const dispatch = useDispatch()
