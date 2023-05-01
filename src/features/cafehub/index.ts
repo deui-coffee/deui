@@ -122,6 +122,8 @@ const reducer = createReducer(initialState, (builder) => {
             case CharAddr.FrameWrite:
                 state.shot.frames = parseShotFrame(state.shot.frames, data)
                 break
+            case undefined:
+                break
             default:
                 state.machine = {
                     ...state.machine,

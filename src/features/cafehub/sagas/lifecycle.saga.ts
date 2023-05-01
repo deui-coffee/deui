@@ -108,11 +108,7 @@ function scan(ch: CafeHub) {
                                     {
                                         abort: abortController.signal,
                                         resolveIf(msg) {
-                                            return (
-                                                isUpdateMessage(msg) &&
-                                                isScanResultUpdate(msg) &&
-                                                !msg.results.MAC
-                                            )
+                                            return isUpdateMessage(msg) && isScanResultUpdate(msg) && msg.results.Name === 'DE1'
                                         },
                                     }
                                 )
@@ -140,7 +136,7 @@ function scan(ch: CafeHub) {
                         found: take(CafeHubAction.device),
                         abort: take(CafeHubAction.abort),
                     })
-
+                
                 if (is<ReturnType<typeof CafeHubAction.device>>(found)) {
                     device = found.payload
                     break
@@ -481,6 +477,8 @@ function requestPair(ch: CafeHub, device: Device) {
                 break
             }
 
+            console.log('DC?')
+
             // We've detected an old connection betweeb CH and DE1. Let's disconnect it and
             // try to connect them again (it's a `while` loop, still).
             yield gattDisconnect(ch, device.MAC)
@@ -580,6 +578,8 @@ export default function* lifecycle() {
 
                     // Once we know the WebSocket is open we can scan for a DE1 machine.
                     const device: Device | undefined = yield scan(ch)
+
+                    console.log('FOUND', device)
 
                     if (!device) {
                         // A clean no-device-found situation is only possible if the `scan` itself

@@ -161,7 +161,7 @@ export default class CafeHub {
                     return
                 }
 
-                if (!tryToResolve(msg)) {
+                if (!this.requests[msg.id]) {
                     return
                 }
 
@@ -171,6 +171,8 @@ export default class CafeHub {
                         payload: msg,
                     })
 
+                    this.requests[msg.id].resolve(msg)
+
                     return
                 }
 
@@ -179,6 +181,8 @@ export default class CafeHub {
                         type: ManifestType.ConnectionState,
                         payload: msg,
                     })
+
+                    this.requests[msg.id].resolve(msg)
 
                     return
                 }
@@ -194,6 +198,8 @@ export default class CafeHub {
                         })
                     }
 
+                    this.requests[msg.id].resolve(msg)
+
                     return
                 }
 
@@ -201,6 +207,8 @@ export default class CafeHub {
                     type: ManifestType.Update,
                     payload: msg,
                 })
+
+                this.requests[msg.id].resolve(msg)
             }
 
             function handleRead(msg: GATTReadResponse) {
@@ -269,8 +277,6 @@ export default class CafeHub {
         }
 
         this.ws.send(data)
-
-        debug('SEND', data)
     }
 
     async request(data: Request, { timeout, resolveIf, onBeforeSend, abort }: SendOptions = {}) {
