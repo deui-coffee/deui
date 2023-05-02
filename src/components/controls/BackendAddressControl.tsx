@@ -1,42 +1,33 @@
-import { MiscAction } from '$/features/misc'
-import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
 import { css } from '@emotion/react'
-import React, { ButtonHTMLAttributes, HTMLAttributes, KeyboardEvent, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import React, { ButtonHTMLAttributes, KeyboardEvent, useRef, useState } from 'react'
 import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
 import Button, { ButtonTheme } from '../primitives/Button'
 import Form from '../primitives/Form'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
-import StatusIndicator from '../StatusIndicator'
-import useCafeHubPhase from '$/hooks/useCafeHubPhase'
-import { Phase } from '$/features/cafehub/types'
-import { CafeHubAction } from '$/features/cafehub'
-import useTransientBackendUrl from '$/hooks/useTransientBackendUrl'
-import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
+import StatusIndicator, { Status } from '../StatusIndicator'
+import { WebSocketState, useCafeHubStatus, useCafeHubStore } from '$/stores/ch'
+import { StorageKey } from '$/types'
+import { useUiStore } from '$/stores/ui'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
 
 export default function BackendAddressControl({ label = 'Backend URL', ...props }: Props) {
-    const backendUrl = useTransientBackendUrl()
+    const [backendUrl, setBackendUrl] = useState(localStorage.getItem(StorageKey.BackendUrl) || '')
 
-    const chPhase = useCafeHubPhase()
+    const { isEditingBackendUrl, setIsEditingBackendUrl } = useUiStore()
 
-    const status = useCafeHubPhaseStatus()
+    const { connect, disconnect, wsState, phase = null } = useCafeHubStore()
 
-    const canConnect = !!backendUrl && !/\s/.test(backendUrl) && chPhase === Phase.Disconnected
+    const status = useCafeHubStatus()
 
     const fieldRef = useRef<HTMLInputElement>(null)
 
-    const dispatch = useDispatch()
-
-    const isEditingBackendUrl = useIsEditingBackendUrl()
-
     function onKeyDown(e: KeyboardEvent<HTMLInputElement>) {
         if (e.key === 'Escape') {
-            dispatch(MiscAction.setIsEditingBackendUrl(false))
+            setIsEditingBackendUrl(false)
 
-            dispatch(MiscAction.setTransientBackendUrl(undefined))
+            setBackendUrl(localStorage.getItem(StorageKey.BackendUrl) || '')
 
             if (fieldRef.current) {
                 fieldRef.current.blur()
@@ -46,11 +37,23 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
         }
     }
 
+    const canConnect = wsState === WebSocketState.Closed && !!backendUrl && !/\s/.test(backendUrl)
+
     return (
         <Form
-            onSubmit={() => {
-                if (canConnect) {
-                    dispatch(CafeHubAction.connect(backendUrl))
+            onSubmit={async () => {
+                if (!canConnect) {
+                    return
+                }
+
+                setIsEditingBackendUrl(false)
+
+                localStorage.setItem(StorageKey.BackendUrl, backendUrl)
+
+                try {
+                    await connect(backendUrl)
+                } catch (e) {
+                    console.warn('Failed to connect', e)
                 }
             }}
         >
@@ -59,7 +62,21 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                 label={
                     <>
                         <span>{label}</span>
-                        <PhaseLabel phase={chPhase} />
+                        {phase && (
+                            <span
+                                {...props}
+                                css={[
+                                    tw`
+                                        tracking-normal
+                                        normal-case
+                                        text-medium-grey
+                                        text-[0.75rem]
+                                    `,
+                                ]}
+                            >
+                                {phase}
+                            </span>
+                        )}
                     </>
                 }
             >
@@ -73,16 +90,16 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                     />
                     <TextField
                         ref={fieldRef}
-                        placeholder="Eg. 192.168.1.1:5000"
+                        placeholder="Eg. ws://192.168.1.1:8765"
                         value={backendUrl}
-                        onChange={(e) => {
-                            dispatch(MiscAction.setTransientBackendUrl(e.target.value))
+                        onChange={({ target }) => {
+                            setBackendUrl(target.value)
                         }}
                         onFocus={() => {
-                            dispatch(MiscAction.setIsEditingBackendUrl(true))
+                            setIsEditingBackendUrl(true)
                         }}
                         onKeyDown={onKeyDown}
-                        readOnly={chPhase !== Phase.Disconnected}
+                        readOnly={wsState !== WebSocketState.Closed}
                     />
                 </TextFieldDecorator>
             </Control>
@@ -110,10 +127,8 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                             ]}
                         >
                             <SecondaryButton
-                                disabled={[Phase.Pairing, Phase.Disconnecting].includes(chPhase)}
-                                onClick={() => {
-                                    dispatch(CafeHubAction.abort())
-                                }}
+                                disabled={status === Status.On || status === Status.Off}
+                                onClick={() => void disconnect()}
                             >
                                 Cancel
                             </SecondaryButton>
@@ -129,7 +144,27 @@ export default function BackendAddressControl({ label = 'Backend URL', ...props 
                                 `,
                             ]}
                         >
-                            <RightAction disabled={!canConnect} />
+                            {status === Status.Off && (
+                                <PrimaryButton key="connect" disabled={!canConnect} type="submit">
+                                    Connect
+                                </PrimaryButton>
+                            )}
+                            {status === Status.On && (
+                                <PrimaryButton
+                                    key="disconnect"
+                                    onClick={() => {
+                                        disconnect()
+                                        setIsEditingBackendUrl(false)
+                                    }}
+                                >
+                                    Disconnect
+                                </PrimaryButton>
+                            )}
+                            {status !== Status.On && status !== Status.Off && (
+                                <PrimaryButton key="inactiveConnect" disabled>
+                                    Connect
+                                </PrimaryButton>
+                            )}
                         </div>
                     </div>
                 </Control>
@@ -172,103 +207,4 @@ function SecondaryButton(props: ButtonHTMLAttributes<HTMLButtonElement>) {
             ]}
         />
     )
-}
-
-interface PhaseLabelProps extends HTMLAttributes<HTMLSpanElement> {
-    phase: Phase
-}
-
-function PhaseLabel({ phase, ...props }: PhaseLabelProps) {
-    let label
-
-    switch (phase) {
-        case Phase.Connecting:
-            label = 'Connecting…'
-            break
-        case Phase.Pairing:
-            label = 'Pairing…'
-            break
-        case Phase.Scanning:
-            label = 'Scanning…'
-            break
-        case Phase.Disconnecting:
-            label = 'Disconnecting…'
-            break
-        default:
-            return null
-    }
-
-    return (
-        <span
-            {...props}
-            css={[
-                tw`
-                    tracking-normal
-                    normal-case
-                    text-medium-grey
-                    text-[0.75rem]
-                `,
-            ]}
-        >
-            {label}
-        </span>
-    )
-}
-
-interface RightActionProps {
-    disabled?: boolean
-}
-
-function RightAction({ disabled = false }: RightActionProps) {
-    const chPhase = useCafeHubPhase()
-
-    const dispatch = useDispatch()
-
-    switch (chPhase) {
-        case Phase.Disconnected:
-            return (
-                <PrimaryButton key={chPhase} disabled={disabled} type="submit">
-                    Connect
-                </PrimaryButton>
-            )
-        case Phase.Unscanned:
-            return (
-                <PrimaryButton
-                    key={chPhase}
-                    onClick={() => {
-                        dispatch(CafeHubAction.scan())
-                    }}
-                >
-                    Scan again
-                </PrimaryButton>
-            )
-        case Phase.Unpaired:
-            return (
-                <PrimaryButton
-                    key={chPhase}
-                    onClick={() => {
-                        dispatch(CafeHubAction.pair())
-                    }}
-                >
-                    Pair again
-                </PrimaryButton>
-            )
-        case Phase.Paired:
-            return (
-                <PrimaryButton
-                    key={chPhase}
-                    onClick={() => {
-                        dispatch(CafeHubAction.unpair())
-                    }}
-                >
-                    Disconnect
-                </PrimaryButton>
-            )
-        default:
-            return (
-                <PrimaryButton key={chPhase} disabled>
-                    Connect
-                </PrimaryButton>
-            )
-    }
 }

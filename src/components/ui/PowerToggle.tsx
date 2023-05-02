@@ -1,12 +1,11 @@
 import React from 'react'
 import { Buffer } from 'buffer'
 import { MajorState } from '$/consts'
-import { CafeHubAction } from '$/features/cafehub'
 import { useMajorState } from '$/hooks/useMajorState'
-import { CharAddr } from '$/features/cafehub/utils/types'
-import { useDispatch } from 'react-redux'
+import { CharAddr } from '$/utils/cafehub'
 import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
+import { useCafeHubStore } from '$/stores/ch'
 
 const labels = ['Sleep']
 
@@ -26,7 +25,7 @@ export default function PowerToggle() {
 
     const state = useMajorState()
 
-    const dispatch = useDispatch()
+    const { write } = useCafeHubStore()
 
     return (
         <Toggle
@@ -34,23 +33,27 @@ export default function PowerToggle() {
             labels={labels}
             value={status === Status.On}
             reverse
-            onChange={() => {
+            onChange={async () => {
                 if (state === MajorState.Sleep) {
-                    dispatch(
-                        CafeHubAction.write({
+                    try {
+                        await write({
                             char: CharAddr.RequestedState,
                             data: Buffer.from([MajorState.Idle]),
                         })
-                    )
+                    } catch (e) {
+                        console.warn('Failed to wake up the machine', e)
+                    }
                 }
 
                 if (state === MajorState.Idle) {
-                    dispatch(
-                        CafeHubAction.write({
+                    try {
+                        await write({
                             char: CharAddr.RequestedState,
                             data: Buffer.from([MajorState.Sleep]),
                         })
-                    )
+                    } catch (e) {
+                        console.warn('Failed to put the machine to sleep', e)
+                    }
                 }
             }}
         />

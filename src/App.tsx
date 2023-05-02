@@ -3,20 +3,15 @@ import { Helmet } from 'react-helmet'
 import 'twin.macro'
 import tw from 'twin.macro'
 import GlobalStyles from './GlobalStyles'
-import useTheme from '$/hooks/useTheme'
-import ProfilesDrawer from '$/components/drawers/ProfilesDrawer'
-import BLEDrawer from '$/components/drawers/BLEDrawer'
 import WideView from './components/WideView'
-import SettingsDrawer from './components/drawers/SettingsDrawer'
-import useAutoConnectEffect from './hooks/useAutoConnectEffect'
 import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
-import Debug from '$/components/ui/Debug'
 import NarrowView from '$/components/NarrowView'
+import { Container } from 'toasterhea'
+import { Layer } from './consts'
+import { useUiStore } from './stores/ui'
 
 const App = () => {
-    const theme = useTheme()
-
-    useAutoConnectEffect()
+    const { theme } = useUiStore()
 
     usePreventNavigatingAwayEffect()
 
@@ -35,12 +30,9 @@ const App = () => {
                 ]}
             >
                 <WideView tw="hidden lg:block" />
-                <Debug />
                 <NarrowView tw="lg:hidden" />
             </div>
-            <ProfilesDrawer />
-            <BLEDrawer />
-            <SettingsDrawer />
+            <Container id={Layer.Drawer} />
         </>
     )
 }

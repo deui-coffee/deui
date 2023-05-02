@@ -3,28 +3,22 @@ import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Page from '../Page'
 import { useSwipeable } from 'react-swipeable'
-import { useDispatch } from 'react-redux'
-import { lineup, ViewAction } from '../../features/view'
-import { useViewId, useViewIndex } from '../../features/view/hooks'
+import { useUiStore, viewLineup } from '$/stores/ui'
 
-const count = lineup.length
+const count = viewLineup.length
 
 export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
-    const dispatch = useDispatch()
+    const { setView, viewIndex, viewId } = useUiStore()
 
     const handlers = useSwipeable({
         preventDefaultTouchmoveEvent: true,
         onSwipedLeft() {
-            dispatch(ViewAction.set('next'))
+            setView('next')
         },
         onSwipedRight() {
-            dispatch(ViewAction.set('prev'))
+            setView('prev')
         },
     })
-
-    const index = useViewIndex()
-
-    const viewId = useViewId()
 
     return (
         <div {...props}>
@@ -45,7 +39,7 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                 {/* Tape. */}
                 <div
                     style={{
-                        transform: `translateX(${-index * 100}vw)`,
+                        transform: `translateX(${-viewIndex * 100}vw)`,
                         width: `${count * 100}vw`,
                     }}
                     css={[
@@ -58,7 +52,7 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                     ]}
                 >
                     {/* Frames. */}
-                    {lineup.map(({ id, component: ViewComponent }) => (
+                    {viewLineup.map(({ id, component: ViewComponent }) => (
                         <div
                             key={`${id}`}
                             style={{
@@ -92,7 +86,7 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                     `,
                 ]}
             >
-                {lineup.map(({ id, icon: ViewIcon }) => (
+                {viewLineup.map(({ id, icon: ViewIcon }) => (
                     <li key={id}>
                         <button
                             type="button"
@@ -108,12 +102,9 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                                     relative
                                     w-12
                                 `,
-                                viewId === id &&
-                                    tw`
-                                        !opacity-100
-                                    `,
+                                viewId === id && tw`!opacity-100`,
                             ]}
-                            onClick={() => void dispatch(ViewAction.set(id))}
+                            onClick={() => void setView(id)}
                         >
                             {/* @TODO: StatusIndicator */}
                             <div
@@ -131,10 +122,7 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                                         text-darker-grey
                                         w-full
                                     `,
-                                    viewId === id &&
-                                        tw`
-                                            dark:text-lighter-grey
-                                        `,
+                                    viewId === id && tw`dark:text-lighter-grey`,
                                 ]}
                             >
                                 <ViewIcon />

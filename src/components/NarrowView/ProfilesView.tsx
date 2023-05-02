@@ -2,7 +2,7 @@ import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 
-export default function Profiles() {
+export default function ProfilesView() {
     return <></>
     // const profiles = useProfiles()
 

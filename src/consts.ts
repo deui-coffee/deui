@@ -64,3 +64,7 @@ export enum MinorState {
     Error_LoCurrent = 215 /*    Not enough current flowing, despite something being turned on. */,
     Error_BootFill = 216 /*     Could not get up to pressure during boot pressure test, possibly because no water */,
 }
+
+export const Layer = {
+    Drawer: 'drawers',
+}

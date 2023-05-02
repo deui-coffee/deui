@@ -1,8 +1,7 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
-import { Property } from '$/features/cafehub/types'
-import useToggleProfilesDrawer from '$/hooks/useToggleProfilesDrawer'
+import { Property } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
@@ -10,7 +9,9 @@ import tw from 'twin.macro'
 export default function Controller() {
     const profileLabel = 'FIXME'
 
-    const toggleProfilesDrawer = useToggleProfilesDrawer()
+    function toggleProfilesDrawer(val: boolean) {
+        throw new Error('Not implemented')
+    }
 
     return (
         <div

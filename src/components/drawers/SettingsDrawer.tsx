@@ -1,17 +1,16 @@
 import React from 'react'
-import Drawer, { DrawerHeader } from '$/components/drawers/Drawer'
-import { Flag } from '$/features/misc/types'
+import Drawer, { DrawerHeader, DrawerProps } from '$/components/drawers/Drawer'
 import tw from 'twin.macro'
 import ThemeControl from '../controls/ThemeControl'
 import BackendAddressControl from '../controls/BackendAddressControl'
-import useIsEditingBackendUrl from '$/hooks/useIsEditingBackendUrl'
+import { useUiStore } from '$/stores/ui'
 
-export default function SettingsDrawer() {
-    const isEditingBackendUrl = useIsEditingBackendUrl()
+export default function SettingsDrawer({ onReject }: Pick<DrawerProps, 'onReject'>) {
+    const { isEditingBackendUrl } = useUiStore()
 
     return (
         <Drawer
-            openFlag={Flag.IsSettingsDrawerOpen}
+            onReject={onReject}
             css={[
                 tw`
                     hidden
@@ -20,13 +19,7 @@ export default function SettingsDrawer() {
             ]}
         >
             <DrawerHeader title="Settings" />
-            <div
-                css={[
-                    tw`
-                        px-14
-                    `,
-                ]}
-            >
+            <div css={tw`px-14`}>
                 <BackendAddressControl />
                 {!isEditingBackendUrl && (
                     <>

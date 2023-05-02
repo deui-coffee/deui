@@ -1,9 +1,9 @@
 import { MajorState } from '$/consts'
-import { Property } from '$/features/cafehub/types'
-import useProperty from '$/hooks/useProperty'
+import { Property } from '$/types'
+import { usePropertyValue } from '$/stores/ch'
 
 export function useMajorState(): MajorState {
-    const major = useProperty(Property.MajorState)
-
-    return typeof major === 'undefined' ? MajorState.Unknown : major
+    return usePropertyValue(Property.MajorState, {
+        defaultValue: MajorState.Unknown,
+    })
 }

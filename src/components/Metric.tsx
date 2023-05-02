@@ -1,8 +1,8 @@
-import { Property } from '$/features/cafehub/types'
-import useProperty from '$/hooks/useProperty'
+import { Property } from '$/types'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Label from './primitives/Label'
+import { usePropertyValue } from '$/stores/ch'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
     property: Property
@@ -22,7 +22,9 @@ export default function Metric({
     formatFn = defaultFormatFn,
     ...props
 }: Props) {
-    const value = useProperty(property)
+    const value = usePropertyValue(property, {
+        defaultValue: 0,
+    })
 
     return (
         <div
@@ -56,7 +58,7 @@ export default function Metric({
                         `,
                     ]}
                 >
-                    {formatFn(typeof value === 'undefined' ? 0 : value)}
+                    {formatFn(value)}
                 </span>
                 <span
                     css={[

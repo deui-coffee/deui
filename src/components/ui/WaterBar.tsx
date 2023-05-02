@@ -1,13 +1,14 @@
-import { Property } from '$/features/cafehub/types'
-import useProperty from '$/hooks/useProperty'
-import useWaterCapacity from '$/hooks/useWaterCapacity'
+import { Property } from '$/types'
 import React from 'react'
 import tw from 'twin.macro'
+import { useCafeHubStore, usePropertyValue } from '$/stores/ch'
 
 export default function WaterBar() {
-    const capacity = useWaterCapacity()
+    const { waterCapacity } = useCafeHubStore().machine
 
-    const level = useProperty(Property.WaterLevel) || 0
+    const level = usePropertyValue(Property.WaterLevel, {
+        defaultValue: 0,
+    })
 
     return (
         <div
@@ -58,7 +59,7 @@ export default function WaterBar() {
                     `,
                 ]}
             >
-                <span>{Math.floor(level * capacity)}</span>
+                <span>{Math.floor(level * waterCapacity)}</span>
                 <span
                     css={[
                         tw`

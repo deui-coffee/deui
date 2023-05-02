@@ -5,29 +5,24 @@ import { css } from '@emotion/react'
 import Label from './primitives/Label'
 import PowerToggle from './ui/PowerToggle'
 import StatusIndicator from './StatusIndicator'
-import { useDispatch } from 'react-redux'
-import { MiscAction } from '$/features/misc'
-import { Flag } from '$/features/misc/types'
 import Button from './primitives/Button'
 import Toolbar from './Toolbar'
-import useCafeHubPhaseStatus from '$/hooks/useCafeHubPhaseStatus'
 import WaterBar from '$/components/ui/WaterBar'
-import useWaterCapacity from '$/hooks/useWaterCapacity'
-import useProperty from '$/hooks/useProperty'
-import { Property } from '$/features/cafehub/types'
+import { Property } from '$/types'
 import { useMajorState } from '$/hooks/useMajorState'
-import { MajorState } from '$/consts'
+import { Layer, MajorState } from '$/consts'
 import Controller from '$/components/ui/Controller'
 import mlToL from '$/utils/mlToL'
+import { toaster } from 'toasterhea'
+import SettingsDrawer from './drawers/SettingsDrawer'
+import { useCafeHubStatus, useCafeHubStore, usePropertyValue } from '$/stores/ch'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
-    const dispatch = useDispatch()
+    const status = useCafeHubStatus()
 
-    const connectionStatus = useCafeHubPhaseStatus()
+    const { waterCapacity } = useCafeHubStore().machine
 
-    const capacity = useWaterCapacity()
-
-    const water = useProperty(Property.WaterLevel)
+    const water = usePropertyValue(Property.WaterLevel)
 
     const ready = ![MajorState.Unknown, MajorState.Sleep].includes(useMajorState())
 
@@ -73,7 +68,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                         title={
                             <>
                                 <span>Water</span>
-                                <span>{mlToL(capacity)}L MAX</span>
+                                <span>{mlToL(waterCapacity)}L MAX</span>
                             </>
                         }
                     >
@@ -82,16 +77,15 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                 )}
                 <Pane title="Settings">
                     <Button
-                        onClick={() => {
-                            dispatch(
-                                MiscAction.setFlag({
-                                    key: Flag.IsSettingsDrawerOpen,
-                                    value: true,
-                                })
-                            )
+                        onClick={async () => {
+                            try {
+                                await toaster(SettingsDrawer, Layer.Drawer).pop()
+                            } catch (e) {
+                                // Do nothing.
+                            }
                         }}
                     >
-                        <StatusIndicator value={connectionStatus} />
+                        <StatusIndicator value={status} />
                         Manage
                     </Button>
                 </Pane>

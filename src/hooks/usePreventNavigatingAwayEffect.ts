@@ -1,19 +1,15 @@
-import { Phase } from '$/features/cafehub/types'
-import useCafeHubPhase from '$/hooks/useCafeHubPhase'
+import { Status } from '$/components/StatusIndicator'
+import { useCafeHubStatus } from '$/stores/ch'
 import { useEffect } from 'react'
 
 export default function usePreventNavigatingAwayEffect() {
-    const chPhase = useCafeHubPhase()
+    const status = useCafeHubStatus()
 
     useEffect(() => {
-        if (chPhase === Phase.Disconnected) {
-            return () => {
-                //
-            }
-        }
-
         function onUnload(e: BeforeUnloadEvent) {
-            e.returnValue = true
+            if (status !== Status.Off) {
+                e.returnValue = true
+            }
         }
 
         window.addEventListener('beforeunload', onUnload)
@@ -21,5 +17,5 @@ export default function usePreventNavigatingAwayEffect() {
         return () => {
             window.removeEventListener('beforeunload', onUnload)
         }
-    }, [chPhase])
+    }, [status])
 }

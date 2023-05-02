@@ -1,21 +1,20 @@
 import React from 'react'
-import { useDispatch } from 'react-redux'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Metric from '../Metric'
-import { ViewAction } from '../../features/view'
-import { ViewId } from '../../features/view/types'
-import { Property } from '$/features/cafehub/types'
+import { Property } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
 import useMode, { Mode } from '$/hooks/useMode'
+import { useUiStore } from '$/stores/ui'
+import { ViewId } from '$/types'
 
-export default function Metrics() {
-    const dispatch = useDispatch()
-
+export default function MetricsView() {
     const profileLabel = 'FIXME' // TODO
 
     const mode = useMode()
+
+    const { setView } = useUiStore()
 
     return (
         <div tw="px-14">
@@ -70,7 +69,7 @@ export default function Metrics() {
                         my-8
                     `,
                 ]}
-                onClick={() => void dispatch(ViewAction.set(ViewId.Profiles))}
+                onClick={() => void setView(ViewId.Profiles)}
             >
                 <div tw="flex-grow">{profileLabel}</div>
                 <div

@@ -1,52 +1,35 @@
-import { MiscAction } from '$/features/misc'
-import { Flag } from '$/features/misc/types'
-import useFlag from '$/hooks/useFlag'
 import { css } from '@emotion/react'
-import React, { HTMLAttributes, useCallback, useEffect, useRef } from 'react'
-import { useDispatch } from 'react-redux'
+import { HTMLAttributes, ReactNode, useEffect, useRef } from 'react'
+import { useDiscardableEffect } from 'toasterhea'
 import tw from 'twin.macro'
 
-type Props = HTMLAttributes<HTMLDivElement> & {
-    openFlag: Flag
+export const DrawerRejectionReason = {
+    Backdrop: Symbol('Backdrop'),
+    EscapeKey: Symbol('Escape key'),
 }
 
-export default function Drawer({ openFlag, children, ...props }: Props) {
-    const open = useFlag(openFlag)
+export interface DrawerProps extends HTMLAttributes<HTMLDivElement> {
+    children?: ReactNode
+    onReject?: (reason?: unknown) => void
+}
 
-    const dispatch = useDispatch()
-
-    const toggle = useCallback(
-        (value: boolean) => {
-            dispatch(
-                MiscAction.setFlag({
-                    key: openFlag,
-                    value,
-                })
-            )
-        },
-        [openFlag]
-    )
-
+export default function Drawer({ children, onReject, ...props }: DrawerProps) {
     const bodyRef = useRef<HTMLDivElement>(null)
 
-    useEffect(() => {
-        if (!open) {
-            return () => {
-                // Noop.
-            }
-        }
+    useDiscardableEffect()
 
+    useEffect(() => {
         function onEvent(e: MouseEvent | TouchEvent) {
             if (!bodyRef.current || bodyRef.current.contains(e.target as Element)) {
                 return
             }
 
-            toggle(false)
+            onReject?.(DrawerRejectionReason.Backdrop)
         }
 
         function onKeyDown(e: KeyboardEvent) {
             if (e.key === 'Escape') {
-                toggle(false)
+                onReject?.(DrawerRejectionReason.EscapeKey)
             }
         }
 
@@ -63,9 +46,9 @@ export default function Drawer({ openFlag, children, ...props }: Props) {
 
             document.removeEventListener('keydown', onKeyDown)
         }
-    }, [open, toggle])
+    }, [onReject])
 
-    return open ? (
+    return (
         <div
             {...props}
             css={[
@@ -102,7 +85,7 @@ export default function Drawer({ openFlag, children, ...props }: Props) {
                 {children}
             </div>
         </div>
-    ) : null
+    )
 }
 
 type DrawerHeaderProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {

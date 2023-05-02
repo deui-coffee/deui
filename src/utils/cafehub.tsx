@@ -1,3 +1,4 @@
+import TimeoutError from '$/errors/TimeoutError'
 import { defer } from 'toasterhea'
 import { z } from 'zod'
 
@@ -6,7 +7,7 @@ const Message = z.object({
     type: z.literal('REQ').or(z.literal('RESP')).or(z.literal('UPDATE')),
 })
 
-type Message = z.infer<typeof Message>
+export type Message = z.infer<typeof Message>
 
 function isMessage(payload: unknown): payload is Message {
     return Message.safeParse(payload).success
@@ -93,7 +94,11 @@ export interface GATTDisconnectRequest {
 
 export interface GATTReadRequest {
     command: RequestCommand.GATTRead
-    params: Record<string, unknown>
+    params: {
+        MAC: string
+        Char: CharAddr
+        Len: number
+    }
 }
 
 export interface GATTWriteRequest {
@@ -272,16 +277,14 @@ export default function cafehub(url: string) {
 
     const reader = stream.getReader()
 
-    let lastKnownRequestId = -1
+    let lastKnownRequestId = 0
 
     function nextRequestId() {
         return (lastKnownRequestId = Math.max(1, (lastKnownRequestId + 1) % MaxRequestId))
     }
 
-    async function discard() {
-        reader.releaseLock()
-
-        await stream.cancel()
+    function discard() {
+        ws?.close()
     }
 
     return {
@@ -313,7 +316,7 @@ export default function cafehub(url: string) {
                          * From my observation, `ExecutionError` is a good signal to,
                          * well, kill the instance and start over. Sad it makes me.
                          */
-                        await discard()
+                        discard()
 
                         return msg
                     }
@@ -330,7 +333,7 @@ export default function cafehub(url: string) {
                              * Discard the current instance and clean up. Not much else
                              * we can really do. Thanks Obama!
                              */
-                            await discard()
+                            discard()
                         }
 
                         return msg
@@ -366,7 +369,7 @@ export default function cafehub(url: string) {
                 throw new Error('WebSocket is not ready')
             }
 
-            const d = defer()
+            const d = defer<Message>()
 
             const payload: RequestMessage = {
                 id: nextRequestId(),
@@ -388,7 +391,7 @@ export default function cafehub(url: string) {
 
                     ws?.removeEventListener('message', onMessage)
 
-                    d.resolve()
+                    d.resolve(msg)
                 } catch (e) {
                     // Do nothing.
                 }
@@ -407,11 +410,11 @@ export default function cafehub(url: string) {
 
             ws.send(JSON.stringify(payload))
 
-            await Promise.race([
+            return Promise.race([
                 d.promise,
-                new Promise<void>(
+                new Promise<Message>(
                     (_, reject) =>
-                        void setTimeout(() => void reject(new Error('Timeout')), timeoutAfter)
+                        void setTimeout(() => void reject(new TimeoutError()), timeoutAfter)
                 ),
             ])
         },

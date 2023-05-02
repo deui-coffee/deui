@@ -1,18 +1,51 @@
+import { Status } from '$/components/StatusIndicator'
+import { Machine, Property, Shot } from '$/types'
 import cafehub, {
     CafeHubController,
     CharAddr,
     ConnectionState,
+    Message,
     RequestCommand,
     isConnectionStateMessage,
+    isResponseMessage,
     isScanResultMessage,
 } from '$/utils/cafehub'
+import parseChar from '$/utils/parseChar'
+import parseShotFrame from '$/utils/parseShotFrame'
+import parseShotHeader from '$/utils/parseShotHeader'
 import { produce } from 'immer'
 import { create } from 'zustand'
+import { Buffer } from 'buffer'
 
-enum WebSocketState {
+export enum WebSocketState {
     Opening = 'opening',
     Open = 'open',
     Closed = 'closed',
+}
+
+export enum CafeHubPhase {
+    Opening = 'Opening…',
+    Scanning = 'Scanning…',
+    Connecting = 'Connecting…',
+}
+
+function getDefaultMachine(): Machine {
+    return {
+        waterCapacity: 1500,
+    }
+}
+
+function getDefaultShot(): Shot {
+    return {
+        header: {
+            HeaderV: 1,
+            NumberOfFrames: 0,
+            NumberOfPreinfuseFrames: 0,
+            MinimumPressure: 0,
+            MaximumFlow: 0,
+        },
+        frames: [],
+    }
 }
 
 interface CafeHubStore {
@@ -24,7 +57,20 @@ interface CafeHubStore {
 
     mac: string | undefined
 
+    phase: CafeHubPhase | undefined
+
     connect: (url: string) => Promise<void>
+
+    disconnect: () => void
+
+    machine: Machine
+
+    shot: Shot
+
+    write: (
+        payload: { char: CharAddr; data: Buffer },
+        options?: { timeoutAfter?: number }
+    ) => Promise<Message>
 }
 
 export const useCafeHubStore = create<CafeHubStore>((set, get) => {
@@ -32,6 +78,24 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
 
     function setState(updater: (next: CafeHubStore) => void) {
         set((current) => produce(current, updater))
+    }
+
+    function registerCharData(char: CharAddr, data: string) {
+        setState((next) => {
+            switch (char) {
+                case CharAddr.HeaderWrite:
+                    next.shot.header = parseShotHeader(data)
+                    break
+                case CharAddr.FrameWrite:
+                    next.shot.frames = parseShotFrame(next.shot.frames, data)
+                    break
+                default:
+                    next.machine = {
+                        ...next.machine,
+                        ...parseChar(char, data),
+                    }
+            }
+        })
     }
 
     return {
@@ -43,6 +107,12 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
 
         mac: undefined,
 
+        phase: undefined,
+
+        machine: getDefaultMachine(),
+
+        shot: getDefaultShot(),
+
         async connect(url) {
             if (controller) {
                 return
@@ -52,6 +122,8 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 next.url = url
 
                 next.wsState = WebSocketState.Opening
+
+                next.phase = CafeHubPhase.Opening
             })
 
             const ctrl = (controller = cafehub(url))
@@ -68,8 +140,12 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 }
 
                 if (msg.type === 'open') {
+                    console.info('WebSocket opened')
+
                     setState((next) => {
                         next.wsState = WebSocketState.Open
+
+                        next.phase = CafeHubPhase.Scanning
                     })
 
                     setTimeout(async () => {
@@ -87,12 +163,24 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                                             isScanResultMessage(msg) && msg.results.Name === 'DE1'
                                         )
                                     },
+                                    timeoutAfter: 3e4, // 30s
                                 }
                             )
 
                             console.info('DE1 found')
                         } catch (e) {
-                            console.warn('RequestCommand.Scan failed', e)
+                            console.warn('DE1 not found', e)
+
+                            /**
+                             * Failed to find a device? DC.
+                             */
+                            get().disconnect()
+                        } finally {
+                            setState((next) => {
+                                if (next.phase === CafeHubPhase.Scanning) {
+                                    next.phase = undefined
+                                }
+                            })
                         }
                     })
 
@@ -100,12 +188,20 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 }
 
                 if (msg.type === 'close') {
+                    console.info('WebSocket closed')
+
                     setState((next) => {
                         next.wsState = WebSocketState.Closed
 
                         next.chConnectionState = ConnectionState.Disconnected
 
                         next.mac = undefined
+
+                        next.phase = undefined
+
+                        next.machine = getDefaultMachine()
+
+                        next.shot = getDefaultShot()
                     })
 
                     continue
@@ -119,7 +215,13 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
 
                 if (msg.type === 'UPDATE') {
                     if (msg.update === 'ConnectionState') {
+                        setState((next) => {
+                            next.phase = undefined
+                        })
+
                         const { CState, MAC } = msg.results
+
+                        console.info('ConnectionState', CState)
 
                         setState((next) => {
                             next.chConnectionState = CState
@@ -162,6 +264,25 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                                         e
                                     )
                                 }
+
+                                try {
+                                    const resp = await ctrl.send({
+                                        command: RequestCommand.GATTRead,
+                                        params: {
+                                            Char,
+                                            MAC,
+                                            Len: 0,
+                                        },
+                                    })
+
+                                    if (!isResponseMessage(resp)) {
+                                        throw new Error('Not a response message')
+                                    }
+
+                                    registerCharData(Char, resp.results.Data)
+                                } catch (e) {
+                                    console.warn('Failed to read characteristics', Char, e)
+                                }
                             }
                         })
 
@@ -177,6 +298,10 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                     if (msg.update === 'GATTNotify') {
                         console.info('Been notified', msg.results)
 
+                        const { Char: char, Data: data } = msg.results
+
+                        registerCharData(char as CharAddr, data)
+
                         continue
                     }
 
@@ -191,6 +316,10 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                             continue
                         }
 
+                        setState((next) => {
+                            next.phase = CafeHubPhase.Connecting
+                        })
+
                         setTimeout(async () => {
                             try {
                                 await ctrl.send(
@@ -201,6 +330,7 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                                         },
                                     },
                                     {
+                                        timeoutAfter: 3.6e5,
                                         onBeforeResolve(msg) {
                                             return (
                                                 isConnectionStateMessage(msg) &&
@@ -213,6 +343,14 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                                 console.info('Connected to DE1', msg.results)
                             } catch (e) {
                                 console.warn('GATTConnect failed', msg.results, e)
+
+                                get().disconnect()
+                            } finally {
+                                setState((next) => {
+                                    if (next.phase === CafeHubPhase.Connecting) {
+                                        next.phase = undefined
+                                    }
+                                })
                             }
                         })
 
@@ -223,11 +361,76 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 }
 
                 if (msg.type === 'RESP') {
+                    console.info('Response happened', msg.results)
+
                     continue
                 }
             }
 
             controller = undefined
         },
+
+        disconnect() {
+            controller?.discard()
+        },
+
+        write({ char: Char, data }, { timeoutAfter } = {}) {
+            const { chConnectionState, wsState, mac: MAC } = get()
+
+            if (
+                wsState !== WebSocketState.Open ||
+                chConnectionState !== ConnectionState.Connected
+            ) {
+                throw new Error('Not ready')
+            }
+
+            if (!controller) {
+                throw new Error('No controller')
+            }
+
+            if (!MAC) {
+                throw new Error('No MAC')
+            }
+
+            return controller.send(
+                {
+                    command: RequestCommand.GATTWrite,
+                    params: {
+                        MAC,
+                        Char,
+                        Data: data.toString('base64'),
+                        RR: false,
+                    },
+                },
+                { timeoutAfter }
+            )
+        },
     }
 })
+
+export function useCafeHubStatus() {
+    const { wsState, chConnectionState } = useCafeHubStore()
+
+    if (wsState === WebSocketState.Open && chConnectionState === ConnectionState.Connected) {
+        return Status.On
+    }
+
+    if (wsState !== WebSocketState.Closed) {
+        return Status.Busy
+    }
+
+    return Status.Off
+}
+
+export function usePropertyValue<T extends number | undefined = undefined>(
+    property: Property,
+    { defaultValue }: { defaultValue?: T } = {}
+) {
+    const value = useCafeHubStore().machine[property]
+
+    if (typeof value === 'undefined') {
+        return defaultValue as T
+    }
+
+    return value
+}
