@@ -28,11 +28,12 @@ function Item({ mode, ...props }: ItemProps) {
                     select-none
                     text-light-grey
                     dark:text-medium-grey
-                    delay-500
+                    delay-100
                     transition-colors
                 `,
                 active &&
                     tw`
+                        delay-500
                         text-dark-grey
                         dark:text-lighter-grey
                     `,
@@ -88,7 +89,7 @@ export default function Revolver() {
                         `,
                     ]}
                 >
-                    {[-2, -1, 0, 1, 2].map(
+                    {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map(
                         (i) =>
                             Math.abs(phase + i) < limit && (
                                 <Item
