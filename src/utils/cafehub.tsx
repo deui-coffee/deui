@@ -303,12 +303,12 @@ export default function cafehub(url: string) {
                 const { payload: msg } = value
 
                 if (isUpdateMessage(msg)) {
-                    if (msg.id === 0) {
-                        if (!isGATTNotifyMessage(msg)) {
-                            continue
-                        }
-
+                    if (isGATTNotifyMessage(msg)) {
                         return msg
+                    }
+
+                    if (msg.id === 0) {
+                        continue
                     }
 
                     if (isExecutionErrorMessage(msg)) {
