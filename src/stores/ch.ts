@@ -132,10 +132,6 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 const msg = await ctrl.read()
 
                 if (!msg) {
-                    /**
-                     * @TBD Does it mean `WebSocketState.Closed`, too? Or do we get
-                     * the `close` message separately?
-                     */
                     break
                 }
 
