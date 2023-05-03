@@ -9,6 +9,7 @@ import NarrowView from '$/components/NarrowView'
 import { Container } from 'toasterhea'
 import { Layer } from './consts'
 import { useUiStore } from './stores/ui'
+import Debug from './components/ui/Debug'
 
 const App = () => {
     const { theme } = useUiStore()
@@ -31,6 +32,7 @@ const App = () => {
             >
                 <WideView tw="hidden lg:block" />
                 <NarrowView tw="lg:hidden" />
+                <Debug />
             </div>
             <Container id={Layer.Drawer} />
         </>

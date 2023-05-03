@@ -70,7 +70,9 @@ interface CafeHubStore {
     write: (
         payload: { char: CharAddr; data: Buffer },
         options?: { timeoutAfter?: number }
-    ) => Promise<Message>
+    ) => Promise<Message>,
+
+    send: (payload: string) => void
 }
 
 export const useCafeHubStore = create<CafeHubStore>((set, get) => {
@@ -400,6 +402,10 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
                 },
                 { timeoutAfter }
             )
+        },
+
+        send(payload) {
+            controller?.sendRaw(payload)
         },
     }
 })

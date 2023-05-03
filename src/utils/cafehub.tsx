@@ -354,6 +354,18 @@ export default function cafehub(url: string) {
             }
         },
 
+        sendRaw(payload: string) {
+            if (!ws) {
+                throw new Error('No WebSocket instance')
+            }
+
+            if (ws.readyState !== ws.OPEN) {
+                throw new Error('WebSocket is not ready')
+            }
+
+            ws.send(payload)
+        },
+
         async send(
             data: CafeHubRequest,
             {
