@@ -11,8 +11,8 @@ import cafehub, {
     isScanResultMessage,
 } from '$/utils/cafehub'
 import parseChar from '$/utils/parseChar'
-import parseShotFrame from '$/utils/parseShotFrame'
-import parseShotHeader from '$/utils/parseShotHeader'
+// import parseShotFrame from '$/utils/parseShotFrame'
+// import parseShotHeader from '$/utils/parseShotHeader'
 import { produce } from 'immer'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
@@ -90,10 +90,12 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
         setState((next) => {
             switch (char) {
                 case CharAddr.HeaderWrite:
-                    next.shot.header = parseShotHeader(data)
+                    // @FIXME `parseShotHeader` not implemented.
+                    // next.shot.header = parseShotHeader(data)
                     break
                 case CharAddr.FrameWrite:
-                    next.shot.frames = parseShotFrame(next.shot.frames, data)
+                    // @FIXME `parseShotFrame` not implemented.
+                    // next.shot.frames = parseShotFrame(next.shot.frames, data)
                     break
                 default:
                     next.machine = {

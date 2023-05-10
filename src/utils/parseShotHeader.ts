@@ -1,4 +1,5 @@
 import { Buffer } from 'buffer'
+// @ts-ignore The following got removed. Update and carry on!
 import { ShotHeader } from '$/features/cafehub/types'
 
 export default function parseShotHeader(encodedWireBytes: string): ShotHeader {
