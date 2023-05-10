@@ -32,7 +32,7 @@ const App = () => {
             >
                 <WideView tw="hidden lg:block" />
                 <NarrowView tw="lg:hidden" />
-                <Debug />
+                {/* <Debug /> */}
             </div>
             <Container id={Layer.Drawer} />
         </>
