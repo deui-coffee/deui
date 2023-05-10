@@ -8,9 +8,10 @@ import TextSwitch from '$/components/TextSwitch'
 import useMode, { Mode } from '$/hooks/useMode'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
+import { useCafeHubStore } from '$/stores/ch'
 
 export default function MetricsView() {
-    const profileLabel = 'FIXME' // TODO
+    const { name: profileLabel } = useCafeHubStore().profile || {}
 
     const mode = useMode()
 
@@ -71,7 +72,18 @@ export default function MetricsView() {
                 ]}
                 onClick={() => void setView(ViewId.Profiles)}
             >
-                <div tw="flex-grow">{profileLabel}</div>
+                <div
+                    css={[
+                        tw`flex-grow`,
+                        !profileLabel &&
+                            tw`
+                                dark:text-medium-grey
+                                text-light-grey
+                            `,
+                    ]}
+                >
+                    {profileLabel || 'No profile'}
+                </div>
                 <div
                     css={[
                         tw`

@@ -1,5 +1,5 @@
 import { Status } from '$/components/StatusIndicator'
-import { Machine, Property, Shot } from '$/types'
+import { Machine, Profile, Property, Shot } from '$/types'
 import cafehub, {
     CafeHubController,
     CharAddr,
@@ -65,14 +65,18 @@ interface CafeHubStore {
 
     machine: Machine
 
-    shot: Shot
-
     write: (
         payload: { char: CharAddr; data: Buffer },
         options?: { timeoutAfter?: number }
-    ) => Promise<Message>,
+    ) => Promise<Message>
 
     send: (payload: string) => void
+
+    shot: Shot
+
+    profile: Profile | undefined
+
+    setProfile: (profile: Profile | undefined) => void
 }
 
 export const useCafeHubStore = create<CafeHubStore>((set, get) => {
@@ -114,6 +118,14 @@ export const useCafeHubStore = create<CafeHubStore>((set, get) => {
         machine: getDefaultMachine(),
 
         shot: getDefaultShot(),
+
+        profile: undefined,
+
+        setProfile(profile) {
+            setState((next) => {
+                next.profile = profile
+            })
+        },
 
         async connect(url) {
             if (controller) {

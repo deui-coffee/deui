@@ -1,3 +1,6 @@
+import uniqueId from 'lodash/uniqueId'
+import { Profile } from './types'
+
 export enum MajorState {
     Unknown /*    */ = -1,
     Sleep /*         0x0 Everything is off. */,
@@ -68,3 +71,11 @@ export enum MinorState {
 export const Layer = {
     Drawer: 'drawers',
 }
+
+export const profiles: Profile[] = [
+    {
+        id: uniqueId('profile-'),
+        name: 'Default',
+    },
+    { id: uniqueId('profile-'), name: 'Profile #1' },
+]

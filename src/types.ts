@@ -118,3 +118,8 @@ export interface Shot {
     header: ShotHeader
     frames: ShotFrame[]
 }
+
+export interface Profile {
+    id: string
+    name: string
+}

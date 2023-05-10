@@ -4,14 +4,14 @@ import Revolver from '$/components/ui/Revolver'
 import { Property } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
+import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
+import ProfilesDrawer from '../drawers/ProfilesDrawer'
+import { Layer } from '$/consts'
+import { useCafeHubStore } from '$/stores/ch'
 
 export default function Controller() {
-    const profileLabel = 'FIXME'
-
-    function toggleProfilesDrawer(val: boolean) {
-        throw new Error('Not implemented')
-    }
+    const { name: profileLabel } = useCafeHubStore().profile || {}
 
     return (
         <div
@@ -44,7 +44,13 @@ export default function Controller() {
                 <div css={[tw`px-4 flex-shrink-0 min-w-0`]}>
                     <Control label="Profile">
                         <button
-                            onClick={() => void toggleProfilesDrawer(true)}
+                            onClick={async () => {
+                                try {
+                                    await toaster(ProfilesDrawer, Layer.Drawer).pop()
+                                } catch (e) {
+                                    // Do nothing.
+                                }
+                            }}
                             type="button"
                             css={[
                                 css`
@@ -64,6 +70,11 @@ export default function Controller() {
                                     text-dark-grey
                                     dark:text-lighter-grey
                                 `,
+                                !profileLabel &&
+                                    tw`
+                                        dark:text-medium-grey
+                                        text-light-grey
+                                    `,
                             ]}
                         >
                             <div
@@ -75,7 +86,7 @@ export default function Controller() {
                                     `,
                                 ]}
                             >
-                                {profileLabel}
+                                {profileLabel || 'No profile'}
                             </div>
                             <div
                                 css={[
