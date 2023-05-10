@@ -1,18 +1,30 @@
+import { Property } from '$/types'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
-import { metrics } from '../consts'
-import { useMetricValue } from '../features/metric/hooks'
-import { MetricId } from '../features/metric/types'
-import Label from './Label'
+import Label from './primitives/Label'
+import { usePropertyValue } from '$/stores/ch'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
-    metricId: MetricId
+    property: Property
+    label: string
+    unit: string
+    formatFn?: (value: number) => string
 }
 
-export default function Metric({ metricId, ...props }: Props) {
-    const value = useMetricValue(metricId)
+function defaultFormatFn(value: number) {
+    return `${value}`
+}
 
-    const { unit, label } = metrics[metricId]
+export default function Metric({
+    property,
+    label = 'Label',
+    unit = 'IU',
+    formatFn = defaultFormatFn,
+    ...props
+}: Props) {
+    const value = usePropertyValue(property, {
+        defaultValue: 0,
+    })
 
     return (
         <div
@@ -20,6 +32,7 @@ export default function Metric({ metricId, ...props }: Props) {
             css={[
                 tw`
                     font-medium
+                    select-none
                 `,
             ]}
         >
@@ -30,7 +43,11 @@ export default function Metric({ metricId, ...props }: Props) {
                         -mt-1
                         text-t2
                         lg:text-[2.5rem]
-                      `,
+                    `,
+                    !value &&
+                        tw`
+                            opacity-20
+                        `,
                 ]}
             >
                 <span
@@ -41,9 +58,7 @@ export default function Metric({ metricId, ...props }: Props) {
                         `,
                     ]}
                 >
-                    {metricId === MetricId.MetalTemp || typeof value === 'undefined'
-                        ? value
-                        : value.toFixed(1)}
+                    {formatFn(value)}
                 </span>
                 <span
                     css={[

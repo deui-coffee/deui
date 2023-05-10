@@ -2,14 +2,19 @@ import React from 'react'
 import { Helmet } from 'react-helmet'
 import 'twin.macro'
 import tw from 'twin.macro'
-import Viewport from './components/Viewport'
 import GlobalStyles from './GlobalStyles'
-import useTheme from '$/hooks/useTheme'
-import ControllerView from '$/components/ControllerView'
-import ProfilesDrawer from '$/components/ProfilesDrawer'
+import WideView from './components/WideView'
+import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
+import NarrowView from '$/components/NarrowView'
+import { Container } from 'toasterhea'
+import { Layer } from './consts'
+import { useUiStore } from './stores/ui'
+import Debug from './components/ui/Debug'
 
 const App = () => {
-    const theme = useTheme()
+    const { theme } = useUiStore()
+
+    usePreventNavigatingAwayEffect()
 
     return (
         <>
@@ -25,10 +30,11 @@ const App = () => {
                     `,
                 ]}
             >
-                <ControllerView tw="hidden lg:block" />
-                <Viewport tw="lg:hidden" />
+                <WideView tw="hidden lg:block" />
+                <NarrowView tw="lg:hidden" />
+                {/* <Debug /> */}
             </div>
-            <ProfilesDrawer />
+            <Container id={Layer.Drawer} />
         </>
     )
 }

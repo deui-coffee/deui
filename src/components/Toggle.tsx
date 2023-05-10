@@ -1,59 +1,29 @@
-import React, { useEffect, useState, useRef, ButtonHTMLAttributes } from 'react'
+import React, { ButtonHTMLAttributes } from 'react'
 import tw from 'twin.macro'
-import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
+import Button, { ButtonTheme } from './primitives/Button'
 
 type Props = {
     labels?: string[]
     value?: boolean
     onChange?: (arg0: boolean) => void
-    status?: Status | ((arg0: boolean) => Status)
+    status?: Status
     reverse?: boolean
 }
 
 export default function Toggle({
     labels: [offLabel = 'Off', onLabel = 'On'] = [],
-    value: valueProp = false,
+    value = false,
     onChange,
-    status: statusProp,
+    status = Status.None,
     reverse = false,
 }: Props) {
-    const [value, setValue] = useState<boolean>(valueProp)
-
     const lineup = reverse ? [1, 0] : [0, 1]
 
-    const status = typeof statusProp === 'function' ? statusProp(value) : statusProp || Status.None
-
-    useEffect(() => {
-        setValue(valueProp)
-    }, [valueProp])
-
-    const onChangeRef = useRef(onChange)
-
-    useEffect(() => {
-        onChangeRef.current = onChange
-    }, [onChange])
-
-    const commitTimeoutRef = useRef<number | undefined>()
-
-    useEffect(
-        () => () => {
-            clearTimeout(commitTimeoutRef.current)
-            commitTimeoutRef.current = undefined
-        },
-        []
-    )
-
     function onItemClick(newValue: boolean) {
-        setValue(newValue)
-
-        clearTimeout(commitTimeoutRef.current)
-
-        commitTimeoutRef.current = window.setTimeout(() => {
-            if (typeof onChangeRef.current === 'function') {
-                onChangeRef.current(newValue)
-            }
-        }, 500)
+        if (typeof onChange === 'function') {
+            onChange(reverse ? !newValue : newValue)
+        }
     }
 
     return (
@@ -66,7 +36,17 @@ export default function Toggle({
                 `,
             ]}
         >
-            <div tw="h-full w-full absolute pointer-events-none z-10">
+            <div
+                css={[
+                    tw`
+                        h-full
+                        w-full
+                        absolute
+                        pointer-events-none
+                        z-10
+                    `,
+                ]}
+            >
                 <div
                     css={[
                         tw`
@@ -77,11 +57,22 @@ export default function Toggle({
                             w-1/2
                             px-1
                         `,
-                        value !== reverse && tw`translate-x-full`,
+                        value !== reverse &&
+                            tw`
+                                translate-x-full
+                            `,
                     ]}
                 >
-                    <div css={[tw`relative w-full h-full`]}>
-                        <StatusIndicator css={[tw`absolute right-2 top-2`]} value={status} />
+                    <div
+                        css={[
+                            tw`
+                                relative
+                                w-full
+                                h-full
+                            `,
+                        ]}
+                    >
+                        <StatusIndicator value={status} />
                         <div
                             css={[
                                 tw`
@@ -92,10 +83,6 @@ export default function Toggle({
                                     items-center
                                     justify-center
                                     rounded-md
-                                    lg:bg-white
-                                    lg:border
-                                    dark:border-0
-                                    lg:border-lighter-grey
                                 `,
                             ]}
                         >
@@ -150,47 +137,22 @@ type ItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value' | 'onClic
     value?: boolean
 }
 
-function Item({ value = false, children, onClick, ...props }: ItemProps) {
+function Item({ value = false, onClick, ...props }: ItemProps) {
     return (
-        <button
+        <Button
             {...props}
-            css={[
-                css`
-                    -webkit-tap-highlight-color: transparent;
-                `,
-                tw`
-                    text-[1.25rem]
-                    appearance-none
-                    outline-none
-                    w-full
-                    h-full
-                `,
-            ]}
-            type="button"
             onClick={() => {
                 if (typeof onClick === 'function') {
                     onClick(value)
                 }
             }}
-        >
-            <div
-                css={[
-                    tw`
-                        text-light-grey
-                        dark:text-medium-grey
-                        duration-200
-                        ease-linear
-                        flex
-                        h-full
-                        items-center
-                        justify-center
-                        rounded-md
-                        font-medium
-                    `,
-                ]}
-            >
-                {children}
-            </div>
-        </button>
+            theme={ButtonTheme.None}
+            css={[
+                tw`
+                    text-light-grey
+                    dark:text-medium-grey
+                `,
+            ]}
+        />
     )
 }

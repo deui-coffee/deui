@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import tw from 'twin.macro'
-import { css } from '@emotion/react'
 import StatusIndicator, { Status } from './StatusIndicator'
+import Button from './primitives/Button'
 
 export interface Option {
     value: string
@@ -58,48 +58,20 @@ export default function Select({
                 `,
             ]}
         >
-            <StatusIndicator
+            <StatusIndicator value={status} />
+            <Button
+                onClick={onClick}
                 css={[
-                    tw`
-                        absolute
-                        pointer-events-none
-                        right-2
-                        top-2
-                    `,
-                ]}
-                value={status}
-            />
-            <button
-                css={[
-                    css`
-                        -webkit-tap-highlight-color: transparent;
-                    `,
-                    tw`
-                        appearance-none
-                        flex
-                        h-full
-                        items-center
-                        justify-center
-                        text-t0
-                        w-full
-                        font-medium
-                        text-medium-grey
-                        lg:(text-dark-grey)
-                        dark:(text-medium-grey)
-                        dark:lg:(text-lighter-grey)
-                    `,
                     !!selectedOption &&
                         tw`
                             text-dark-grey
-                            dark:(text-lighter-grey)
-                            dark:lg:(text-lighter-grey)
+                            dark:text-lighter-grey
+                            dark:lg:text-lighter-grey
                         `,
                 ]}
-                type="button"
-                onClick={onClick}
             >
                 {selectedOption ? selectedOption.label : placeholder}
-            </button>
+            </Button>
         </div>
     )
 }
