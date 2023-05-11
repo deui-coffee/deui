@@ -20,7 +20,7 @@
 - If it stuck at `Scanning…` and fails after a while then it's either
   - DE1 is too far (tablet can't reach it) or non-present (powered off), or
   - DE1 is already connected to something (CafeHub, or something else) and doesn't manifest its presence.
-- `Connecting…` usually takes a while. It's a good sign though because it's a clear signal that the machine has been found. If it fails, then retry steps 2-6, and try again. You're close!
+- `Connecting…` means the machine has been found. It usually takes a while. If it fails, then retry steps 2-6, and try again. You're close!
   
 If it still doesn't work open the Inspector in your browser and watch the logs. It may contain more clues. Open an issue if you find any other weirdness.
 
