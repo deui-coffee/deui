@@ -24,8 +24,6 @@
   
 If it still doesn't work open the Inspector in your browser and watch the logs. It may contain more clues. Open an issue if you find any other weirdness.
 
-1. Download 
-
 ## Develop
 
 ```
