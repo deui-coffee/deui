@@ -13,7 +13,7 @@ jobs:
         run: |
           npm ci
           npm run build
-          echo "staging.deui.coffee" > public/CNAME
+          echo "staging.deui.coffee" > dist/CNAME
       - name: Deploy
         if: success()
         uses: crazy-max/ghaction-github-pages@v2
