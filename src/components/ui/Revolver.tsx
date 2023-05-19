@@ -1,15 +1,16 @@
 import SubstateSwitch from '$/components/SubstateSwitch'
-import useMode, { Mode } from '$/hooks/useMode'
+import { useMachineMode } from '$/stores/data'
+import { MachineMode } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 
 interface ItemProps extends HTMLAttributes<HTMLDivElement> {
-    mode: Mode
+    mode: MachineMode
 }
 
 function Item({ mode, ...props }: ItemProps) {
-    const active = useMode() === mode
+    const active = useMachineMode() === mode
 
     return (
         <div
@@ -44,14 +45,14 @@ function Item({ mode, ...props }: ItemProps) {
     )
 }
 
-const lineup = [Mode.Espresso, Mode.Steam, Mode.Flush, Mode.Water]
+const lineup = [MachineMode.Espresso, MachineMode.Steam, MachineMode.Flush, MachineMode.Water]
 
 const n = lineup.length
 
 const limit = 500
 
 export default function Revolver() {
-    const phase = lineup.indexOf(useMode())
+    const phase = lineup.indexOf(useMachineMode())
 
     return (
         <div

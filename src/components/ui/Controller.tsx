@@ -1,7 +1,7 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
-import { Property } from '$/types'
+import { Prop, Property } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import { toaster } from 'toasterhea'
@@ -127,23 +127,23 @@ export default function Controller() {
                             `,
                         ]}
                     >
-                        <Metric label="Goal temp" property={Property.TargetWaterHeater} unit="°C" />
-                        <Metric label="Metal temp" property={Property.WaterHeater} unit="°C" />
+                        <Metric label="Goal temp" property={Prop.ShotSteamTemp} unit="°C" />
+                        <Metric label="Metal temp" property={Prop.WaterHeater} unit="°C" />
                         <Metric
                             label="Pressure"
-                            property={Property.ShotGroupPressure}
+                            property={Prop.ShotGroupPressure}
                             unit="bar"
                             formatFn={(v) => v.toFixed(1)}
                         />
                         <Metric
                             label="Flow rate"
-                            property={Property.ShotGroupFlow}
+                            property={Prop.ShotGroupFlow}
                             unit="ml/s"
                             formatFn={(v) => v.toFixed(1)}
                         />
                         <Metric
                             label="Shot time"
-                            property={Property.ShotSampleTime}
+                            property={Prop.ShotSampleTime}
                             unit="s"
                             formatFn={(v) => v.toFixed(1)}
                         />

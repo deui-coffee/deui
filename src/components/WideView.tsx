@@ -1,30 +1,31 @@
-import React, { HTMLAttributes, ReactNode } from 'react'
-import tw from 'twin.macro'
 import Clock from '$/components/ui/Clock'
+import Controller from '$/components/ui/Controller'
+import WaterBar from '$/components/ui/WaterBar'
+import { Layer, MajorState } from '$/consts'
+import { useDataStore, useMajorState, useStatus, useWaterLevel } from '$/stores/data'
+import { Prop } from '$/types'
+import mlToL from '$/utils/mlToL'
 import { css } from '@emotion/react'
+import React, { HTMLAttributes, ReactNode } from 'react'
+import { toaster } from 'toasterhea'
+import tw from 'twin.macro'
+import StatusIndicator from './StatusIndicator'
+import Toolbar from './Toolbar'
+import SettingsDrawer from './drawers/SettingsDrawer'
+import Button from './primitives/Button'
 import Label from './primitives/Label'
 import PowerToggle from './ui/PowerToggle'
-import StatusIndicator from './StatusIndicator'
-import Button from './primitives/Button'
-import Toolbar from './Toolbar'
-import WaterBar from '$/components/ui/WaterBar'
-import { Property } from '$/types'
-import { useMajorState } from '$/hooks/useMajorState'
-import { Layer, MajorState } from '$/consts'
-import Controller from '$/components/ui/Controller'
-import mlToL from '$/utils/mlToL'
-import { toaster } from 'toasterhea'
-import SettingsDrawer from './drawers/SettingsDrawer'
-import { useCafeHubStatus, useCafeHubStore, usePropertyValue } from '$/stores/ch'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
-    const status = useCafeHubStatus()
+    const status = useStatus()
 
-    const { waterCapacity } = useCafeHubStore().machine
+    const { [Prop.WaterCapacity]: waterCapacity = 0 } = useDataStore().properties
 
-    const water = usePropertyValue(Property.WaterLevel)
+    const water = useWaterLevel()
 
-    const ready = ![MajorState.Unknown, MajorState.Sleep].includes(useMajorState())
+    const majorState = useMajorState()
+
+    const ready = typeof majorState !== 'undefined' && majorState !== MajorState.Sleep
 
     return (
         <div

@@ -10,11 +10,14 @@ import { Container } from 'toasterhea'
 import { Layer } from './consts'
 import { useUiStore } from './stores/ui'
 import Debug from './components/ui/Debug'
+import { useAutoConnectEffect } from './stores/data'
 
 const App = () => {
     const { theme } = useUiStore()
 
     usePreventNavigatingAwayEffect()
+
+    useAutoConnectEffect()
 
     return (
         <>

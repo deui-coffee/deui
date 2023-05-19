@@ -1,11 +1,11 @@
-import { Property } from '$/types'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Label from './primitives/Label'
-import { usePropertyValue } from '$/stores/ch'
+import { usePropValue } from '$/stores/data'
+import { Prop } from '$/types'
 
 type Props = HTMLAttributes<HTMLDivElement> & {
-    property: Property
+    property: Prop
     label: string
     unit: string
     formatFn?: (value: number) => string
@@ -22,9 +22,7 @@ export default function Metric({
     formatFn = defaultFormatFn,
     ...props
 }: Props) {
-    const value = usePropertyValue(property, {
-        defaultValue: 0,
-    })
+    const value = usePropValue(property) || 0
 
     return (
         <div

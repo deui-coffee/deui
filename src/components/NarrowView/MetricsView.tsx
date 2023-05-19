@@ -2,18 +2,18 @@ import React from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Metric from '../Metric'
-import { Property } from '$/types'
+import { MachineMode, Prop } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
-import useMode, { Mode } from '$/hooks/useMode'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
 import { useCafeHubStore } from '$/stores/ch'
+import { useMachineMode } from '$/stores/data'
 
 export default function MetricsView() {
     const { name: profileLabel } = useCafeHubStore().profile || {}
 
-    const mode = useMode()
+    const mode = useMachineMode()
 
     const { setView } = useUiStore()
 
@@ -30,7 +30,12 @@ export default function MetricsView() {
                     ]}
                 >
                     <TextSwitch
-                        items={[[Mode.Espresso], [Mode.Steam], [Mode.Flush], [Mode.Water]]}
+                        items={[
+                            [MachineMode.Espresso],
+                            [MachineMode.Steam],
+                            [MachineMode.Flush],
+                            [MachineMode.Water],
+                        ]}
                         value={mode}
                     />
                 </h1>
@@ -115,23 +120,23 @@ export default function MetricsView() {
                     `,
                 ]}
             >
-                <Metric label="Goal temp" property={Property.TargetWaterHeater} unit="°C" />
-                <Metric label="Metal temp" property={Property.WaterHeater} unit="°C" />
+                <Metric label="Steam temp" property={Prop.ShotSteamTemp} unit="°C" />
+                <Metric label="Metal temp" property={Prop.WaterHeater} unit="°C" />
                 <Metric
                     label="Pressure"
-                    property={Property.ShotGroupPressure}
+                    property={Prop.ShotGroupPressure}
                     unit="bar"
                     formatFn={(v) => v.toFixed(1)}
                 />
                 <Metric
                     label="Flow rate"
-                    property={Property.ShotGroupFlow}
+                    property={Prop.ShotGroupFlow}
                     unit="ml/s"
                     formatFn={(v) => v.toFixed(1)}
                 />
                 <Metric
                     label="Shot time"
-                    property={Property.ShotSampleTime}
+                    property={Prop.ShotSampleTime}
                     unit="s"
                     formatFn={(v) => v.toFixed(1)}
                 />
