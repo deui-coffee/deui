@@ -12,7 +12,7 @@ type Props = HTMLAttributes<HTMLDivElement> & {
 }
 
 function defaultFormatFn(value: number) {
-    return `${value}`
+    return value.toFixed(1)
 }
 
 export default function Metric({

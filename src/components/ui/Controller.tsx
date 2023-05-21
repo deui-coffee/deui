@@ -127,26 +127,16 @@ export default function Controller() {
                             `,
                         ]}
                     >
-                        <Metric label="Goal temp" property={Prop.ShotSteamTemp} unit="°C" />
-                        <Metric label="Metal temp" property={Prop.WaterHeater} unit="°C" />
                         <Metric
-                            label="Pressure"
-                            property={Prop.ShotGroupPressure}
-                            unit="bar"
-                            formatFn={(v) => v.toFixed(1)}
+                            label="Goal temp"
+                            property={Prop.ShotSetHeadTemp}
+                            unit="°C"
+                            formatFn={(v) => `${v}`}
                         />
-                        <Metric
-                            label="Flow rate"
-                            property={Prop.ShotGroupFlow}
-                            unit="ml/s"
-                            formatFn={(v) => v.toFixed(1)}
-                        />
-                        <Metric
-                            label="Shot time"
-                            property={Prop.ShotSampleTime}
-                            unit="s"
-                            formatFn={(v) => v.toFixed(1)}
-                        />
+                        <Metric label="Metal temp" property={Prop.ShotHeadTemp} unit="°C" />
+                        <Metric label="Pressure" property={Prop.ShotGroupPressure} unit="bar" />
+                        <Metric label="Flow rate" property={Prop.ShotGroupFlow} unit="ml/s" />
+                        <Metric label="Shot time" property={Prop.ShotSampleTime} unit="s" />
                     </div>
                 </Control>
             </div>

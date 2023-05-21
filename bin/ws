@@ -160,7 +160,17 @@ function setCharacteristicValue(uuid, data) {
 
         case '0000a00d-0000-1000-8000-00805f9b34fb': // Shot sample
             payload = {
-                ShotSteamTemp: data.readUint8(18), // Stream temp
+                /* U16P12 */ ShotSampleTime: 0, // data.readUint16BE(0),
+                /* U16P12 */ ShotGroupPressure: data.readUInt16BE(2) / (1 << 12),
+                /* U16P12 */ ShotGroupFlow: data.readUint16BE(4) / (1 << 12),
+                /* U16P8  */ ShotMixTemp: data.readUint16BE(6) / 0x100,
+                /* U24P16 */ ShotHeadTemp: (data.readUint32BE(8) >> 8) / 0x10000,
+                /* U16P8  */ ShotSetMixTemp: data.readUint16BE(11) / 0x100,
+                /* U16P8  */ ShotSetHeadTemp: data.readUint16BE(13) / 0x100,
+                /* U8P4   */ ShotSetGroupPressure: data.readUint8(15) / 0x10,
+                /* U8P4   */ ShotSetGroupFlow: data.readUint8(16) / 0x10,
+                /* U8P0   */ ShotFrameNumber: data.readUint8(17),
+                /* U8P0   */ ShotSteamTemp: data.readUint8(18),
             }
 
             break

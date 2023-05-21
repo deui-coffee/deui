@@ -177,10 +177,17 @@ export enum Prop {
     TargetGroupHeater = 'tgh',
     TargetColdWater = 'tcw',
 
-    // Not implemented.
-    ShotGroupPressure = 'sgp',
-    ShotGroupFlow = 'sgf',
-    ShotSampleTime = 'sht',
+    // @TODO Use below naming above.
+    ShotSampleTime = 'ShotSampleTime',
+    ShotGroupPressure = 'ShotGroupPressure',
+    ShotGroupFlow = 'ShotGroupFlow',
+    ShotMixTemp = 'ShotMixTemp',
+    ShotHeadTemp = 'ShotHeadTemp',
+    ShotSetMixTemp = 'ShotSetMixTemp',
+    ShotSetHeadTemp = 'ShotSetHeadTemp',
+    ShotSetGroupPressure = 'ShotSetGroupPressure',
+    ShotSetGroupFlow = 'ShotSetGroupFlow',
+    ShotFrameNumber = 'ShotFrameNumber',
     ShotSteamTemp = 'ShotSteamTemp',
 }
 
@@ -213,9 +220,16 @@ export const Properties = z.object({
     [Prop.TargetSteamHeater]: z.number().optional().or(z.undefined()),
     [Prop.TargetGroupHeater]: z.number().optional().or(z.undefined()),
     [Prop.TargetColdWater]: z.number().optional().or(z.undefined()),
+    [Prop.ShotSampleTime]: z.number().optional().or(z.undefined()),
     [Prop.ShotGroupPressure]: z.number().optional().or(z.undefined()),
     [Prop.ShotGroupFlow]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSampleTime]: z.number().optional().or(z.undefined()),
+    [Prop.ShotMixTemp]: z.number().optional().or(z.undefined()),
+    [Prop.ShotHeadTemp]: z.number().optional().or(z.undefined()),
+    [Prop.ShotSetMixTemp]: z.number().optional().or(z.undefined()),
+    [Prop.ShotSetHeadTemp]: z.number().optional().or(z.undefined()),
+    [Prop.ShotSetGroupPressure]: z.number().optional().or(z.undefined()),
+    [Prop.ShotSetGroupFlow]: z.number().optional().or(z.undefined()),
+    [Prop.ShotFrameNumber]: z.number().optional().or(z.undefined()),
     [Prop.ShotSteamTemp]: z.number().optional().or(z.undefined()),
 })
 
