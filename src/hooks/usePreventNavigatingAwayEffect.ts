@@ -1,9 +1,9 @@
 import { Status } from '$/components/StatusIndicator'
-import { useCafeHubStatus } from '$/stores/ch'
+import { useStatus } from '$/stores/data'
 import { useEffect } from 'react'
 
 export default function usePreventNavigatingAwayEffect() {
-    const status = useCafeHubStatus()
+    const status = useStatus()
 
     useEffect(() => {
         function onUnload(e: BeforeUnloadEvent) {

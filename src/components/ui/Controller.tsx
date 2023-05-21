@@ -1,17 +1,17 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
-import { Prop, Property } from '$/types'
+import { Prop } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
-import { Layer } from '$/consts'
-import { useCafeHubStore } from '$/stores/ch'
+import { Layer } from '$/types'
+import { useDataStore } from '$/stores/data'
 
 export default function Controller() {
-    const { name: profileLabel } = useCafeHubStore().profile || {}
+    const { name: profileLabel } = useDataStore().profile || {}
 
     return (
         <div

@@ -1,7 +1,7 @@
 import Clock from '$/components/ui/Clock'
 import Controller from '$/components/ui/Controller'
 import WaterBar from '$/components/ui/WaterBar'
-import { Layer, MajorState } from '$/consts'
+import { Layer, MajorState } from '$/types'
 import { useDataStore, useMajorState, useStatus, useWaterLevel } from '$/stores/data'
 import { Prop } from '$/types'
 import mlToL from '$/utils/mlToL'

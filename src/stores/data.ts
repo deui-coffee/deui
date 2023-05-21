@@ -1,9 +1,10 @@
 import { Status } from '$/components/StatusIndicator'
-import { MajorState } from '$/consts'
+import { MajorState } from '$/types'
 import {
     BluetoothState,
     ChunkType,
     MachineMode,
+    Profile,
     Prop,
     Properties,
     RemoteState,
@@ -13,7 +14,7 @@ import {
 } from '$/types'
 import wsStream, { WsController } from '$/utils/wsStream'
 import axios from 'axios'
-import { produce } from 'immer'
+import { current, produce } from 'immer'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 
@@ -39,6 +40,10 @@ interface DataStore {
     connect: () => Promise<void>
 
     disconnect: () => void
+
+    profile: Profile | undefined
+
+    setProfile: (profile: Profile) => void
 }
 
 function getDefaultRemoteState(): RemoteState {
@@ -141,6 +146,16 @@ export const useDataStore = create<DataStore>((set) => {
             ctrl?.discard()
 
             ctrl = undefined
+        },
+
+        profile: undefined,
+
+        setProfile(profile) {
+            set((current) =>
+                produce(current, (next) => {
+                    next.profile = profile
+                })
+            )
         },
     }
 })

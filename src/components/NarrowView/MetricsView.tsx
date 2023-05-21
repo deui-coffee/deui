@@ -7,11 +7,10 @@ import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
-import { useCafeHubStore } from '$/stores/ch'
-import { useMachineMode } from '$/stores/data'
+import { useDataStore, useMachineMode } from '$/stores/data'
 
 export default function MetricsView() {
-    const { name: profileLabel } = useCafeHubStore().profile || {}
+    const { name: profileLabel } = useDataStore().profile || {}
 
     const mode = useMachineMode()
 

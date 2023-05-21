@@ -1,7 +1,6 @@
 import { Prop, Property } from '$/types'
 import React from 'react'
 import tw from 'twin.macro'
-import { useCafeHubStore, usePropertyValue } from '$/stores/ch'
 import { useDataStore } from '$/stores/data'
 
 export default function WaterBar() {

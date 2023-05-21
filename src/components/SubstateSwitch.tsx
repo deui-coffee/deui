@@ -1,6 +1,6 @@
 import React from 'react'
 import TextSwitch from '$/components/TextSwitch'
-import { MinorState } from '$/consts'
+import { MinorState } from '$/types'
 import { useMinorState } from '$/stores/data'
 
 export default function SubstateSwitch() {

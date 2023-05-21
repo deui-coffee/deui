@@ -1,5 +1,5 @@
 import React from 'react'
-import { MajorState } from '$/consts'
+import { MajorState } from '$/types'
 import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
 import { exec, useMajorState } from '$/stores/data'
