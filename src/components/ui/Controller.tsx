@@ -1,5 +1,5 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
-import Metric from '$/components/Metric'
+import Metric, { Metrics } from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
 import { Prop } from '$/types'
 import { css } from '@emotion/react'
@@ -9,8 +9,11 @@ import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
 import { Layer } from '$/types'
 import { useDataStore } from '$/stores/data'
+import { useUiStore } from '$/stores/ui'
 
 export default function Controller() {
+    const { machineMode } = useUiStore()
+
     const { name: profileLabel } = useDataStore().profile || {}
 
     return (
@@ -119,24 +122,17 @@ export default function Controller() {
                             tw`
                                 h-full
                                 items-center
-                                flex
-                                justify-between
+                                grid
+                                grid-cols-5
                                 px-10
 
                                 [> *]:-translate-y-1.5
                             `,
                         ]}
                     >
-                        <Metric
-                            label="Goal temp"
-                            property={Prop.ShotSetHeadTemp}
-                            unit="°C"
-                            formatFn={(v) => `${v}`}
-                        />
-                        <Metric label="Metal temp" property={Prop.ShotHeadTemp} unit="°C" />
-                        <Metric label="Pressure" property={Prop.ShotGroupPressure} unit="bar" />
-                        <Metric label="Flow rate" property={Prop.ShotGroupFlow} unit="ml/s" />
-                        <Metric label="Shot time" property={Prop.ShotSampleTime} unit="s" />
+                        {Metrics[machineMode].map((metricProps) => (
+                            <Metric key={metricProps.property} {...metricProps} />
+                        ))}
                     </div>
                 </Control>
             </div>
