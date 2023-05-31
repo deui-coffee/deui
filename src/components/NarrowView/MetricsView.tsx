@@ -1,7 +1,7 @@
 import React from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import Metric from '../Metric'
+import Metric, { Metrics } from '../Metric'
 import { MachineMode, Prop } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
@@ -12,9 +12,7 @@ import { useDataStore, useMachineMode } from '$/stores/data'
 export default function MetricsView() {
     const { name: profileLabel } = useDataStore().profile || {}
 
-    const mode = useMachineMode()
-
-    const { setView } = useUiStore()
+    const { setView, machineMode } = useUiStore()
 
     return (
         <div tw="px-14">
@@ -35,7 +33,7 @@ export default function MetricsView() {
                             [MachineMode.Flush],
                             [MachineMode.Water],
                         ]}
-                        value={mode}
+                        value={machineMode}
                     />
                 </h1>
                 <p
@@ -119,26 +117,9 @@ export default function MetricsView() {
                     `,
                 ]}
             >
-                <Metric label="Steam temp" property={Prop.ShotSteamTemp} unit="°C" />
-                <Metric label="Metal temp" property={Prop.WaterHeater} unit="°C" />
-                <Metric
-                    label="Pressure"
-                    property={Prop.ShotGroupPressure}
-                    unit="bar"
-                    formatFn={(v) => v.toFixed(1)}
-                />
-                <Metric
-                    label="Flow rate"
-                    property={Prop.ShotGroupFlow}
-                    unit="ml/s"
-                    formatFn={(v) => v.toFixed(1)}
-                />
-                <Metric
-                    label="Shot time"
-                    property={Prop.ShotSampleTime}
-                    unit="s"
-                    formatFn={(v) => v.toFixed(1)}
-                />
+                {Metrics[machineMode].map((metricProps) => (
+                    <Metric key={metricProps.property} {...metricProps} />
+                ))}
             </div>
         </div>
     )
