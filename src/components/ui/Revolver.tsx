@@ -27,6 +27,7 @@ function Item({ mode, active = false, ...props }: ItemProps) {
                 `,
                 tw`
                     appearance-none
+                    outline-none
                     items-center
                     absolute
                     px-10

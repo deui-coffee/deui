@@ -124,6 +124,7 @@ export default function Controller() {
                                 items-center
                                 grid
                                 grid-cols-5
+                                gap-8
                                 px-10
 
                                 [> *]:-translate-y-1.5
