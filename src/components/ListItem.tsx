@@ -69,7 +69,6 @@ export default function ListItem({
                         left-0
                         h-6
                         w-1
-                        top-0
                         bg-dark-grey
                         dark:bg-lighter-grey
                         top-1/2
