@@ -1,5 +1,5 @@
 import { Status } from '$/components/StatusIndicator'
-import { MajorState } from '$/types'
+import { CharAddr, MajorState, ShotFrame, ShotHeader, isCharMessage } from '$/types'
 import {
     BluetoothState,
     ChunkType,
@@ -9,14 +9,15 @@ import {
     Properties,
     RemoteState,
     WebSocketState,
-    isPropertiesMessage,
     isStateMessage,
 } from '$/types'
 import wsStream, { WsController } from '$/utils/wsStream'
 import axios from 'axios'
-import { current, produce } from 'immer'
+import { produce } from 'immer'
 import { useEffect } from 'react'
 import { create } from 'zustand'
+import { Buffer } from 'buffer'
+import { fromF817 } from '$/server/utils'
 
 export async function exec(command: string) {
     switch (command) {
@@ -64,6 +65,14 @@ function getDefaultProperties(): Properties {
 
 export const useDataStore = create<DataStore>((set) => {
     let ctrl: WsController | undefined
+
+    function setProperties(properties: Properties) {
+        set((current) =>
+            produce(current, (next) => {
+                Object.assign(next.properties, properties)
+            })
+        )
+    }
 
     return {
         wsState: WebSocketState.Closed,
@@ -128,12 +137,84 @@ export const useDataStore = create<DataStore>((set) => {
                     continue
                 }
 
-                if (isPropertiesMessage(data)) {
-                    set((current) =>
-                        produce(current, (next) => {
-                            Object.assign(next.properties, data.payload)
-                        })
-                    )
+                if (isCharMessage(data)) {
+                    Object.entries(data.payload).forEach(([uuid, payload]) => {
+                        const buf = Buffer.from(payload, 'base64')
+
+                        switch (uuid) {
+                            case CharAddr.StateInfo:
+                                return void setProperties({
+                                    [Prop.MajorState]: buf.readUint8(0),
+                                    [Prop.MinorState]: buf.readUint8(1),
+                                })
+                            case CharAddr.WaterLevels:
+                                return void setProperties({
+                                    [Prop.WaterLevel]: buf.readUint16BE() / 0x100 / 50, // 0-1 (50mm tank)
+                                })
+                            case CharAddr.Temperatures:
+                                return void setProperties({
+                                    [Prop.WaterHeater]: buf.readUint16BE(0) / 0x100, // 1°C every 256
+                                    [Prop.SteamHeater]: buf.readUint16BE(2) / 0x100,
+                                    [Prop.GroupHeater]: buf.readUint16BE(4) / 0x100,
+                                    [Prop.ColdWater]: buf.readUint16BE(6) / 0x100,
+                                    [Prop.TargetWaterHeater]: buf.readUint16BE(8) / 0x100,
+                                    [Prop.TargetSteamHeater]: buf.readUint16BE(10) / 0x100,
+                                    [Prop.TargetGroupHeater]: buf.readUint16BE(12) / 0x100,
+                                    [Prop.TargetColdWater]: buf.readUint16BE(14) / 0x100,
+                                })
+                            case CharAddr.ShotSample:
+                                return void setProperties({
+                                    [Prop.ShotSampleTime]: 0, // buf.readUint16BE(0),
+                                    [Prop.ShotGroupPressure]: buf.readUInt16BE(2) / 0x1000,
+                                    [Prop.ShotGroupFlow]: buf.readUint16BE(4) / 0x1000,
+                                    [Prop.ShotMixTemp]: buf.readUint16BE(6) / 0x100,
+                                    [Prop.ShotHeadTemp]: (buf.readUint32BE(8) >> 8) / 0x10000,
+                                    [Prop.ShotSetMixTemp]: buf.readUint16BE(11) / 0x100,
+                                    [Prop.ShotSetHeadTemp]: buf.readUint16BE(13) / 0x100,
+                                    [Prop.ShotSetGroupPressure]: buf.readUint8(15) / 0x10,
+                                    [Prop.ShotSetGroupFlow]: buf.readUint8(16) / 0x10,
+                                    [Prop.ShotFrameNumber]: buf.readUint8(17),
+                                    [Prop.ShotSteamTemp]: buf.readUint8(18),
+                                })
+                            case CharAddr.ShotSettings:
+                                return void setProperties({
+                                    [Prop.SteamSettings]: buf.readUint8(0),
+                                    [Prop.TargetSteamTemp]: buf.readUint8(1),
+                                    [Prop.TargetSteamLength]: buf.readUint8(2),
+                                    [Prop.TargetHotWaterTemp]: buf.readUint8(3),
+                                    [Prop.TargetHotWaterVol]: buf.readUint8(4),
+                                    [Prop.TargetHotWaterLength]: buf.readUint8(5),
+                                    [Prop.TargetEspressoVol]: buf.readUint8(6),
+                                    [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x10,
+                                })
+                            case CharAddr.HeaderWrite:
+                                const header: ShotHeader = {
+                                    HeaderV: buf.readUint8(0),
+                                    NumberOfFrames: buf.readUint8(1),
+                                    NumberOfPreinfuseFrames: buf.readUint8(2),
+                                    MinimumPressure: buf.readUint8(3),
+                                    MaximumFlow: buf.readUint8(4),
+                                }
+
+                                console.log('Header', header)
+
+                                break
+                            case CharAddr.FrameWrite:
+                                const frame: ShotFrame = {
+                                    FrameToWrite: buf.readUint8(0),
+                                    Flag: buf.readUint8(1),
+                                    SetVal: buf.readUint8(2),
+                                    Temp: buf.readUint8(3) / 2,
+                                    FrameLen: fromF817(buf.readUint8(4)),
+                                    TriggerVal: buf.readUint8(5),
+                                    MaxVol: buf.readUint16BE(6) & 0x3ff,
+                                }
+
+                                console.log('Frame', frame)
+
+                                break
+                        }
+                    })
 
                     continue
                 }

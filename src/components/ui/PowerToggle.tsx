@@ -41,7 +41,7 @@ export default function PowerToggle() {
                     }
                 }
 
-                if (state === MajorState.Idle) {
+                if (state !== MajorState.Sleep) {
                     try {
                         await exec('off')
                     } catch (e) {

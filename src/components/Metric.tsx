@@ -11,7 +11,7 @@ interface MetricOwnProps {
     formatFn?: (value: number) => string
 }
 
-type Props = HTMLAttributes<HTMLDivElement> & MetricOwnProps
+type Props = Omit<HTMLAttributes<HTMLDivElement>, keyof MetricOwnProps> & MetricOwnProps
 
 function defaultFormatFn(value: number) {
     return value.toFixed(1)
@@ -90,7 +90,7 @@ export const Metrics: Metrics = {
     [MachineMode.Steam]: [
         {
             label: 'Steam temp',
-            property: Prop.ShotSetHeadTemp,
+            property: Prop.ShotSteamTemp,
             unit: '°C',
             formatFn: (v) => `${v}`,
         },

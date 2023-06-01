@@ -7,6 +7,27 @@ import ProfilesIcon from '$/icons/ProfilesIcon'
 import { z } from 'zod'
 import uniqueId from 'lodash/uniqueId'
 
+export enum CharAddr {
+    Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions
+    RequestedState /* */ = '0000a002-0000-1000-8000-00805f9b34fb', // B RW   RequestedState See T_RequestedState
+    SetTime /*        */ = '0000a003-0000-1000-8000-00805f9b34fb', // C RW   SetTime Set current time
+    ShotDirectory /*  */ = '0000a004-0000-1000-8000-00805f9b34fb', // D R    ShotDirectory View shot directory
+    ReadFromMMR /*    */ = '0000a005-0000-1000-8000-00805f9b34fb', // E RW   ReadFromMMR Read bytes from data mapped into the memory mapped region.
+    WriteToMMR /*     */ = '0000a006-0000-1000-8000-00805f9b34fb', // F W    WriteToMMR Write bytes to memory mapped region
+    ShotMapRequest /* */ = '0000a007-0000-1000-8000-00805f9b34fb', // G W    ShotMapRequest Map a shot so that it may be read/written
+    DeleteShotRange /**/ = '0000a008-0000-1000-8000-00805f9b34fb', // H W    DeleteShotRange Delete l shots in the range given
+    FWMapRequest /*   */ = '0000a009-0000-1000-8000-00805f9b34fb', // I W    FWMapRequest Map a firmware image into MMR. Cannot be done with the boot image
+    Temperatures /*   */ = '0000a00a-0000-1000-8000-00805f9b34fb', // J R    Temperatures See T_Temperatures
+    ShotSettings /*   */ = '0000a00b-0000-1000-8000-00805f9b34fb', // K RW   ShotSettings See T_ShotSettings
+    Deprecated /*     */ = '0000a00c-0000-1000-8000-00805f9b34fb', // L RW   Deprecated Was T_ShotDesc. Now deprecated.
+    ShotSample /*     */ = '0000a00d-0000-1000-8000-00805f9b34fb', // M R    ShotSample Use to monitor a running shot. See T_ShotSample
+    StateInfo /*      */ = '0000a00e-0000-1000-8000-00805f9b34fb', // N R    StateInfo The current state of the DE1
+    HeaderWrite /*    */ = '0000a00f-0000-1000-8000-00805f9b34fb', // O RW   HeaderWrite Use this to change a header in the current shot description
+    FrameWrite /*     */ = '0000a010-0000-1000-8000-00805f9b34fb', // P RW   FrameWrite Use this to change a single frame in the current shot description
+    WaterLevels /*    */ = '0000a011-0000-1000-8000-00805f9b34fb', // Q RW   WaterLevels Use this to adjust and read water level settings
+    Calibration /*    */ = '0000a012-0000-1000-8000-00805f9b34fb', // R RW   Calibration Use this to adjust and read calibration
+}
+
 export enum StorageKey {
     Theme = 'deui/theme',
     Profile = 'deui/profile',
@@ -164,31 +185,37 @@ export enum BluetoothState {
 }
 
 export enum Prop {
-    MajorState = 'mjs',
-    MinorState = 'mns',
-    WaterLevel = 'wl',
-    WaterCapacity = 'wcap',
-    WaterHeater = 'wh',
-    SteamHeater = 'sh',
-    GroupHeater = 'gh',
-    ColdWater = 'cw',
-    TargetWaterHeater = 'twh',
-    TargetSteamHeater = 'tsh',
-    TargetGroupHeater = 'tgh',
-    TargetColdWater = 'tcw',
-
-    // @TODO Use below naming above.
-    ShotSampleTime = 'ShotSampleTime',
-    ShotGroupPressure = 'ShotGroupPressure',
-    ShotGroupFlow = 'ShotGroupFlow',
-    ShotMixTemp = 'ShotMixTemp',
-    ShotHeadTemp = 'ShotHeadTemp',
-    ShotSetMixTemp = 'ShotSetMixTemp',
-    ShotSetHeadTemp = 'ShotSetHeadTemp',
-    ShotSetGroupPressure = 'ShotSetGroupPressure',
-    ShotSetGroupFlow = 'ShotSetGroupFlow',
-    ShotFrameNumber = 'ShotFrameNumber',
-    ShotSteamTemp = 'ShotSteamTemp',
+    MajorState = 1,
+    MinorState,
+    WaterLevel,
+    WaterCapacity,
+    WaterHeater,
+    SteamHeater,
+    GroupHeater,
+    ColdWater,
+    TargetWaterHeater,
+    TargetSteamHeater,
+    TargetGroupHeater,
+    TargetColdWater,
+    ShotSampleTime,
+    ShotGroupPressure,
+    ShotGroupFlow,
+    ShotMixTemp,
+    ShotHeadTemp,
+    ShotSetMixTemp,
+    ShotSetHeadTemp,
+    ShotSetGroupPressure,
+    ShotSetGroupFlow,
+    ShotFrameNumber,
+    ShotSteamTemp,
+    SteamSettings,
+    TargetSteamTemp,
+    TargetSteamLength,
+    TargetHotWaterTemp,
+    TargetHotWaterVol,
+    TargetHotWaterLength,
+    TargetEspressoVol,
+    TargetGroupTemp,
 }
 
 export const RemoteState = z.object({
@@ -207,41 +234,15 @@ export const RemoteState = z.object({
 
 export type RemoteState = z.infer<typeof RemoteState>
 
-export const Properties = z.object({
-    [Prop.MajorState]: z.number().optional().or(z.undefined()),
-    [Prop.MinorState]: z.number().optional().or(z.undefined()),
-    [Prop.WaterLevel]: z.number().optional().or(z.undefined()),
-    [Prop.WaterCapacity]: z.number().optional().or(z.undefined()),
-    [Prop.WaterHeater]: z.number().optional().or(z.undefined()),
-    [Prop.SteamHeater]: z.number().optional().or(z.undefined()),
-    [Prop.GroupHeater]: z.number().optional().or(z.undefined()),
-    [Prop.ColdWater]: z.number().optional().or(z.undefined()),
-    [Prop.TargetWaterHeater]: z.number().optional().or(z.undefined()),
-    [Prop.TargetSteamHeater]: z.number().optional().or(z.undefined()),
-    [Prop.TargetGroupHeater]: z.number().optional().or(z.undefined()),
-    [Prop.TargetColdWater]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSampleTime]: z.number().optional().or(z.undefined()),
-    [Prop.ShotGroupPressure]: z.number().optional().or(z.undefined()),
-    [Prop.ShotGroupFlow]: z.number().optional().or(z.undefined()),
-    [Prop.ShotMixTemp]: z.number().optional().or(z.undefined()),
-    [Prop.ShotHeadTemp]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSetMixTemp]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSetHeadTemp]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSetGroupPressure]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSetGroupFlow]: z.number().optional().or(z.undefined()),
-    [Prop.ShotFrameNumber]: z.number().optional().or(z.undefined()),
-    [Prop.ShotSteamTemp]: z.number().optional().or(z.undefined()),
-})
-
-export type Properties = z.infer<typeof Properties>
+export type Properties = Partial<Record<Prop, number>>
 
 export enum MsgType {
     State = 'state',
-    Properties = 'properties',
+    Characteristics = 'characteristics',
 }
 
 export const StateMessage = z.object({
-    type: z.literal('state'),
+    type: z.literal(MsgType.State),
     payload: RemoteState,
 })
 
@@ -251,15 +252,36 @@ export function isStateMessage(msg: unknown): msg is StateMessage {
     return StateMessage.safeParse(msg).success
 }
 
-export const PropertiesMessage = z.object({
-    type: z.literal('properties'),
-    payload: Properties,
+export const CharMessage = z.object({
+    type: z.literal(MsgType.Characteristics),
+    payload: z
+        .object({
+            [CharAddr.Versions]: z.string(),
+            [CharAddr.RequestedState]: z.string(),
+            [CharAddr.SetTime]: z.string(),
+            [CharAddr.ShotDirectory]: z.string(),
+            [CharAddr.ReadFromMMR]: z.string(),
+            [CharAddr.WriteToMMR]: z.string(),
+            [CharAddr.ShotMapRequest]: z.string(),
+            [CharAddr.DeleteShotRange]: z.string(),
+            [CharAddr.FWMapRequest]: z.string(),
+            [CharAddr.Temperatures]: z.string(),
+            [CharAddr.ShotSettings]: z.string(),
+            [CharAddr.Deprecated]: z.string(),
+            [CharAddr.ShotSample]: z.string(),
+            [CharAddr.StateInfo]: z.string(),
+            [CharAddr.HeaderWrite]: z.string(),
+            [CharAddr.FrameWrite]: z.string(),
+            [CharAddr.WaterLevels]: z.string(),
+            [CharAddr.Calibration]: z.string(),
+        })
+        .partial(),
 })
 
-export type PropertiesMessage = z.infer<typeof PropertiesMessage>
+export type CharMessage = z.infer<typeof CharMessage>
 
-export function isPropertiesMessage(msg: unknown): msg is PropertiesMessage {
-    return PropertiesMessage.safeParse(msg).success
+export function isCharMessage(msg: unknown): msg is CharMessage {
+    return CharMessage.safeParse(msg).success
 }
 
 export enum ChunkType {
@@ -296,27 +318,6 @@ export enum MachineMode {
     Steam = 'Steam',
     Flush = 'Flush',
     Water = 'Water',
-}
-
-export enum CharAddr {
-    Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions
-    RequestedState /* */ = '0000a002-0000-1000-8000-00805f9b34fb', // B RW   RequestedState See T_RequestedState
-    SetTime /*        */ = '0000a003-0000-1000-8000-00805f9b34fb', // C RW   SetTime Set current time
-    ShotDirectory /*  */ = '0000a004-0000-1000-8000-00805f9b34fb', // D R    ShotDirectory View shot directory
-    ReadFromMMR /*    */ = '0000a005-0000-1000-8000-00805f9b34fb', // E RW   ReadFromMMR Read bytes from data mapped into the memory mapped region.
-    WriteToMMR /*     */ = '0000a006-0000-1000-8000-00805f9b34fb', // F W    WriteToMMR Write bytes to memory mapped region
-    ShotMapRequest /* */ = '0000a007-0000-1000-8000-00805f9b34fb', // G W    ShotMapRequest Map a shot so that it may be read/written
-    DeleteShotRange /**/ = '0000a008-0000-1000-8000-00805f9b34fb', // H W    DeleteShotRange Delete l shots in the range given
-    FWMapRequest /*   */ = '0000a009-0000-1000-8000-00805f9b34fb', // I W    FWMapRequest Map a firmware image into MMR. Cannot be done with the boot image
-    Temperatures /*   */ = '0000a00a-0000-1000-8000-00805f9b34fb', // J R    Temperatures See T_Temperatures
-    ShotSettings /*   */ = '0000a00b-0000-1000-8000-00805f9b34fb', // K RW   ShotSettings See T_ShotSettings
-    Deprecated /*     */ = '0000a00c-0000-1000-8000-00805f9b34fb', // L RW   Deprecated Was T_ShotDesc. Now deprecated.
-    ShotSample /*     */ = '0000a00d-0000-1000-8000-00805f9b34fb', // M R    ShotSample Use to monitor a running shot. See T_ShotSample
-    StateInfo /*      */ = '0000a00e-0000-1000-8000-00805f9b34fb', // N R    StateInfo The current state of the DE1
-    HeaderWrite /*    */ = '0000a00f-0000-1000-8000-00805f9b34fb', // O RW   HeaderWrite Use this to change a header in the current shot description
-    FrameWrite /*     */ = '0000a010-0000-1000-8000-00805f9b34fb', // P RW   FrameWrite Use this to change a single frame in the current shot description
-    WaterLevels /*    */ = '0000a011-0000-1000-8000-00805f9b34fb', // Q RW   WaterLevels Use this to adjust and read water level settings
-    Calibration /*    */ = '0000a012-0000-1000-8000-00805f9b34fb', // R RW   Calibration Use this to adjust and read calibration
 }
 
 export enum MajorState {
@@ -397,3 +398,12 @@ export const profiles: Profile[] = [
     },
     { id: uniqueId('profile-'), name: 'Profile #1' },
 ]
+
+export enum ServerErrorCode {
+    NotPoweredOn = 1,
+    AlreadyScanning,
+    AlreadyConnecting,
+    AlreadyConnected,
+    NotConnected,
+    UnknownCharacteristic,
+}

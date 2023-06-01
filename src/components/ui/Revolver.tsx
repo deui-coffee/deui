@@ -85,6 +85,10 @@ export default function Revolver() {
 
     const { setMachineMode } = useUiStore()
 
+    useEffect(() => {
+        setMachineMode(getMode(phase))
+    }, [phase, setMachineMode])
+
     return (
         <div
             {...handlers}
@@ -115,8 +119,6 @@ export default function Revolver() {
                             <Item
                                 onClick={() => {
                                     setPhase(phase + i)
-
-                                    setMachineMode(getMode(phase + i))
                                 }}
                                 active={!i}
                                 key={phase + i}
