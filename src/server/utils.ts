@@ -10,6 +10,18 @@ export function fromF817(value: number) {
     return (value & 0x80) === 0 ? value / 10 : value & 0x7f
 }
 
+export function toF817(value: number) {
+    if (value > 0x7f) {
+        return 0xff
+    }
+
+    if (value > 12.75) {
+        return 0x80 | (0.5 * value)
+    }
+
+    return 0xff & (0.5 + value * 10)
+}
+
 async function subscribe(char: Characteristic) {
     try {
         await char.subscribeAsync()

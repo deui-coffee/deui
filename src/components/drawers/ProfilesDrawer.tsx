@@ -10,7 +10,7 @@ interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
 }
 
 export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
-    const { profile: currentProfile, setProfile } = useDataStore()
+    const { profileManifest: currentProfileManifest, setProfileManifest } = useDataStore()
 
     return (
         <Drawer
@@ -23,17 +23,17 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             ]}
         >
             <ul css={tw`py-20`}>
-                {profiles.map((profile) => (
-                    <li key={profile.id}>
+                {profiles.map((profileManifest) => (
+                    <li key={profileManifest.id}>
                         <ListItem
-                            id={`${profile.id}`}
+                            id={`${profileManifest.id}`}
                             onClick={() => {
-                                setProfile(profile)
+                                setProfileManifest(profileManifest)
                                 onResolve?.()
                             }}
-                            active={profile === currentProfile}
+                            active={profileManifest.id === currentProfileManifest?.id}
                         >
-                            {profile.name}
+                            {profileManifest.name}
                         </ListItem>
                     </li>
                 ))}

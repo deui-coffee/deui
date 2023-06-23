@@ -1,5 +1,15 @@
 import { Status } from '$/components/StatusIndicator'
-import { CharAddr, MajorState, ShotFrame, ShotHeader, isCharMessage } from '$/types'
+import toml from 'toml'
+import {
+    CharAddr,
+    MajorState,
+    ProfileManifest,
+    ShotExtensionFrame,
+    ShotFrame,
+    ShotHeader,
+    isCharMessage,
+    isProfile,
+} from '$/types'
 import {
     BluetoothState,
     ChunkType,
@@ -18,8 +28,16 @@ import { useEffect } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
 import { fromF817 } from '$/server/utils'
+import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
 
-export async function exec(command: string) {
+interface WriteShotCommand {
+    method: 'exec_writeShot'
+    params: Buffer[]
+}
+
+type ExecCommand = 'scan' | 'on' | 'off' | WriteShotCommand
+
+export async function exec(command: ExecCommand) {
     switch (command) {
         case 'scan':
         case 'on':
@@ -27,7 +45,7 @@ export async function exec(command: string) {
             await axios.post(`/${command}`)
             break
         default:
-            throw new Error('Unknown command')
+            await axios.post(`/exec`, command.params)
     }
 }
 
@@ -42,9 +60,11 @@ interface DataStore {
 
     disconnect: () => void
 
-    profile: Profile | undefined
+    profileManifest: ProfileManifest | undefined
 
-    setProfile: (profile: Profile) => void
+    setProfileManifest: (profileManifest: ProfileManifest) => Promise<void>
+
+    profile: Profile | undefined
 }
 
 function getDefaultRemoteState(): RemoteState {
@@ -188,31 +208,9 @@ export const useDataStore = create<DataStore>((set) => {
                                     [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x10,
                                 })
                             case CharAddr.HeaderWrite:
-                                const header: ShotHeader = {
-                                    HeaderV: buf.readUint8(0),
-                                    NumberOfFrames: buf.readUint8(1),
-                                    NumberOfPreinfuseFrames: buf.readUint8(2),
-                                    MinimumPressure: buf.readUint8(3),
-                                    MaximumFlow: buf.readUint8(4),
-                                }
-
-                                console.log('Header', header)
-
-                                break
+                                return void console.log('HeaderWrite', decodeShotHeader(buf))
                             case CharAddr.FrameWrite:
-                                const frame: ShotFrame = {
-                                    FrameToWrite: buf.readUint8(0),
-                                    Flag: buf.readUint8(1),
-                                    SetVal: buf.readUint8(2),
-                                    Temp: buf.readUint8(3) / 2,
-                                    FrameLen: fromF817(buf.readUint8(4)),
-                                    TriggerVal: buf.readUint8(5),
-                                    MaxVol: buf.readUint16BE(6) & 0x3ff,
-                                }
-
-                                console.log('Frame', frame)
-
-                                break
+                                return void console.log('FrameWrite', decodeShotFrame(buf))
                         }
                     })
 
@@ -229,15 +227,27 @@ export const useDataStore = create<DataStore>((set) => {
             ctrl = undefined
         },
 
-        profile: undefined,
+        profileManifest: undefined,
 
-        setProfile(profile) {
+        async setProfileManifest(profileManifest) {
+            const { data } = await axios.get(`/profiles/${profileManifest.id}.toml`)
+
+            const profile = toml.parse(data)
+
+            if (!isProfile(profile)) {
+                throw new Error('Invalid profile')
+            }
+
             set((current) =>
                 produce(current, (next) => {
+                    next.profileManifest = profileManifest
+
                     next.profile = profile
                 })
             )
         },
+
+        profile: undefined,
     }
 })
 

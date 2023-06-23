@@ -1,0 +1,14 @@
+[
+    {
+        "id": "classic_italian_espresso",
+        "name": "Classic Italian espresso"
+    },
+    {
+        "id": "default",
+        "name": "Default"
+    },
+    {
+        "id": "best_overall_pressure",
+        "name": "Best overall pressure"
+    }
+]

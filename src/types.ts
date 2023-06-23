@@ -5,7 +5,7 @@ import SettingsIcon from '$/icons/SettingsIcon'
 import MetricsIcon from '$/icons/MetricsIcon'
 import ProfilesIcon from '$/icons/ProfilesIcon'
 import { z } from 'zod'
-import uniqueId from 'lodash/uniqueId'
+import rawProfiles from './data/profiles.json'
 
 export enum CharAddr {
     Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions
@@ -119,9 +119,28 @@ export interface ShotHeader {
     MaximumFlow: number
 }
 
-export interface ShotFrame {
+export enum FrameFlag {
+    CtrlF = 0x01, // Are we in Pressure or Flow priority mode?
+    DoCompare = 0x02, // Do a compare, early exit current frame if compare true
+    DC_GT = 0x04, // If we are doing a compare, then 0 = less than, 1 = greater than
+    DC_CompF = 0x08, // Compare Pressure or Flow?
+    TMixTemp = 0x10, // Disable shower head temperature compensation. Target Mix Temp instead.
+    Interpolate = 0x20, // Hard jump to target value, or ramp?
+    IgnoreLimit = 0x40, // Ignore minimum pressure and max flow settings
+
+    DontInterpolate = 0, // Don't interpolate, just go to or hold target value
+    CtrlP = 0,
+    DC_CompP = 0,
+    DC_LT = 0,
+    TBasketTemp = 0,
+}
+
+export interface Frame {
     // U8P0   FrameToWrite
     FrameToWrite: number
+}
+
+export interface ShotFrame extends Frame {
     // U8P0   Flag
     Flag: number
     // U8P4   SetVal
@@ -136,14 +155,109 @@ export interface ShotFrame {
     MaxVol: number
 }
 
+export interface ShotExtensionFrame extends Frame {
+    // U8P4
+    MaxFlowOrPressure: number
+    // U8P4
+    MaxFoPRange: number
+}
+
+export interface ShotTailFrame extends Frame {
+    // U10P0
+    MaxTotalVolume: number
+}
+
 export interface Shot {
     header: ShotHeader
     frames: ShotFrame[]
 }
 
-export interface Profile {
-    id: string
-    name: string
+export const ProfileManifest = z.object({
+    id: z.string(),
+    name: z.string(),
+})
+
+export type ProfileManifest = z.infer<typeof ProfileManifest>
+
+export enum ProfilePump {
+    Flow = 'flow',
+    Pressure = 'pressure',
+}
+
+export enum ProfileStepSensor {
+    Coffee = 'coffee',
+    Water = 'water',
+}
+
+export enum ProfileStepTransition {
+    Fast = 'fast',
+    Smooth = 'smooth',
+}
+
+export enum ProfileExitType {
+    Flow = 'flow',
+    Pressure = 'pressure',
+}
+
+export enum ProfileExitCondition {
+    Over = 'over',
+    Under = 'under',
+}
+
+export const ProfileStep = z.object({
+    name: z.string(),
+    temperature: z.number(),
+    sensor: z.literal(ProfileStepSensor.Coffee).or(z.literal(ProfileStepSensor.Water)),
+    pump: z.literal(ProfilePump.Flow).or(z.literal(ProfilePump.Pressure)),
+    transition: z.literal(ProfileStepTransition.Fast).or(z.literal(ProfileStepTransition.Smooth)),
+    pressure: z.number(),
+    flow: z.number().optional(),
+    seconds: z.number(),
+    volume: z.number().gte(0),
+    weight: z.number(),
+    exit: z
+        .object({
+            type: z.literal(ProfileExitType.Pressure).or(z.literal(ProfileExitType.Flow)),
+            condition: z
+                .literal(ProfileExitCondition.Over)
+                .or(z.literal(ProfileExitCondition.Under)),
+            value: z.number(),
+        })
+        .optional(),
+    limiter: z
+        .object({
+            value: z.number(),
+            range: z.number(),
+        })
+        .optional(),
+})
+
+export type ProfileStep = z.infer<typeof ProfileStep>
+
+export enum ProfileType {
+    Flow = 'flow',
+    Pressure = 'pressure',
+}
+
+export const Profile = z.object({
+    author: z.string(),
+    beverage_type: z.literal('espresso'),
+    hidden: z.boolean(),
+    lang: z.string(),
+    notes: z.string(),
+    tank_temperature: z.number(),
+    target_volume_count_start: z.number(),
+    target_volume: z.number(),
+    target_weight: z.number(),
+    type: z.literal(ProfileType.Flow).or(z.literal(ProfileType.Pressure)),
+    version: z.number(),
+    steps: z.array(ProfileStep),
+})
+
+export type Profile = z.infer<typeof Profile>
+
+export function isProfile(payload: unknown): payload is Profile {
+    return Profile.safeParse(payload).success
 }
 
 export enum WebSocketState {
@@ -391,14 +505,6 @@ export const Layer = {
     Drawer: 'drawers',
 }
 
-export const profiles: Profile[] = [
-    {
-        id: uniqueId('profile-'),
-        name: 'Default',
-    },
-    { id: uniqueId('profile-'), name: 'Profile #1' },
-]
-
 export enum ServerErrorCode {
     NotPoweredOn = 1,
     AlreadyScanning,
@@ -407,3 +513,7 @@ export enum ServerErrorCode {
     NotConnected,
     UnknownCharacteristic,
 }
+
+export const profiles = (rawProfiles as ProfileManifest[]).sort(({ id: a }, { id: b }) =>
+    a.localeCompare(b)
+)

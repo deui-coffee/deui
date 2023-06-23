@@ -14,7 +14,7 @@ import { useUiStore } from '$/stores/ui'
 export default function Controller() {
     const { machineMode } = useUiStore()
 
-    const { name: profileLabel } = useDataStore().profile || {}
+    const { name: profileLabel } = useDataStore().profileManifest || {}
 
     return (
         <div

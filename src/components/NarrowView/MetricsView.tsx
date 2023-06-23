@@ -10,7 +10,7 @@ import { ViewId } from '$/types'
 import { useDataStore, useMachineMode } from '$/stores/data'
 
 export default function MetricsView() {
-    const { name: profileLabel } = useDataStore().profile || {}
+    const { name: profileLabel } = useDataStore().profileManifest || {}
 
     const { setView, machineMode } = useUiStore()
 
