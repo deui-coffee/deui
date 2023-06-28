@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { fromF817, toF817 } from '$/server/utils'
 import {
     FrameFlag,
@@ -141,6 +142,7 @@ export function encodeShotExtensionFrame(frame: ShotExtensionFrame): Buffer {
         0,
         0,
         0,
+        0,
     ])
 }
 
@@ -168,6 +170,7 @@ export function encodeShotTailFrame(frame: ShotTailFrame): Buffer {
         0,
         0,
         0,
+        0,
     ])
 }
 
@@ -182,8 +185,6 @@ export function toEncodedShotFrames(profile: Profile): Buffer[] {
     const bufs: Buffer[] = []
 
     profile.steps.forEach((step, index) => {
-        const frame = toShotFrameAt(index, step)
-
         bufs.push(encodeShotFrame(toShotFrameAt(index, step)))
 
         const extensionFrame = toShotExtensionFrameAt(index, step)
@@ -193,7 +194,7 @@ export function toEncodedShotFrames(profile: Profile): Buffer[] {
         }
     })
 
-    bufs.push(encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, profile.target_volume)))
+    bufs.push(encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, 0)))
 
     return bufs
 }

@@ -5,7 +5,7 @@ import SettingsIcon from '$/icons/SettingsIcon'
 import MetricsIcon from '$/icons/MetricsIcon'
 import ProfilesIcon from '$/icons/ProfilesIcon'
 import { z } from 'zod'
-import * as rawProfiles from './data/profiles.json'
+import rawProfiles from './data/profiles.json'
 
 export enum CharAddr {
     Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions
@@ -517,3 +517,14 @@ export enum ServerErrorCode {
 export const profiles = (rawProfiles as ProfileManifest[]).sort(({ id: a }, { id: b }) =>
     a.localeCompare(b)
 )
+
+export enum ShotExecMethod {
+    Header = 'exec_writeShotHeader',
+    Frame = 'exec_writeShotFrame',
+    Tail = 'exec_writeShotTail',
+}
+
+export interface ShotExecCommand {
+    method: ShotExecMethod
+    params: Buffer
+}

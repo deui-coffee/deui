@@ -4,9 +4,7 @@ import {
     CharAddr,
     MajorState,
     ProfileManifest,
-    ShotExtensionFrame,
-    ShotFrame,
-    ShotHeader,
+    ShotExecCommand,
     isCharMessage,
     isProfile,
 } from '$/types'
@@ -27,15 +25,9 @@ import { produce } from 'immer'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
-import { fromF817 } from '$/server/utils'
 import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
 
-interface WriteShotCommand {
-    method: 'exec_writeShot'
-    params: Buffer[]
-}
-
-type ExecCommand = 'scan' | 'on' | 'off' | WriteShotCommand
+type ExecCommand = 'scan' | 'on' | 'off' | ShotExecCommand
 
 export async function exec(command: ExecCommand) {
     switch (command) {
@@ -45,7 +37,10 @@ export async function exec(command: ExecCommand) {
             await axios.post(`/${command}`)
             break
         default:
-            await axios.post(`/exec`, command.params)
+            await axios.post(`/exec`, {
+                ...command,
+                params: command.params.toString('hex'),
+            })
     }
 }
 

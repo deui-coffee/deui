@@ -1,3 +1,4 @@
+import { Buffer } from 'buffer'
 import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
 import cors from 'cors'
@@ -12,9 +13,12 @@ import {
     MsgType,
     RemoteState,
     ServerErrorCode,
+    ShotExecCommand,
+    ShotExecMethod,
 } from '../types'
 import { error, getShot, info, longCharacteristicUUID, watchCharacteristic } from './utils'
 import { broadcast, upgrade, wsServer } from './ws'
+import { z } from 'zod'
 
 const app = express()
 
@@ -29,7 +33,7 @@ app.use(cors())
 app.use(
     createProxyMiddleware(
         (pathname: string, req: Request) => {
-            return req.method !== 'POST' || !/^\/(scan|on|off)/.test(pathname)
+            return req.method !== 'POST' || !/^\/(scan|on|off|exec)/.test(pathname)
         },
         {
             target: 'http://127.0.0.1:3000',
@@ -172,7 +176,9 @@ noble.on('discover', (device) => {
             const frameChar: Characteristic | undefined = characteristics[CharAddr.FrameWrite]
 
             if (!headerChar || !frameChar) {
-                throw new Error('Missing mandatory characteristics: HeaderWrite or FrameWrite, or both')
+                throw new Error(
+                    'Missing mandatory characteristics: HeaderWrite or FrameWrite, or both'
+                )
             }
 
             const shot = await getShot({
@@ -249,6 +255,31 @@ function writeCharacteristic(uuid: string, data: Buffer) {
 app.post('/on', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Idle])))
 
 app.post('/off', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Sleep])))
+
+const ExecCommand = z.object({
+    method: z
+        .literal(ShotExecMethod.Frame)
+        .or(z.literal(ShotExecMethod.Header))
+        .or(z.literal(ShotExecMethod.Tail)),
+    params: z.string().regex(/[a-f\d]{2,}/i),
+})
+
+function isExecCommand(arg: unknown): arg is ShotExecCommand {
+    return ExecCommand.safeParse(arg).success
+}
+
+app.post('/exec', (req, res) => {
+    const command = req.body
+
+    if (!isExecCommand(command)) {
+        return void res.status(404).end()
+    }
+
+    writeCharacteristic(
+        command.method === ShotExecMethod.Header ? CharAddr.HeaderWrite : CharAddr.FrameWrite,
+        Buffer.from(command.params as any, 'hex')
+    )(req, res)
+})
 
 function setState(partial: Partial<RemoteState>) {
     State = {
