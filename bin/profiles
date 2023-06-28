@@ -16,6 +16,7 @@ fs.readdirSync(path.resolve(__dirname, '../public/profiles')).forEach((filename)
     profiles.push({
         name: profile.title,
         id: filename.replace(/\.json$/, ''),
+        visible: !profile.hidden,
     })
 })
 

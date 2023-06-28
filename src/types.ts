@@ -175,6 +175,7 @@ export interface Shot {
 export const ProfileManifest = z.object({
     id: z.string(),
     name: z.string(),
+    visible: z.boolean().optional(),
 })
 
 export type ProfileManifest = z.infer<typeof ProfileManifest>

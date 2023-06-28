@@ -23,20 +23,23 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             ]}
         >
             <ul css={tw`py-20`}>
-                {profiles.map((profileManifest) => (
-                    <li key={profileManifest.id}>
-                        <ListItem
-                            id={`${profileManifest.id}`}
-                            onClick={() => {
-                                setProfileManifest(profileManifest)
-                                onResolve?.()
-                            }}
-                            active={profileManifest.id === currentProfileManifest?.id}
-                        >
-                            {profileManifest.name}
-                        </ListItem>
-                    </li>
-                ))}
+                {profiles.map(
+                    (profileManifest) =>
+                        profileManifest.visible && (
+                            <li key={profileManifest.id}>
+                                <ListItem
+                                    id={`${profileManifest.id}`}
+                                    onClick={() => {
+                                        setProfileManifest(profileManifest)
+                                        onResolve?.()
+                                    }}
+                                    active={profileManifest.id === currentProfileManifest?.id}
+                                >
+                                    {profileManifest.name}
+                                </ListItem>
+                            </li>
+                        )
+                )}
             </ul>
         </Drawer>
     )
