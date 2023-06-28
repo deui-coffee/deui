@@ -12,11 +12,11 @@ export function fromF817(value: number) {
 
 export function toF817(value: number) {
     if (value > 0x7f) {
-        return 0xff
+        return 0x7f
     }
 
     if (value > 12.75) {
-        return 0x80 | (0.5 * value)
+        return 0x80 | (0.5 + value)
     }
 
     return 0xff & (0.5 + value * 10)

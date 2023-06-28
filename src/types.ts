@@ -5,7 +5,7 @@ import SettingsIcon from '$/icons/SettingsIcon'
 import MetricsIcon from '$/icons/MetricsIcon'
 import ProfilesIcon from '$/icons/ProfilesIcon'
 import { z } from 'zod'
-import rawProfiles from './data/profiles.json'
+import * as rawProfiles from './data/profiles.json'
 
 export enum CharAddr {
     Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions

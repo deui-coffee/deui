@@ -22,10 +22,10 @@ const MinimumPressure = 0
 
 const MaximumFlow = 6
 
-export function toShotHeader({ steps }: Profile): ShotHeader {
+export function toShotHeader(numberOfFrames: number): ShotHeader {
     return {
         HeaderV,
-        NumberOfFrames: steps.length,
+        NumberOfFrames: numberOfFrames,
         NumberOfPreinfuseFrames,
         MinimumPressure,
         MaximumFlow,
@@ -78,7 +78,7 @@ export function toShotFrameAt(index: number, step: ProfileStep): ShotFrame {
     }
 
     if (exitData?.type === ProfileExitType.Flow) {
-        flag |= FrameFlag.DC_CompF
+        flag |= FrameFlag.CtrlF
     }
 
     return {
@@ -96,11 +96,12 @@ export function encodeShotFrame(frame: ShotFrame): Buffer {
     return Buffer.from([
         frame.FrameToWrite,
         frame.Flag,
-        frame.SetVal,
-        frame.Temp,
+        0x0 | (0.5 + frame.SetVal * 0x10),
+        0x0 | (0.5 + frame.Temp * 2),
         toF817(frame.FrameLen),
-        (frame.TriggerVal >> 8) & 0x3,
-        frame.TriggerVal & 0xff,
+        0x0 | (0.5 + frame.TriggerVal * 0x10),
+        (frame.MaxVol >> 8) & 0x3,
+        frame.MaxVol & 0xff,
     ])
 }
 
@@ -118,24 +119,24 @@ export function decodeShotFrame(buf: Buffer): ShotFrame {
 
 export function toShotExtensionFrameAt(
     index: number,
-    step: ProfileStep
+    { limiter }: Pick<ProfileStep, 'limiter'>
 ): ShotExtensionFrame | null {
-    if (!step.limiter) {
+    if (!limiter) {
         return null
     }
 
     return {
         FrameToWrite: index + 32,
-        MaxFlowOrPressure: step.limiter.value,
-        MaxFoPRange: step.limiter.range,
+        MaxFlowOrPressure: limiter.value,
+        MaxFoPRange: limiter.range,
     }
 }
 
 export function encodeShotExtensionFrame(frame: ShotExtensionFrame): Buffer {
     return Buffer.from([
         frame.FrameToWrite,
-        0x0 | (frame.MaxFlowOrPressure * 0x10),
-        0x0 | (frame.MaxFoPRange * 0x10),
+        0x0 | (0.5 + frame.MaxFlowOrPressure * 0x10),
+        0x0 | (0.5 + frame.MaxFoPRange * 0x10),
         0,
         0,
         0,
@@ -143,7 +144,7 @@ export function encodeShotExtensionFrame(frame: ShotExtensionFrame): Buffer {
     ])
 }
 
-export function decodedShotExtensionFrame(buf: Buffer): ShotExtensionFrame {
+export function decodeShotExtensionFrame(buf: Buffer): ShotExtensionFrame {
     return {
         FrameToWrite: buf.readUint8(0),
         MaxFlowOrPressure: buf.readUint8(1) / 0x10,
@@ -175,4 +176,24 @@ export function decodeShotTailFrame(buf: Buffer): ShotTailFrame {
         FrameToWrite: buf.readUint8(0),
         MaxTotalVolume: buf.readUint16BE(1) & 0x3ff,
     }
+}
+
+export function toEncodedShotFrames(profile: Profile): Buffer[] {
+    const bufs: Buffer[] = []
+
+    profile.steps.forEach((step, index) => {
+        const frame = toShotFrameAt(index, step)
+
+        bufs.push(encodeShotFrame(toShotFrameAt(index, step)))
+
+        const extensionFrame = toShotExtensionFrameAt(index, step)
+
+        if (extensionFrame) {
+            bufs.push(encodeShotExtensionFrame(extensionFrame))
+        }
+    })
+
+    bufs.push(encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, profile.target_volume)))
+
+    return bufs
 }
