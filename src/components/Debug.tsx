@@ -1,41 +1,16 @@
-import { Buffer } from 'buffer'
-import { exec, useDataStore } from '$/stores/data'
-import { toEncodedShotFrames } from '$/utils/shot'
 import tw from 'twin.macro'
-import { ShotExecMethod } from '$/types'
 
+/**
+ * Test component for easy prototyping. Replace onClick with something and there u go,
+ * u have a button for it.
+ */
 export default function Debug() {
-    const { profile } = useDataStore()
-
-    async function onClick() {
-        try {
-            if (!profile) {
-                throw new Error('No profile selected')
-            }
-
-            const frames: Buffer[] = toEncodedShotFrames(profile)
-
-            for (let i = 0; i < frames.length; i++) {
-                const method =
-                    i === 0
-                        ? ShotExecMethod.Header
-                        : i === frames.length - 1
-                        ? ShotExecMethod.Tail
-                        : ShotExecMethod.Frame
-
-                await exec({
-                    method,
-                    params: frames[i],
-                })
-            }
-        } catch (e) {
-            console.error('Error', e)
-        }
-    }
+    const onClick = undefined
 
     return (
-        <div
-            css={tw`
+        onClick && (
+            <div
+                css={tw`
                 rounded-lg
                 fixed
                 left-6
@@ -44,14 +19,15 @@ export default function Debug() {
                 shadow-2xl
                 p-10
             `}
-        >
-            <button
-                type="button"
-                onClick={onClick}
-                css={tw`appearance-none bg-blue px-4 py-2 rounded-md shadow-sm`}
             >
-                Submit
-            </button>
-        </div>
+                <button
+                    type="button"
+                    onClick={onClick}
+                    css={tw`appearance-none bg-blue px-4 py-2 rounded-md shadow-sm`}
+                >
+                    Submit
+                </button>
+            </div>
+        )
     )
 }

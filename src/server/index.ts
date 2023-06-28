@@ -165,28 +165,13 @@ noble.on('discover', (device) => {
                     case CharAddr.Temperatures:
                     case CharAddr.ShotSample:
                     case CharAddr.ShotSettings:
+                    case CharAddr.HeaderWrite:
+                    case CharAddr.FrameWrite:
                         await watchCharacteristic(ch, { onData: setCharacteristicValue })
                         break
                     default:
                 }
             }
-
-            const headerChar: Characteristic | undefined = characteristics[CharAddr.HeaderWrite]
-
-            const frameChar: Characteristic | undefined = characteristics[CharAddr.FrameWrite]
-
-            if (!headerChar || !frameChar) {
-                throw new Error(
-                    'Missing mandatory characteristics: HeaderWrite or FrameWrite, or both'
-                )
-            }
-
-            const shot = await getShot({
-                headerChar,
-                frameChar,
-            })
-
-            console.log(shot)
         })
 
         info('Connected')

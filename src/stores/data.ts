@@ -4,8 +4,11 @@ import {
     MajorState,
     ProfileManifest,
     ShotExecCommand,
+    ShotExecMethod,
+    StorageKey,
     isCharMessage,
     isProfile,
+    profiles,
 } from '$/types'
 import {
     BluetoothState,
@@ -24,7 +27,7 @@ import { produce } from 'immer'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
-import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
+import { decodeShotFrame, decodeShotHeader, toEncodedShotFrames } from '$/utils/shot'
 
 type ExecCommand = 'scan' | 'on' | 'off' | ShotExecCommand
 
@@ -40,6 +43,28 @@ export async function exec(command: ExecCommand) {
                 ...command,
                 params: command.params.toString('hex'),
             })
+    }
+}
+
+export async function uploadProfile(profile: Profile | undefined) {
+    if (!profile) {
+        throw new Error('No profile selected')
+    }
+
+    const frames: Buffer[] = toEncodedShotFrames(profile)
+
+    for (let i = 0; i < frames.length; i++) {
+        const method =
+            i === 0
+                ? ShotExecMethod.Header
+                : i === frames.length - 1
+                ? ShotExecMethod.Tail
+                : ShotExecMethod.Frame
+
+        await exec({
+            method,
+            params: frames[i],
+        })
     }
 }
 
@@ -77,7 +102,23 @@ function getDefaultProperties(): Properties {
     }
 }
 
-export const useDataStore = create<DataStore>((set) => {
+function getLastKnownProfileManifest(): ProfileManifest | undefined {
+    const lastKnownId = localStorage.getItem(StorageKey.Profile)
+
+    if (!lastKnownId) {
+        return
+    }
+
+    const profileManifest = profiles.find(({ id }) => id === lastKnownId)
+
+    if (!profileManifest) {
+        return
+    }
+
+    return profileManifest
+}
+
+export const useDataStore = create<DataStore>((set, get) => {
     let ctrl: WsController | undefined
 
     function setProperties(properties: Properties) {
@@ -86,6 +127,49 @@ export const useDataStore = create<DataStore>((set) => {
                 Object.assign(next.properties, properties)
             })
         )
+    }
+
+    async function uploadCurrentProfile() {
+        const {
+            remoteState: { device },
+            profile,
+        } = get()
+
+        if (!device || !profile) {
+            return
+        }
+
+        try {
+            await uploadProfile(profile)
+        } catch (e) {
+            console.warn('Failed to upload current profile', e)
+        }
+    }
+
+    async function setProfileManifest(profileManifest: ProfileManifest) {
+        const { data: profile } = await axios.get(`/profiles/${profileManifest.id}.json`)
+
+        if (!isProfile(profile)) {
+            throw new Error(`Invalid profile`)
+        }
+
+        set((current) =>
+            produce(current, (next) => {
+                next.profileManifest = profileManifest
+
+                next.profile = profile
+            })
+        )
+
+        localStorage.setItem(StorageKey.Profile, profileManifest.id)
+
+        await uploadCurrentProfile()
+    }
+
+    const lastKnownProfileManifest = getLastKnownProfileManifest()
+
+    if (lastKnownProfileManifest) {
+        setProfileManifest(lastKnownProfileManifest)
     }
 
     return {
@@ -147,6 +231,8 @@ export const useDataStore = create<DataStore>((set) => {
 
                 if (isStateMessage(data)) {
                     set({ remoteState: data.payload })
+
+                    uploadCurrentProfile()
 
                     continue
                 }
@@ -223,21 +309,7 @@ export const useDataStore = create<DataStore>((set) => {
 
         profileManifest: undefined,
 
-        async setProfileManifest(profileManifest) {
-            const { data: profile } = await axios.get(`/profiles/${profileManifest.id}.json`)
-
-            if (!isProfile(profile)) {
-                throw new Error(`Invalid profile`)
-            }
-
-            set((current) =>
-                produce(current, (next) => {
-                    next.profileManifest = profileManifest
-
-                    next.profile = profile
-                })
-            )
-        },
+        setProfileManifest,
 
         profile: undefined,
     }
