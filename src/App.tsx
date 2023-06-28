@@ -10,6 +10,7 @@ import { Container } from 'toasterhea'
 import { Layer } from './types'
 import { useUiStore } from './stores/ui'
 import { useAutoConnectEffect } from './stores/data'
+import Debug from './components/Debug'
 
 const App = () => {
     const { theme } = useUiStore()
@@ -34,6 +35,7 @@ const App = () => {
             >
                 <WideView tw="hidden lg:block" />
                 <NarrowView tw="lg:hidden" />
+                <Debug />
             </div>
             <Container id={Layer.Drawer} />
         </>

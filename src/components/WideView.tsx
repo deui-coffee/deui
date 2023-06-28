@@ -25,7 +25,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
 
     const majorState = useMajorState()
 
-    const ready = typeof majorState !== 'undefined' && majorState !== MajorState.Sleep
+    const ready = true // typeof majorState !== 'undefined' && majorState !== MajorState.Sleep
 
     return (
         <div
