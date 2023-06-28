@@ -1,5 +1,4 @@
 import { Status } from '$/components/StatusIndicator'
-import toml from 'toml'
 import {
     CharAddr,
     MajorState,
@@ -225,12 +224,10 @@ export const useDataStore = create<DataStore>((set) => {
         profileManifest: undefined,
 
         async setProfileManifest(profileManifest) {
-            const { data } = await axios.get(`/profiles/${profileManifest.id}.toml`)
-
-            const profile = toml.parse(data)
+            const { data: profile } = await axios.get(`/profiles/${profileManifest.id}.json`)
 
             if (!isProfile(profile)) {
-                throw new Error('Invalid profile')
+                throw new Error(`Invalid profile`)
             }
 
             set((current) =>

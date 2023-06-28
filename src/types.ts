@@ -210,7 +210,7 @@ export const ProfileStep = z.object({
     sensor: z.literal(ProfileStepSensor.Coffee).or(z.literal(ProfileStepSensor.Water)),
     pump: z.literal(ProfilePump.Flow).or(z.literal(ProfilePump.Pressure)),
     transition: z.literal(ProfileStepTransition.Fast).or(z.literal(ProfileStepTransition.Smooth)),
-    pressure: z.number(),
+    pressure: z.number().optional(),
     flow: z.number().optional(),
     seconds: z.number(),
     volume: z.number().gte(0),
@@ -237,11 +237,31 @@ export type ProfileStep = z.infer<typeof ProfileStep>
 export enum ProfileType {
     Flow = 'flow',
     Pressure = 'pressure',
+    Advanced = 'advanced',
+}
+
+export enum BeverageType {
+    Espresso = 'espresso',
+    PourOver = 'pourover',
+    Cleaning = 'cleaning',
+    Tea = 'tea',
+    TeaPortafilter = 'tea_portafilter',
+    Manual = 'manual',
+    Calibrate = 'calibrate',
+    Filter = 'filter',
 }
 
 export const Profile = z.object({
     author: z.string(),
-    beverage_type: z.literal('espresso'),
+    beverage_type: z
+        .literal(BeverageType.Espresso)
+        .or(z.literal(BeverageType.PourOver))
+        .or(z.literal(BeverageType.Cleaning))
+        .or(z.literal(BeverageType.Tea))
+        .or(z.literal(BeverageType.TeaPortafilter))
+        .or(z.literal(BeverageType.Manual))
+        .or(z.literal(BeverageType.Calibrate))
+        .or(z.literal(BeverageType.Filter)),
     hidden: z.boolean(),
     lang: z.string(),
     notes: z.string(),
@@ -249,7 +269,10 @@ export const Profile = z.object({
     target_volume_count_start: z.number(),
     target_volume: z.number(),
     target_weight: z.number(),
-    type: z.literal(ProfileType.Flow).or(z.literal(ProfileType.Pressure)),
+    type: z
+        .literal(ProfileType.Flow)
+        .or(z.literal(ProfileType.Pressure))
+        .or(z.literal(ProfileType.Advanced)),
     version: z.number(),
     steps: z.array(ProfileStep),
 })

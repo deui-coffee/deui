@@ -86,7 +86,6 @@
             "pump": "pressure",
             "transition": "smooth",
             "pressure": 11.0,
-            "flow": "",
             "seconds": 6.00,
             "volume": 100,
             "weight": 0,

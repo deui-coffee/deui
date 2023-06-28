@@ -11,7 +11,6 @@
       "pump": "pressure",
       "transition": "fast",
       "pressure": 0.0,
-      "flow": "",
       "seconds": 3,
       "volume": 0,
       "weight": 0
@@ -23,7 +22,6 @@
       "pump": "pressure",
       "transition": "fast",
       "pressure": 0.0,
-      "flow": "",
       "seconds": 57,
       "volume": 0,
       "weight": 0
@@ -35,7 +33,6 @@
       "pump": "pressure",
       "transition": "smooth",
       "pressure": 0.0,
-      "flow": "",
       "seconds": 60,
       "volume": 0,
       "weight": 0

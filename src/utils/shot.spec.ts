@@ -178,7 +178,7 @@ describe('Shot utils', () => {
             MaxFoPRange: 4,
         }
 
-        const buffer = Buffer.from([0x21, 0x20, 0x40, 0, 0, 0, 0])
+        const buffer = Buffer.from([0x21, 0x20, 0x40, 0, 0, 0, 0, 0])
 
         describe('toShotExtensionFrameAt', () => {
             it('turns step without `limiter` into null', () => {
@@ -215,7 +215,7 @@ describe('Shot utils', () => {
             MaxTotalVolume: 1000,
         }
 
-        const buffer = Buffer.from([0x14, 0x03, 0xe8, 0, 0, 0, 0])
+        const buffer = Buffer.from([0x14, 0x03, 0xe8, 0, 0, 0, 0, 0])
 
         describe('toShotTailFrameAt', () => {
             it('turns max total volume into a shot tail frame', () => {
@@ -258,7 +258,7 @@ describe('Shot utils', () => {
 
             expect(decodeShotExtensionFrame(b4).MaxFlowOrPressure).toBe(4.5)
 
-            expect(decodeShotTailFrame(b5).MaxTotalVolume).toBe(36)
+            expect(decodeShotTailFrame(b5).MaxTotalVolume).toBe(0)
         })
     })
 })

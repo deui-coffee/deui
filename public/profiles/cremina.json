@@ -40,7 +40,6 @@
             "pump": "pressure",
             "transition": "smooth",
             "pressure": 9.0,
-            "flow": "",
             "seconds": 10.0,
             "volume": 100,
             "weight": 0
@@ -52,7 +51,6 @@
             "pump": "pressure",
             "transition": "smooth",
             "pressure": 3.0,
-            "flow": "",
             "seconds": 50.0,
             "volume": 100,
             "weight": 0
