@@ -45,7 +45,7 @@
   "legacy_profile_type": "settings_2a",
   "type": "pressure",
   "lang": "en",
-  "hidden": false,
+  "hidden": true,
   "reference_file": "Extractamundo_Dos",
   "changes_since_last_espresso": "",
   "version": 2

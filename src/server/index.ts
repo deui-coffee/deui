@@ -16,7 +16,7 @@ import {
     ShotExecCommand,
     ShotExecMethod,
 } from '../types'
-import { error, getShot, info, longCharacteristicUUID, watchCharacteristic } from './utils'
+import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
 import { broadcast, upgrade, wsServer } from './ws'
 import { z } from 'zod'
 
@@ -245,7 +245,8 @@ const ExecCommand = z.object({
     method: z
         .literal(ShotExecMethod.Frame)
         .or(z.literal(ShotExecMethod.Header))
-        .or(z.literal(ShotExecMethod.Tail)),
+        .or(z.literal(ShotExecMethod.Tail))
+        .or(z.literal(ShotExecMethod.ShotSettings)),
     params: z.string().regex(/[a-f\d]{2,}/i),
 })
 
@@ -260,10 +261,20 @@ app.post('/exec', (req, res) => {
         return void res.status(404).end()
     }
 
-    writeCharacteristic(
-        command.method === ShotExecMethod.Header ? CharAddr.HeaderWrite : CharAddr.FrameWrite,
-        Buffer.from(command.params as any, 'hex')
-    )(req, res)
+    let charAddr: CharAddr = CharAddr.FrameWrite
+
+    switch (command.method) {
+        case ShotExecMethod.Header:
+            charAddr = CharAddr.HeaderWrite
+            break
+        case ShotExecMethod.ShotSettings:
+            charAddr = CharAddr.ShotSettings
+            break
+        default:
+            break
+    }
+
+    writeCharacteristic(charAddr, Buffer.from(command.params as any, 'hex'))(req, res)
 })
 
 function setState(partial: Partial<RemoteState>) {

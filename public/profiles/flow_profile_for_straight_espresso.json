@@ -60,7 +60,7 @@
     "legacy_profile_type": "settings_2b",
     "type": "flow",
     "lang": "en",
-    "hidden": false,
+    "hidden": true,
     "reference_file": "Flow profile for straight espresso",
     "changes_since_last_espresso": "",
     "version": 2

@@ -144,7 +144,7 @@
   "legacy_profile_type": "settings_2c",
   "type": "advanced",
   "lang": "en",
-  "hidden": false,
+  "hidden": true,
   "reference_file": "Adaptive_for_medium_roasts_2",
   "changes_since_last_espresso": "",
   "version": 2

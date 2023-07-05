@@ -12,6 +12,7 @@ import {
     ShotExtensionFrame,
     ShotFrame,
     ShotHeader,
+    ShotSettings,
     ShotTailFrame,
 } from '$/types'
 
@@ -186,7 +187,9 @@ export function toEncodedShotFrames(profile: Profile): Buffer[] {
 
     profile.steps.forEach((step, index) => {
         bufs.push(encodeShotFrame(toShotFrameAt(index, step)))
+    })
 
+    profile.steps.forEach((step, index) => {
         const extensionFrame = toShotExtensionFrameAt(index, step)
 
         if (extensionFrame) {
@@ -197,4 +200,20 @@ export function toEncodedShotFrames(profile: Profile): Buffer[] {
     bufs.push(encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, 0)))
 
     return bufs
+}
+
+export function toEncodedShotSettings(shotSettings: ShotSettings): Buffer {
+    const targetGroupTemp = 0x0 | (shotSettings.TargetGroupTemp * 0x100)
+
+    return Buffer.from([
+        shotSettings.SteamSettings,
+        shotSettings.TargetSteamTemp,
+        shotSettings.TargetSteamLength,
+        shotSettings.TargetHotWaterTemp,
+        shotSettings.TargetHotWaterVol,
+        shotSettings.TargetHotWaterLength,
+        shotSettings.TargetEspressoVol,
+        targetGroupTemp >> 8,
+        targetGroupTemp & 0xff,
+    ])
 }

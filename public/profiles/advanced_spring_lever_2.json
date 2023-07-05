@@ -86,7 +86,7 @@
   "legacy_profile_type": "settings_2c",
   "type": "advanced",
   "lang": "en",
-  "hidden": false,
+  "hidden": true,
   "reference_file": "Advanced spring lever",
   "changes_since_last_espresso": "",
   "version": 2

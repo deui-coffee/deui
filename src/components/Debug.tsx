@@ -5,7 +5,7 @@ import tw from 'twin.macro'
  * u have a button for it.
  */
 export default function Debug() {
-    const onClick = undefined
+    const onClick = null
 
     return (
         onClick && (

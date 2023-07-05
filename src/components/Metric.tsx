@@ -80,7 +80,12 @@ type Metrics = Record<MachineMode, MetricOwnProps[]>
 
 export const Metrics: Metrics = {
     [MachineMode.Espresso]: [
-        { label: 'Goal temp', property: Prop.ShotSetHeadTemp, unit: '°C', formatFn: (v) => `${v}` },
+        {
+            label: 'Goal temp',
+            property: Prop.TargetGroupTemp,
+            unit: '°C',
+            formatFn: (v) => `${v}`,
+        },
         { label: 'Metal temp', property: Prop.ShotHeadTemp, unit: '°C' },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },

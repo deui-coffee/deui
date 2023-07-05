@@ -91,7 +91,7 @@
   "legacy_profile_type": "settings_2a",
   "type": "pressure",
   "lang": "en",
-  "hidden": false,
+  "hidden": true,
   "reference_file": "Default_2",
   "changes_since_last_espresso": "",
   "version": 2

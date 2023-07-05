@@ -5,6 +5,7 @@ import {
     ProfileManifest,
     ShotExecCommand,
     ShotExecMethod,
+    ShotSettings,
     StorageKey,
     isCharMessage,
     isProfile,
@@ -27,7 +28,12 @@ import { produce } from 'immer'
 import { useEffect } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
-import { decodeShotFrame, decodeShotHeader, toEncodedShotFrames } from '$/utils/shot'
+import {
+    decodeShotFrame,
+    decodeShotHeader,
+    toEncodedShotFrames,
+    toEncodedShotSettings,
+} from '$/utils/shot'
 
 type ExecCommand = 'scan' | 'on' | 'off' | ShotExecCommand
 
@@ -129,6 +135,30 @@ export const useDataStore = create<DataStore>((set, get) => {
         )
     }
 
+    function getCurrentShotSettings(): ShotSettings {
+        const {
+            [Prop.SteamSettings]: SteamSettings = 0,
+            [Prop.TargetSteamTemp]: TargetSteamTemp = 140,
+            [Prop.TargetSteamLength]: TargetSteamLength = 90,
+            [Prop.TargetHotWaterTemp]: TargetHotWaterTemp = 85,
+            [Prop.TargetHotWaterVol]: TargetHotWaterVol = 120,
+            [Prop.TargetHotWaterLength]: TargetHotWaterLength = 45,
+            [Prop.TargetEspressoVol]: TargetEspressoVol = 36,
+            [Prop.TargetGroupTemp]: TargetGroupTemp = 98,
+        } = get().properties
+
+        return {
+            SteamSettings,
+            TargetSteamTemp,
+            TargetSteamLength,
+            TargetHotWaterTemp,
+            TargetHotWaterVol,
+            TargetHotWaterLength,
+            TargetEspressoVol,
+            TargetGroupTemp,
+        }
+    }
+
     async function uploadCurrentProfile() {
         const {
             remoteState: { device },
@@ -141,6 +171,36 @@ export const useDataStore = create<DataStore>((set, get) => {
 
         try {
             await uploadProfile(profile)
+
+            const [{ temperature: TargetGroupTemp = undefined } = {}] = profile.steps
+
+            const { target_volume: TargetEspressoVol } = profile
+
+            if (TargetGroupTemp == null) {
+                throw new Error('Invalid shot temperatore')
+            }
+
+            const newShotSettings: ShotSettings = {
+                ...getCurrentShotSettings(),
+                TargetGroupTemp,
+                TargetEspressoVol,
+            }
+
+            await exec({
+                method: ShotExecMethod.ShotSettings,
+                params: toEncodedShotSettings(newShotSettings),
+            })
+
+            setProperties({
+                [Prop.SteamSettings]: newShotSettings.SteamSettings,
+                [Prop.TargetSteamTemp]: newShotSettings.TargetSteamTemp,
+                [Prop.TargetSteamLength]: newShotSettings.TargetSteamLength,
+                [Prop.TargetHotWaterTemp]: newShotSettings.TargetHotWaterTemp,
+                [Prop.TargetHotWaterVol]: newShotSettings.TargetHotWaterVol,
+                [Prop.TargetHotWaterLength]: newShotSettings.TargetHotWaterLength,
+                [Prop.TargetEspressoVol]: newShotSettings.TargetEspressoVol,
+                [Prop.TargetGroupTemp]: newShotSettings.TargetGroupTemp,
+            })
         } catch (e) {
             console.warn('Failed to upload current profile', e)
         }
@@ -285,7 +345,7 @@ export const useDataStore = create<DataStore>((set, get) => {
                                     [Prop.TargetHotWaterVol]: buf.readUint8(4),
                                     [Prop.TargetHotWaterLength]: buf.readUint8(5),
                                     [Prop.TargetEspressoVol]: buf.readUint8(6),
-                                    [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x10,
+                                    [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x100,
                                 })
                             case CharAddr.HeaderWrite:
                                 return void console.log('HeaderWrite', decodeShotHeader(buf))

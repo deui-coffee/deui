@@ -546,9 +546,40 @@ export enum ShotExecMethod {
     Header = 'exec_writeShotHeader',
     Frame = 'exec_writeShotFrame',
     Tail = 'exec_writeShotTail',
+    ShotSettings = 'exec_writeShotSettings',
 }
 
 export interface ShotExecCommand {
     method: ShotExecMethod
     params: Buffer
+}
+
+export enum SteamSetting {
+    // Start the steam quickly and at higher pressure
+    FastStart = 0x80,
+    // Start the steam slowly and at lower pressure (ie. No Bit set)
+    SlowStart = 0x00,
+    // Run the steam at higher pressure
+    HighPower = 0x40,
+    // Run the steam at lower pressure
+    LowPower = 0x00,
+}
+
+export interface ShotSettings {
+    // Defines the steam shot
+    SteamSettings: SteamSetting
+    // U8P0 Valid range is 140 - 160
+    TargetSteamTemp: number
+    // U8P0 Length in seconds of steam
+    TargetSteamLength: number
+    // U8P0 Temperature of the mixed hot water
+    TargetHotWaterTemp: number
+    // U8P0 How much water we'll need for hot water (so we know if we have enough)
+    TargetHotWaterVol: number
+    // U8P0 (DE1 only) Length of time for a shot (water vol is ignored)
+    TargetHotWaterLength: number
+    // U8P0 So we know if we have enough water
+    TargetEspressoVol: number
+    // U16P8 So we know what to set the group to
+    TargetGroupTemp: number
 }
