@@ -39,7 +39,7 @@ export function encodeShotHeader(header: ShotHeader): Buffer {
         header.HeaderV,
         header.NumberOfFrames,
         header.NumberOfPreinfuseFrames,
-        header.MinimumPressure,
+        0x0 | (0.5 + header.MinimumPressure * 0x10),
         0x0 | (0.5 + header.MaximumFlow * 0x10),
     ])
 }
@@ -49,7 +49,7 @@ export function decodeShotHeader(buf: Buffer): ShotHeader {
         HeaderV: buf.readUint8(0),
         NumberOfFrames: buf.readUint8(1),
         NumberOfPreinfuseFrames: buf.readUint8(2),
-        MinimumPressure: buf.readUint8(3),
+        MinimumPressure: buf.readUint8(3) / 0x10,
         MaximumFlow: buf.readUint8(4) / 0x10,
     }
 }
