@@ -2,7 +2,7 @@ import React from 'react'
 import Drawer, { DrawerProps } from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
 import tw from 'twin.macro'
-import { profiles } from '$/types'
+import { profiles as allProfiles } from '$/types'
 import { useDataStore } from '$/stores/data'
 
 interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
@@ -11,6 +11,8 @@ interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
 
 export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
     const { profileManifest: currentProfileManifest, setProfileManifest } = useDataStore()
+
+    const profiles = allProfiles.filter(({ visible }) => visible)
 
     return (
         <Drawer
@@ -23,23 +25,20 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             ]}
         >
             <ul css={tw`py-20`}>
-                {profiles.map(
-                    (profileManifest) =>
-                        profileManifest.visible && (
-                            <li key={profileManifest.id}>
-                                <ListItem
-                                    id={`${profileManifest.id}`}
-                                    onClick={() => {
-                                        setProfileManifest(profileManifest)
-                                        onResolve?.()
-                                    }}
-                                    active={profileManifest.id === currentProfileManifest?.id}
-                                >
-                                    {profileManifest.name}
-                                </ListItem>
-                            </li>
-                        )
-                )}
+                {profiles.map((profileManifest) => (
+                    <li key={profileManifest.id}>
+                        <ListItem
+                            id={`${profileManifest.id}`}
+                            onClick={() => {
+                                setProfileManifest(profileManifest)
+                                onResolve?.()
+                            }}
+                            active={profileManifest.id === currentProfileManifest?.id}
+                        >
+                            {profileManifest.name}
+                        </ListItem>
+                    </li>
+                ))}
             </ul>
         </Drawer>
     )
