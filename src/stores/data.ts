@@ -31,7 +31,7 @@ import { Buffer } from 'buffer'
 import {
     decodeShotFrame,
     decodeShotHeader,
-    toEncodedShotFrames,
+    toEncodedShot,
     toEncodedShotSettings,
 } from '$/utils/shot'
 
@@ -57,19 +57,14 @@ export async function uploadProfile(profile: Profile | undefined) {
         throw new Error('No profile selected')
     }
 
-    const frames: Buffer[] = toEncodedShotFrames(profile)
+    const payloads = toEncodedShot(profile)
 
-    for (let i = 0; i < frames.length; i++) {
-        const method =
-            i === 0
-                ? ShotExecMethod.Header
-                : i === frames.length - 1
-                ? ShotExecMethod.Tail
-                : ShotExecMethod.Frame
+    for (let i = 0; i < payloads.length; i++) {
+        const { method, payload: params } = payloads[i]
 
         await exec({
             method,
-            params: frames[i],
+            params,
         })
     }
 }

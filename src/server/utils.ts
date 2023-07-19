@@ -1,4 +1,4 @@
-import { ShotFrame, ShotHeader } from '$/types'
+import { CharAddr } from '../types'
 import { Characteristic } from '@abandonware/noble'
 import debug from 'debug'
 
@@ -32,14 +32,41 @@ async function subscribe(char: Characteristic) {
     }
 }
 
+const charNames = {
+    [CharAddr.Versions]: 'Versions',
+    [CharAddr.RequestedState]: 'RequestedState',
+    [CharAddr.SetTime]: 'SetTime',
+    [CharAddr.ShotDirectory]: 'ShotDirectory',
+    [CharAddr.ReadFromMMR]: 'ReadFromMMR',
+    [CharAddr.WriteToMMR]: 'WriteToMMR',
+    [CharAddr.ShotMapRequest]: 'ShotMapRequest',
+    [CharAddr.DeleteShotRange]: 'DeleteShotRange',
+    [CharAddr.FWMapRequest]: 'FWMapRequest',
+    [CharAddr.Temperatures]: 'Temperatures',
+    [CharAddr.ShotSettings]: 'ShotSettings',
+    [CharAddr.Deprecated]: 'Deprecated',
+    [CharAddr.ShotSample]: 'ShotSample',
+    [CharAddr.StateInfo]: 'StateInfo',
+    [CharAddr.HeaderWrite]: 'HeaderWrite',
+    [CharAddr.FrameWrite]: 'FrameWrite',
+    [CharAddr.WaterLevels]: 'WaterLevels',
+    [CharAddr.Calibration]: 'Calibration',
+}
+
+export function getCharName(uuid: CharAddr) {
+    return charNames[uuid]
+}
+
 export async function watchCharacteristic(
     char: Characteristic,
     { onData }: { onData?: (uuid: string, data: Buffer) => void }
 ) {
     const uuid = longCharacteristicUUID(char.uuid)
 
+    const charName = getCharName(uuid)
+
     char.on('data', (data) => {
-        info('Data received', data)
+        info('Data received', charName, data)
 
         onData?.(uuid, data)
     })
@@ -47,11 +74,11 @@ export async function watchCharacteristic(
     try {
         await char.readAsync()
 
-        info(`Read ${uuid}`)
+        info(`Read`, charName)
 
         await subscribe(char)
     } catch (e) {
-        error('Failed to read', e)
+        error('Failed to read', charName, e)
     }
 }
 
@@ -60,5 +87,5 @@ export function longCharacteristicUUID(uuid: string) {
         throw new Error('Invalid short UUID')
     }
 
-    return `0000${uuid}-0000-1000-8000-00805f9b34fb`
+    return `0000${uuid}-0000-1000-8000-00805f9b34fb` as CharAddr
 }

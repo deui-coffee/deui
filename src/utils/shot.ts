@@ -1,6 +1,7 @@
 import { Buffer } from 'buffer'
 import { fromF817, toF817 } from '$/server/utils'
 import {
+    CharAddr,
     FrameFlag,
     Profile,
     ProfileExitCondition,
@@ -9,6 +10,7 @@ import {
     ProfileStep,
     ProfileStepSensor,
     ProfileStepTransition,
+    ShotExecMethod,
     ShotExtensionFrame,
     ShotFrame,
     ShotHeader,
@@ -182,22 +184,36 @@ export function decodeShotTailFrame(buf: Buffer): ShotTailFrame {
     }
 }
 
-export function toEncodedShotFrames(profile: Profile): Buffer[] {
-    const bufs: Buffer[] = []
+export function toEncodedShot(profile: Profile) {
+    const bufs: { method: ShotExecMethod; payload: Buffer }[] = [
+        {
+            method: ShotExecMethod.Header,
+            payload: encodeShotHeader(toShotHeader(profile.steps.length)),
+        },
+    ]
 
     profile.steps.forEach((step, index) => {
-        bufs.push(encodeShotFrame(toShotFrameAt(index, step)))
+        bufs.push({
+            method: ShotExecMethod.Frame,
+            payload: encodeShotFrame(toShotFrameAt(index, step)),
+        })
     })
 
     profile.steps.forEach((step, index) => {
         const extensionFrame = toShotExtensionFrameAt(index, step)
 
         if (extensionFrame) {
-            bufs.push(encodeShotExtensionFrame(extensionFrame))
+            bufs.push({
+                method: ShotExecMethod.Frame,
+                payload: encodeShotExtensionFrame(extensionFrame),
+            })
         }
     })
 
-    bufs.push(encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, 0)))
+    bufs.push({
+        method: ShotExecMethod.Frame,
+        payload: encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, 0)),
+    })
 
     return bufs
 }

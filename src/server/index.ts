@@ -16,7 +16,7 @@ import {
     ShotExecCommand,
     ShotExecMethod,
 } from '../types'
-import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
+import { error, getCharName, info, longCharacteristicUUID, watchCharacteristic } from './utils'
 import { broadcast, upgrade, wsServer } from './ws'
 import { z } from 'zod'
 
@@ -211,8 +211,12 @@ noble.on('discover', (device) => {
     }
 })
 
-function writeCharacteristic(uuid: string, data: Buffer) {
-    return (_: IncomingMessage, res: Response) => {
+function writeCharacteristic(
+    uuid: string,
+    data: Buffer,
+    { withoutResponse = false }: { withoutResponse?: boolean } = {}
+) {
+    return async (_: IncomingMessage, res: Response) => {
         const { device } = State
 
         if (!device) {
@@ -225,15 +229,15 @@ function writeCharacteristic(uuid: string, data: Buffer) {
             return void res.status(422).json({ code: ServerErrorCode.UnknownCharacteristic })
         }
 
-        characteristic.write(data, false, (err) => {
-            if (err) {
-                error('`write` failed: %s', err)
-
-                return void res.status(500).end()
-            }
+        try {
+            await characteristic.writeAsync(data, withoutResponse)
 
             res.status(200).end()
-        })
+        } catch (e) {
+            error('`write` failed: %s', e)
+
+            return void res.status(500).end()
+        }
     }
 }
 
