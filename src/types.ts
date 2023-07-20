@@ -368,6 +368,7 @@ export const RemoteState = z.object({
     connecting: z.boolean(),
     discoveringCharacteristics: z.boolean(),
     device: Peripheral.or(z.undefined()),
+    ready: z.boolean(),
 })
 
 export type RemoteState = z.infer<typeof RemoteState>

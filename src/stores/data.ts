@@ -94,6 +94,7 @@ function getDefaultRemoteState(): RemoteState {
         connecting: false,
         discoveringCharacteristics: false,
         device: undefined,
+        ready: false,
     }
 }
 
@@ -121,6 +122,8 @@ function getLastKnownProfileManifest(): ProfileManifest | undefined {
 
 export const useDataStore = create<DataStore>((set, get) => {
     let ctrl: WsController | undefined
+
+    let recentlyUploadedProfileId: string | undefined = undefined
 
     function setProperties(properties: Properties) {
         set((current) =>
@@ -156,16 +159,19 @@ export const useDataStore = create<DataStore>((set, get) => {
 
     async function uploadCurrentProfile() {
         const {
-            remoteState: { device },
+            remoteState: { device, ready },
+            profileManifest: { id } = {},
             profile,
         } = get()
 
-        if (!device || !profile) {
+        if (!ready || !device || !profile || id === recentlyUploadedProfileId) {
             return
         }
 
         try {
             await uploadProfile(profile)
+
+            recentlyUploadedProfileId = id
 
             const [{ temperature: TargetGroupTemp = undefined } = {}] = profile.steps
 

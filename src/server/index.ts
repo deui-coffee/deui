@@ -16,7 +16,7 @@ import {
     ShotExecCommand,
     ShotExecMethod,
 } from '../types'
-import { error, getCharName, info, longCharacteristicUUID, watchCharacteristic } from './utils'
+import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
 import { broadcast, upgrade, wsServer } from './ws'
 import { z } from 'zod'
 
@@ -58,6 +58,7 @@ let State: RemoteState = {
     connecting: false,
     discoveringCharacteristics: false,
     device: undefined,
+    ready: false,
 }
 
 app.post('/scan', (_, res) => {
@@ -175,6 +176,10 @@ noble.on('discover', (device) => {
         })
 
         info('Connected')
+
+        setState({
+            ready: true,
+        })
     })
 
     device.once('disconnect', (err) => {
@@ -184,6 +189,7 @@ noble.on('discover', (device) => {
 
         setState({
             device: undefined,
+            ready: false,
         })
 
         info('Disconnected')
