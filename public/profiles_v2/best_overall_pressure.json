@@ -1,0 +1,74 @@
+{
+    "title": "Best overall pressure",
+    "author": "Decent",
+    "desc": "We recommend this pressure profile as the most likely to produce a good espresso in the most varied number of cases. The decreasing pressure will help reduce acidity.",
+    "final_desired_weight": 36,
+    "final_desired_volume": 36,
+    "max_pressure_range": 0.9,
+    "max_flow_range": 1.0,
+    "steps": [
+        {
+            "exit_if": ["pressure_over", 4],
+            "flow": 3.5,
+            "name": "preinfusion temp boost",
+            "preinfusion": true,
+            "pressure": 1,
+            "pump": "flow",
+            "seconds": 2,
+            "sensor": "coffee",
+            "temperature": 88.0,
+            "transition": "fast",
+            "volume": 0,
+            "weight": 0
+        },
+        {
+            "exit_if": ["pressure_over", 4],
+            "flow": 3.5,
+            "name": "preinfusion",
+            "preinfusion": true,
+            "pressure": 1,
+            "pump": "flow",
+            "seconds": 18,
+            "sensor": "coffee",
+            "temperature": 88.0,
+            "transition": "fast",
+            "volume": 0,
+            "weight": 0
+        },
+        {
+            "name": "forced rise without limit",
+            "pressure": 8.4,
+            "pump": "pressure",
+            "seconds": 3,
+            "sensor": "coffee",
+            "temperature": 88.0,
+            "transition": "fast",
+            "volume": 0,
+            "weight": 0
+        },
+        {
+            "limiter": [3.5, 1.0],
+            "name": "rise and hold",
+            "pressure": 8.4,
+            "pump": "pressure",
+            "seconds": 7,
+            "sensor": "coffee",
+            "temperature": 88.0,
+            "transition": "fast",
+            "volume": 0,
+            "weight": 0
+        },
+        {
+            "limiter": [3.5, 1.0],
+            "name": "decline",
+            "pressure": 6.0,
+            "pump": "pressure",
+            "seconds": 30,
+            "sensor": "coffee",
+            "temperature": 88.0,
+            "transition": "smooth",
+            "volume": 0,
+            "weight": 0
+        }
+    ]
+}
