@@ -42,7 +42,7 @@ app.use(
     )
 )
 
-const Port = process.env.PORT || 3000
+const Port = process.env.PORT || 3001
 
 createServer(app)
     .on('upgrade', upgrade)
