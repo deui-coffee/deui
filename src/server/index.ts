@@ -238,6 +238,12 @@ function writeCharacteristic(
         try {
             await characteristic.writeAsync(data, withoutResponse)
 
+            const actual = await characteristic.readAsync()
+
+            if (actual.toString('hex') !== data.toString('hex')) {
+                error('Data mismatch (expected vs actual)', data, actual)
+            }
+
             res.status(200).end()
         } catch (e) {
             error('`write` failed: %s', e)
