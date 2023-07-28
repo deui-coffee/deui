@@ -238,11 +238,16 @@ function writeCharacteristic(
         try {
             await characteristic.writeAsync(data, withoutResponse)
 
-            const actual = await characteristic.readAsync()
+            /**
+             * The following makes the whole writing stuck (esp. at writing the tail shot
+             * frame). Leaving it commented out for now. Maybe I find a reason one day and
+             * give it another chance.
+             */
+            // const actual = await characteristic.readAsync()
 
-            if (actual.toString('hex') !== data.toString('hex')) {
-                error('Data mismatch (expected vs actual)', data, actual)
-            }
+            // if (actual.toString('hex') !== data.toString('hex')) {
+            //     error('Data mismatch (expected vs actual)', data, actual)
+            // }
 
             res.status(200).end()
         } catch (e) {
