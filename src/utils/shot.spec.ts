@@ -20,7 +20,7 @@ import {
     encodeShotFrame,
     encodeShotHeader,
     encodeShotTailFrame,
-    toEncodedShotFrames,
+    toEncodedShot,
     toShotExtensionFrameAt,
     toShotFrameAt,
     toShotHeader,
@@ -240,7 +240,7 @@ describe('Shot utils', () => {
         it('turns a profile into an array of buffers', () => {
             const profile: Profile = ClassicItalianEspresso as unknown as Profile
 
-            const bufs = toEncodedShotFrames(profile)
+            const bufs = toEncodedShot(profile)
 
             expect(profile.steps.length).toBe(4)
 

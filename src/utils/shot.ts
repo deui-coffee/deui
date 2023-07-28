@@ -1,7 +1,6 @@
 import { Buffer } from 'buffer'
 import { fromF817, toF817 } from '$/server/utils'
 import {
-    CharAddr,
     FrameFlag,
     Profile,
     ProfileExitCondition,
@@ -17,22 +16,16 @@ import {
     ShotSettings,
     ShotTailFrame,
 } from '$/types'
+import { toU10P0, toU8P1, toU8P4 } from '.'
 
-const HeaderV = 1
-
-const NumberOfPreinfuseFrames = 1
-
-const MinimumPressure = 0
-
-const MaximumFlow = 6
-
-export function toShotHeader(numberOfFrames: number): ShotHeader {
+export function toShotHeader(
+    partial: Pick<ShotHeader, 'NumberOfFrames' | 'NumberOfPreinfuseFrames'>
+): ShotHeader {
     return {
-        HeaderV,
-        NumberOfFrames: numberOfFrames,
-        NumberOfPreinfuseFrames,
-        MinimumPressure,
-        MaximumFlow,
+        HeaderV: 1,
+        MinimumPressure: 0,
+        MaximumFlow: 6,
+        ...partial,
     }
 }
 
@@ -41,8 +34,8 @@ export function encodeShotHeader(header: ShotHeader): Buffer {
         header.HeaderV,
         header.NumberOfFrames,
         header.NumberOfPreinfuseFrames,
-        0x0 | (0.5 + header.MinimumPressure * 0x10),
-        0x0 | (0.5 + header.MaximumFlow * 0x10),
+        toU8P4(header.MinimumPressure),
+        toU8P4(header.MaximumFlow),
     ])
 }
 
@@ -59,8 +52,22 @@ export function decodeShotHeader(buf: Buffer): ShotHeader {
 export function toShotFrameAt(index: number, step: ProfileStep): ShotFrame {
     let flag = FrameFlag.IgnoreLimit
 
+    let SetVal = 0
+
     if (step.pump === ProfilePump.Flow) {
         flag |= FrameFlag.CtrlF
+
+        if (typeof step.flow !== 'number') {
+            throw new Error('Invalid flow')
+        }
+
+        SetVal = step.flow
+    } else {
+        if (typeof step.pressure !== 'number') {
+            throw new Error('Invalid pressure')
+        }
+
+        SetVal = step.pressure
     }
 
     if (step.sensor === ProfileStepSensor.Water) {
@@ -82,13 +89,13 @@ export function toShotFrameAt(index: number, step: ProfileStep): ShotFrame {
     }
 
     if (exitData?.type === ProfileExitType.Flow) {
-        flag |= FrameFlag.CtrlF
+        flag |= FrameFlag.DC_CompF
     }
 
     return {
         FrameToWrite: index,
         Flag: flag,
-        SetVal: 0,
+        SetVal,
         Temp: step.temperature,
         FrameLen: step.seconds,
         TriggerVal: exitData?.value || 0,
@@ -100,12 +107,11 @@ export function encodeShotFrame(frame: ShotFrame): Buffer {
     return Buffer.from([
         frame.FrameToWrite,
         frame.Flag,
-        0x0 | (0.5 + frame.SetVal * 0x10),
-        0x0 | (0.5 + frame.Temp * 2),
+        toU8P4(frame.SetVal),
+        toU8P1(frame.Temp),
         toF817(frame.FrameLen),
-        0x0 | (0.5 + frame.TriggerVal * 0x10),
-        (frame.MaxVol >> 8) & 0x3,
-        frame.MaxVol & 0xff,
+        toU8P4(frame.TriggerVal),
+        ...toU10P0(frame.MaxVol),
     ])
 }
 
@@ -139,8 +145,8 @@ export function toShotExtensionFrameAt(
 export function encodeShotExtensionFrame(frame: ShotExtensionFrame): Buffer {
     return Buffer.from([
         frame.FrameToWrite,
-        0x0 | (0.5 + frame.MaxFlowOrPressure * 0x10),
-        0x0 | (0.5 + frame.MaxFoPRange * 0x10),
+        toU8P4(frame.MaxFlowOrPressure),
+        toU8P4(frame.MaxFoPRange),
         0,
         0,
         0,
@@ -165,16 +171,7 @@ export function toShotTailFrameAt(index: number, maxTotalVolume: number): ShotTa
 }
 
 export function encodeShotTailFrame(frame: ShotTailFrame): Buffer {
-    return Buffer.from([
-        frame.FrameToWrite,
-        (frame.MaxTotalVolume >> 8) & 0x3,
-        frame.MaxTotalVolume & 0xff,
-        0,
-        0,
-        0,
-        0,
-        0,
-    ])
+    return Buffer.from([frame.FrameToWrite, ...toU10P0(frame.MaxTotalVolume), 0, 0, 0, 0, 0])
 }
 
 export function decodeShotTailFrame(buf: Buffer): ShotTailFrame {
@@ -185,21 +182,39 @@ export function decodeShotTailFrame(buf: Buffer): ShotTailFrame {
 }
 
 export function toEncodedShot(profile: Profile) {
+    /**
+     * We may want to add a 2 second pause step, see
+     * https://github.com/decentespresso/de1app/blob/main/de1plus/binary.tcl#L878-L893
+     */
+    const steps = [...profile.steps]
+
     const bufs: { method: ShotExecMethod; payload: Buffer }[] = [
         {
             method: ShotExecMethod.Header,
-            payload: encodeShotHeader(toShotHeader(profile.steps.length)),
+            payload: encodeShotHeader(
+                toShotHeader({
+                    NumberOfFrames: steps.length,
+                    /**
+                     * NumberOfPreinfuseFrames is driven by final_desired_shot_volume_advanced_count_start in the original
+                     * profil logic, see
+                     * https://github.com/decentespresso/de1app/blob/main/de1plus/binary.tcl#L984
+                     *
+                     * I'mma stick to 0 for the frames we have. Our future profiles have to name this property correctly.
+                     */
+                    NumberOfPreinfuseFrames: 0,
+                })
+            ),
         },
     ]
 
-    profile.steps.forEach((step, index) => {
+    steps.forEach((step, index) => {
         bufs.push({
             method: ShotExecMethod.Frame,
             payload: encodeShotFrame(toShotFrameAt(index, step)),
         })
     })
 
-    profile.steps.forEach((step, index) => {
+    steps.forEach((step, index) => {
         const extensionFrame = toShotExtensionFrameAt(index, step)
 
         if (extensionFrame) {
@@ -212,7 +227,7 @@ export function toEncodedShot(profile: Profile) {
 
     bufs.push({
         method: ShotExecMethod.Frame,
-        payload: encodeShotTailFrame(toShotTailFrameAt(profile.steps.length, 0)),
+        payload: encodeShotTailFrame(toShotTailFrameAt(steps.length, 0)),
     })
 
     return bufs
