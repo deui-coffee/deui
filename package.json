@@ -1,5 +1,5 @@
 {
-  "name": "pyde1-react-ui",
+  "name": "deui",
   "version": "0.0.0",
   "scripts": {
     "build": "tsc && vite build",
