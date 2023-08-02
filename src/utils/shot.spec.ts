@@ -30,7 +30,10 @@ import * as ClassicItalianEspresso from '../../public/profiles/classic_italian_e
 
 describe('Shot utils', () => {
     describe('shot header', () => {
-        const header = toShotHeader(7)
+        const header = toShotHeader({
+            NumberOfFrames: 7,
+            NumberOfPreinfuseFrames: 1,
+        })
 
         describe('toShotHeader', () => {
             it('turns a number of frames into a proper header', () => {
@@ -73,7 +76,7 @@ describe('Shot utils', () => {
         const frame: ShotFrame = {
             FrameToWrite: 3,
             Flag: FrameFlag.IgnoreLimit,
-            SetVal: 0,
+            SetVal: 8.4,
             Temp: 92,
             FrameLen: 9,
             TriggerVal: 0,
@@ -90,8 +93,11 @@ describe('Shot utils', () => {
                     MaxVol: 13,
                 })
 
-                expect(toShotFrameAt(3, { ...step, pump: ProfilePump.Flow })).toMatchObject({
+                expect(
+                    toShotFrameAt(3, { ...step, flow: 7, pump: ProfilePump.Flow })
+                ).toMatchObject({
                     ...frame,
+                    SetVal: 7,
                     Flag: FrameFlag.IgnoreLimit | FrameFlag.CtrlF,
                 })
 
@@ -145,26 +151,26 @@ describe('Shot utils', () => {
                 ).toMatchObject({
                     ...frame,
                     TriggerVal: 7,
-                    Flag: FrameFlag.IgnoreLimit | FrameFlag.DoCompare | FrameFlag.CtrlF,
+                    Flag: FrameFlag.IgnoreLimit | FrameFlag.DoCompare | FrameFlag.DC_CompF,
                 })
             })
         })
 
         describe('encodeShotFrame', () => {
             it('turns a shot frame into a buffer', () => {
-                expect(encodeShotFrame(frame).toString('hex')).toEqual('034000b85a000000')
+                expect(encodeShotFrame(frame).toString('hex')).toEqual('034086b85a000000')
             })
         })
 
         describe('decodeShotFrame', () => {
             it('turns a buffer into a shot frame', () => {
                 expect(
-                    decodeShotFrame(Buffer.from([0x03, 0x40, 0x00, 0xb8, 0x5a, 0x00, 0x00, 0x00]))
-                ).toMatchObject(frame)
+                    decodeShotFrame(Buffer.from([0x03, 0x40, 0x86, 0xb8, 0x5a, 0x00, 0x00, 0x00]))
+                ).toMatchObject({ ...frame, SetVal: 8.375 })
 
                 expect(
-                    decodeShotFrame(Buffer.from([0x03, 0x40, 0x00, 0xb8, 0x5a, 0x10, 0xff, 0xff]))
-                ).toMatchObject({ ...frame, MaxVol: 0x3ff, TriggerVal: 1 })
+                    decodeShotFrame(Buffer.from([0x03, 0x40, 0x86, 0xb8, 0x5a, 0x10, 0xff, 0xff]))
+                ).toMatchObject({ ...frame, MaxVol: 0x3ff, SetVal: 8.375, TriggerVal: 1 })
             })
         })
     })
@@ -236,7 +242,7 @@ describe('Shot utils', () => {
         })
     })
 
-    describe('toEncodedShotFrames', () => {
+    describe('toEncodedShot', () => {
         it('turns a profile into an array of buffers', () => {
             const profile: Profile = ClassicItalianEspresso as unknown as Profile
 
@@ -244,21 +250,25 @@ describe('Shot utils', () => {
 
             expect(profile.steps.length).toBe(4)
 
-            expect(bufs.length).toBe(6) // steps + 1 extension + 1 tail
+            expect(bufs.length).toBe(7) // header + steps + 1 extension + 1 tail
 
-            const [b0, b1, b2, b3, b4, b5] = bufs
+            const [{ payload: h }, b0, b1, b2, b3, b4, b5] = bufs
 
-            expect(decodeShotFrame(b0).FrameLen).toBe(2)
+            expect(decodeShotHeader(h).HeaderV).toEqual(1)
 
-            expect(decodeShotFrame(b1).FrameLen).toBe(6)
+            expect(decodeShotHeader(h).NumberOfFrames).toEqual(4)
 
-            expect(decodeShotFrame(b2).FrameLen).toBe(3)
+            expect(decodeShotFrame(b0.payload).FrameLen).toBe(2)
 
-            expect(decodeShotFrame(b3).FrameLen).toBe(32)
+            expect(decodeShotFrame(b1.payload).FrameLen).toBe(6)
 
-            expect(decodeShotExtensionFrame(b4).MaxFlowOrPressure).toBe(4.5)
+            expect(decodeShotFrame(b2.payload).FrameLen).toBe(3)
 
-            expect(decodeShotTailFrame(b5).MaxTotalVolume).toBe(0)
+            expect(decodeShotFrame(b3.payload).FrameLen).toBe(32)
+
+            expect(decodeShotExtensionFrame(b4.payload).MaxFlowOrPressure).toBe(4.5)
+
+            expect(decodeShotTailFrame(b5.payload).MaxTotalVolume).toBe(0)
         })
     })
 })
