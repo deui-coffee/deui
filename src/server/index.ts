@@ -19,6 +19,8 @@ import {
 import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
 import { broadcast, upgrade, wsServer } from './ws'
 import { z } from 'zod'
+import production from './middlewares/production'
+import development from './middlewares/development'
 
 const app = express()
 
@@ -28,19 +30,9 @@ app.use(bodyParser.json())
 
 app.use(morgan('dev'))
 
-app.use(cors())
+app.use(production())
 
-app.use(
-    createProxyMiddleware(
-        (pathname: string, req: Request) => {
-            return req.method !== 'POST' || !/^\/(scan|on|off|exec)/.test(pathname)
-        },
-        {
-            target: 'http://127.0.0.1:3000',
-            changeOrigin: true,
-        }
-    )
-)
+app.use(development())
 
 const Port = process.env.PORT || 3001
 

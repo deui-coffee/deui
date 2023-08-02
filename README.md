@@ -1,13 +1,25 @@
 # Deui ☕️
 
-## Connect to your DE1
+The app is consisted of 2 main elements
 
-```
+-   a WebSocket server that connects hardwares (your bluetooth adapter and the DE1), and
+-   the Deui frontend.
+
+## Run locally
+
+```bash
 npm ci
-PORT=3001 npm start
+
+# If you wanna develop the frontend app run
+npm start
+
+# If you just want to use it (most likely what you're here for), run
+npm run start-prod
 ```
 
-And navigate to http://localhost:3001
+`start-prod` builds static Deui files and puts them into `dist` folder, and the HTTP/WebSocket server serves them.
+
+Navigate to http://localhost:3001
 
 ## Troubleshooting
 
