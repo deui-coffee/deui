@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc && vite build",
-    "dev": "vite",
+    "dev": "vite --host",
     "prettier": "prettier --write src test",
     "preview": "vite preview",
     "ws": "esbuild src/server/index.ts --platform=node --target=node16 --bundle --packages=external | node -",
