@@ -26,6 +26,13 @@ export const viewLineup = [
     },
 ]
 
+export const machineModeLineup = [
+    MachineMode.Espresso,
+    MachineMode.Steam,
+    MachineMode.Flush,
+    MachineMode.Water,
+]
+
 interface UiStore {
     isEditingBackendUrl: boolean
 

@@ -1,11 +1,11 @@
 import SubstateSwitch from '$/components/SubstateSwitch'
-import { useMachineMode } from '$/stores/data'
-import { MachineMode } from '$/types'
+import { useMachineMode, usePropValue } from '$/stores/data'
+import { MachineMode, MajorState, Prop } from '$/types'
 import { css } from '@emotion/react'
 import { useSwipeable } from 'react-swipeable'
 import React, { ButtonHTMLAttributes, useEffect, useState } from 'react'
 import tw from 'twin.macro'
-import { useUiStore } from '$/stores/ui'
+import { machineModeLineup, useUiStore } from '$/stores/ui'
 
 interface ItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
     mode: MachineMode
@@ -60,14 +60,12 @@ function Item({ mode, active = false, ...props }: ItemProps) {
     )
 }
 
-const lineup = [MachineMode.Espresso, MachineMode.Steam, MachineMode.Flush, MachineMode.Water]
-
-const n = lineup.length
+const n = machineModeLineup.length
 
 const limit = 500
 
 function getMode(phase: number): MachineMode {
-    return lineup[((phase % n) + n) % n]
+    return machineModeLineup[((phase % n) + n) % n]
 }
 
 export default function Revolver() {
@@ -88,6 +86,38 @@ export default function Revolver() {
     useEffect(() => {
         setMachineMode(getMode(phase))
     }, [phase, setMachineMode])
+
+    const majorState = usePropValue(Prop.MajorState)
+
+    useEffect(() => {
+        const newMode =
+            typeof majorState === 'undefined'
+                ? void 0
+                : {
+                      [MajorState.Steam]: MachineMode.Steam,
+                      [MajorState.HotWater]: MachineMode.Water,
+                      [MajorState.HotWaterRinse]: MachineMode.Flush,
+                  }[majorState]
+
+        const to = machineModeLineup.indexOf(newMode || MachineMode.Espresso)
+
+        setPhase((c) => {
+            const from = (n + (c % n)) % n
+
+            const right = (to - from + n) % n
+
+            const left = (to - from - n) % n
+
+            const absRight = Math.abs(right)
+
+            const absLeft = Math.abs(left)
+
+            return (
+                c +
+                (absLeft === absRight ? (c <= 0 ? right : left) : absRight < absLeft ? right : left)
+            )
+        })
+    }, [majorState])
 
     return (
         <div
@@ -132,23 +162,4 @@ export default function Revolver() {
             </div>
         </div>
     )
-}
-
-{
-    /* <div
-css={[
-    css`
-        flex-grow: 1;
-    `,
-    tw`
-        text-medium-grey
-        text-[28px]
-        font-medium
-        select-none
-        relative
-    `,
-]}
->
-<SubstateSwitch />
-</div> */
 }
