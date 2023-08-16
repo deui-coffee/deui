@@ -15,7 +15,7 @@
     },
     { "name": "Advanced spring lever", "id": "advanced_spring_lever", "visible": false },
     { "name": "Advanced spring lever", "id": "advanced_spring_lever_2", "visible": false },
-    { "name": "Best overall pressure profile", "id": "best_overall_pressure", "visible": true },
+    { "name": "Best overall pressure", "id": "best_overall_pressure", "visible": true },
     {
         "name": "Best Practice - Adaptive (for medium roasts)",
         "id": "best_practice",

@@ -23,5 +23,5 @@ fs.readdirSync(path.resolve(__dirname, '../public/profiles')).forEach((filename)
 prettier.resolveConfig(__dirname).then((options) => {
     const json = prettier.format(JSON.stringify(profiles), { ...options, parser: 'json' })
 
-    fs.writeFileSync(path.resolve(__dirname, '../src/data/profiles.json'), json)
+    fs.writeFileSync(path.resolve(__dirname, '../src/generated/profiles.json'), json)
 })

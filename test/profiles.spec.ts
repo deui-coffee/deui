@@ -1,5 +1,5 @@
 import { Profile } from '$/types'
-import profiles from './profiles.json'
+import profiles from '../src/generated/profiles.json'
 import fs from 'fs'
 import path from 'path'
 
