@@ -4,26 +4,6 @@ import { css } from '@emotion/react'
 
 export default function ProfilesView() {
     return <></>
-    // const profiles = useProfiles()
-
-    // const selectedProfileId = useSelectedProfileId()
-
-    // const dispatch = useDispatch()
-
-    // return (
-    //     <List>
-    //         {profiles.map(({ id, label }) => (
-    //             <Item
-    //                 key={id}
-    //                 id={id}
-    //                 onClick={(profileId) => void dispatch(MachineAction.selectProfile(profileId))}
-    //                 active={selectedProfileId === id}
-    //             >
-    //                 {label}
-    //             </Item>
-    //         ))}
-    //     </List>
-    // )
 }
 
 type ItemProps = {
