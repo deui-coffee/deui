@@ -1,9 +1,8 @@
-import SubstateSwitch from '$/components/SubstateSwitch'
-import { useMachineMode, usePropValue } from '$/stores/data'
+import { usePropValue } from '$/stores/data'
 import { MachineMode, MajorState, Prop } from '$/types'
 import { css } from '@emotion/react'
 import { useSwipeable } from 'react-swipeable'
-import React, { ButtonHTMLAttributes, useEffect, useState } from 'react'
+import { ButtonHTMLAttributes, useEffect, useState } from 'react'
 import tw from 'twin.macro'
 import { machineModeLineup, useUiStore } from '$/stores/ui'
 
