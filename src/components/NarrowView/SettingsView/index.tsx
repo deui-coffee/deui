@@ -6,10 +6,11 @@ import mlToL from '$/utils/mlToL'
 import WaterBar from '$/components/ui/WaterBar'
 import PowerToggle from '$/components/ui/PowerToggle'
 import BackendAddressControl from '$/components/controls/BackendAddressControl'
-import { useCafeHubStore } from '$/stores/ch'
+import { useDataStore } from '$/stores/data'
+import { Prop } from '$/types'
 
 export default function SettingsView() {
-    const { waterCapacity } = useCafeHubStore().machine
+    const { [Prop.WaterCapacity]: waterCapacity = 0 } = useDataStore().properties
 
     return (
         <div tw="px-14">

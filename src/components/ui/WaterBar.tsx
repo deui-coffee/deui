@@ -1,14 +1,11 @@
-import { Property } from '$/types'
+import { Prop, Property } from '$/types'
 import React from 'react'
 import tw from 'twin.macro'
-import { useCafeHubStore, usePropertyValue } from '$/stores/ch'
+import { useDataStore } from '$/stores/data'
 
 export default function WaterBar() {
-    const { waterCapacity } = useCafeHubStore().machine
-
-    const level = usePropertyValue(Property.WaterLevel, {
-        defaultValue: 0,
-    })
+    const { [Prop.WaterLevel]: level = 0, [Prop.WaterCapacity]: waterCapacity = 1500 } =
+        useDataStore().properties
 
     return (
         <div

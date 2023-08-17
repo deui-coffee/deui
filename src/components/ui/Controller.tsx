@@ -1,17 +1,20 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
-import Metric from '$/components/Metric'
+import Metric, { Metrics } from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
-import { Property } from '$/types'
+import { Prop } from '$/types'
 import { css } from '@emotion/react'
 import React, { HTMLAttributes } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
-import { Layer } from '$/consts'
-import { useCafeHubStore } from '$/stores/ch'
+import { Layer } from '$/types'
+import { useDataStore } from '$/stores/data'
+import { useUiStore } from '$/stores/ui'
 
 export default function Controller() {
-    const { name: profileLabel } = useCafeHubStore().profile || {}
+    const { machineMode } = useUiStore()
+
+    const { name: profileLabel } = useDataStore().profileManifest || {}
 
     return (
         <div
@@ -119,34 +122,18 @@ export default function Controller() {
                             tw`
                                 h-full
                                 items-center
-                                flex
-                                justify-between
+                                grid
+                                grid-cols-5
+                                gap-8
                                 px-10
 
                                 [> *]:-translate-y-1.5
                             `,
                         ]}
                     >
-                        <Metric label="Goal temp" property={Property.TargetWaterHeater} unit="°C" />
-                        <Metric label="Metal temp" property={Property.WaterHeater} unit="°C" />
-                        <Metric
-                            label="Pressure"
-                            property={Property.ShotGroupPressure}
-                            unit="bar"
-                            formatFn={(v) => v.toFixed(1)}
-                        />
-                        <Metric
-                            label="Flow rate"
-                            property={Property.ShotGroupFlow}
-                            unit="ml/s"
-                            formatFn={(v) => v.toFixed(1)}
-                        />
-                        <Metric
-                            label="Shot time"
-                            property={Property.ShotSampleTime}
-                            unit="s"
-                            formatFn={(v) => v.toFixed(1)}
-                        />
+                        {Metrics[machineMode].map((metricProps) => (
+                            <Metric key={metricProps.property} {...metricProps} />
+                        ))}
                     </div>
                 </Control>
             </div>

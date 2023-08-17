@@ -7,14 +7,17 @@ import WideView from './components/WideView'
 import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
 import NarrowView from '$/components/NarrowView'
 import { Container } from 'toasterhea'
-import { Layer } from './consts'
+import { Layer } from './types'
 import { useUiStore } from './stores/ui'
-import Debug from './components/ui/Debug'
+import { useAutoConnectEffect } from './stores/data'
+import Debug from './components/Debug'
 
 const App = () => {
     const { theme } = useUiStore()
 
     usePreventNavigatingAwayEffect()
+
+    useAutoConnectEffect()
 
     return (
         <>
@@ -32,7 +35,7 @@ const App = () => {
             >
                 <WideView tw="hidden lg:block" />
                 <NarrowView tw="lg:hidden" />
-                {/* <Debug /> */}
+                <Debug />
             </div>
             <Container id={Layer.Drawer} />
         </>

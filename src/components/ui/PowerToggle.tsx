@@ -1,18 +1,19 @@
 import React from 'react'
-import { Buffer } from 'buffer'
-import { MajorState } from '$/consts'
-import { useMajorState } from '$/hooks/useMajorState'
-import { CharAddr } from '$/utils/cafehub'
+import { MajorState } from '$/types'
 import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
-import { useCafeHubStore } from '$/stores/ch'
+import { exec, useMajorState } from '$/stores/data'
 
 const labels = ['Sleep']
 
 function useStatus() {
-    switch (useMajorState()) {
-        case MajorState.Unknown:
-            return Status.Idle
+    const majorState = useMajorState()
+
+    if (typeof majorState === 'undefined') {
+        return Status.Idle
+    }
+
+    switch (majorState) {
         case MajorState.Sleep:
             return Status.Off
         default:
@@ -25,8 +26,6 @@ export default function PowerToggle() {
 
     const state = useMajorState()
 
-    const { write } = useCafeHubStore()
-
     return (
         <Toggle
             status={status}
@@ -36,21 +35,15 @@ export default function PowerToggle() {
             onChange={async () => {
                 if (state === MajorState.Sleep) {
                     try {
-                        await write({
-                            char: CharAddr.RequestedState,
-                            data: Buffer.from([MajorState.Idle]),
-                        })
+                        await exec('on')
                     } catch (e) {
                         console.warn('Failed to wake up the machine', e)
                     }
                 }
 
-                if (state === MajorState.Idle) {
+                if (state !== MajorState.Sleep) {
                     try {
-                        await write({
-                            char: CharAddr.RequestedState,
-                            data: Buffer.from([MajorState.Sleep]),
-                        })
+                        await exec('off')
                     } catch (e) {
                         console.warn('Failed to put the machine to sleep', e)
                     }

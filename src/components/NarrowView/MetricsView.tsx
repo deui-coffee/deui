@@ -1,21 +1,18 @@
 import React from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import Metric from '../Metric'
-import { Property } from '$/types'
+import Metric, { Metrics } from '../Metric'
+import { MachineMode, Prop } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
-import useMode, { Mode } from '$/hooks/useMode'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
-import { useCafeHubStore } from '$/stores/ch'
+import { useDataStore, useMachineMode } from '$/stores/data'
 
 export default function MetricsView() {
-    const { name: profileLabel } = useCafeHubStore().profile || {}
+    const { name: profileLabel } = useDataStore().profileManifest || {}
 
-    const mode = useMode()
-
-    const { setView } = useUiStore()
+    const { setView, machineMode } = useUiStore()
 
     return (
         <div tw="px-14">
@@ -30,8 +27,13 @@ export default function MetricsView() {
                     ]}
                 >
                     <TextSwitch
-                        items={[[Mode.Espresso], [Mode.Steam], [Mode.Flush], [Mode.Water]]}
-                        value={mode}
+                        items={[
+                            [MachineMode.Espresso],
+                            [MachineMode.Steam],
+                            [MachineMode.Flush],
+                            [MachineMode.Water],
+                        ]}
+                        value={machineMode}
                     />
                 </h1>
                 <p
@@ -115,26 +117,9 @@ export default function MetricsView() {
                     `,
                 ]}
             >
-                <Metric label="Goal temp" property={Property.TargetWaterHeater} unit="°C" />
-                <Metric label="Metal temp" property={Property.WaterHeater} unit="°C" />
-                <Metric
-                    label="Pressure"
-                    property={Property.ShotGroupPressure}
-                    unit="bar"
-                    formatFn={(v) => v.toFixed(1)}
-                />
-                <Metric
-                    label="Flow rate"
-                    property={Property.ShotGroupFlow}
-                    unit="ml/s"
-                    formatFn={(v) => v.toFixed(1)}
-                />
-                <Metric
-                    label="Shot time"
-                    property={Property.ShotSampleTime}
-                    unit="s"
-                    formatFn={(v) => v.toFixed(1)}
-                />
+                {Metrics[machineMode].map((metricProps) => (
+                    <Metric key={metricProps.property} {...metricProps} />
+                ))}
             </div>
         </div>
     )

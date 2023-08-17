@@ -1,7 +1,7 @@
 import React from 'react'
 import TextSwitch from '$/components/TextSwitch'
-import { MinorState } from '$/consts'
-import { useMinorState } from '$/hooks/useMinorState'
+import { MinorState } from '$/types'
+import { useMinorState } from '$/stores/data'
 
 export default function SubstateSwitch() {
     const substate = useMinorState()
@@ -9,7 +9,8 @@ export default function SubstateSwitch() {
     return (
         <TextSwitch
             items={[
-                [MinorState.HeatWaterHeater, 'Warming up'],
+                [MinorState.Steaming, 'Steaming'],
+                [MinorState.HeatWaterTank, 'Warming up'],
                 [MinorState.Pour, 'Pouring'],
             ]}
             value={substate}

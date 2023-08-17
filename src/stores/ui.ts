@@ -4,7 +4,7 @@ import SettingsView from '$/components/NarrowView/SettingsView'
 import MetricsIcon from '$/icons/MetricsIcon'
 import ProfilesIcon from '$/icons/ProfilesIcon'
 import SettingsIcon from '$/icons/SettingsIcon'
-import { StorageKey, Theme, ViewId } from '$/types'
+import { MachineMode, StorageKey, Theme, ViewId } from '$/types'
 import { produce } from 'immer'
 import { create } from 'zustand'
 
@@ -26,6 +26,13 @@ export const viewLineup = [
     },
 ]
 
+export const machineModeLineup = [
+    MachineMode.Espresso,
+    MachineMode.Steam,
+    MachineMode.Flush,
+    MachineMode.Water,
+]
+
 interface UiStore {
     isEditingBackendUrl: boolean
 
@@ -40,6 +47,10 @@ interface UiStore {
     viewIndex: number
 
     setView: (instruction: 'next' | 'prev' | ViewId) => void
+
+    machineMode: MachineMode
+
+    setMachineMode: (machineMode: MachineMode) => void
 }
 
 export const useUiStore = create<UiStore>((set, get) => {
@@ -97,6 +108,14 @@ export const useUiStore = create<UiStore>((set, get) => {
                 next.viewIndex = newIndex
 
                 next.viewId = viewLineup[newIndex].id
+            })
+        },
+
+        machineMode: MachineMode.Espresso,
+
+        setMachineMode(machineMode) {
+            setState((next) => {
+                next.machineMode = machineMode
             })
         },
     }

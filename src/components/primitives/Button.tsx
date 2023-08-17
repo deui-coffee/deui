@@ -32,6 +32,7 @@ export default function Button({ type = 'button', theme = ButtonTheme.Default, .
                     font-medium
                     relative
                     disabled:cursor-default
+                    disabled:opacity-50
                 `,
                 theme === ButtonTheme.Default &&
                     tw`

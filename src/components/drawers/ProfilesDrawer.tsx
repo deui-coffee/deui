@@ -2,15 +2,17 @@ import React from 'react'
 import Drawer, { DrawerProps } from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
 import tw from 'twin.macro'
-import { profiles } from '$/consts'
-import { useCafeHubStore } from '$/stores/ch'
+import { profiles as allProfiles } from '$/types'
+import { useDataStore } from '$/stores/data'
 
 interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
     onResolve?: () => void
 }
 
 export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
-    const { profile: currentProfile, setProfile } = useCafeHubStore()
+    const { profileManifest: currentProfileManifest, setProfileManifest } = useDataStore()
+
+    const profiles = allProfiles.filter(({ visible }) => visible)
 
     return (
         <Drawer
@@ -23,17 +25,17 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             ]}
         >
             <ul css={tw`py-20`}>
-                {profiles.map((profile) => (
-                    <li key={profile.id}>
+                {profiles.map((profileManifest) => (
+                    <li key={profileManifest.id}>
                         <ListItem
-                            id={`${profile.id}`}
+                            id={`${profileManifest.id}`}
                             onClick={() => {
-                                setProfile(profile)
+                                setProfileManifest(profileManifest)
                                 onResolve?.()
                             }}
-                            active={profile === currentProfile}
+                            active={profileManifest.id === currentProfileManifest?.id}
                         >
-                            {profile.name}
+                            {profileManifest.name}
                         </ListItem>
                     </li>
                 ))}

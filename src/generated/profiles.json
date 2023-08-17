@@ -1,0 +1,182 @@
+[
+    { "name": "7g basket", "id": "7g_basket", "visible": false },
+    { "name": "80's Espresso", "id": "80s_espresso", "visible": false },
+    {
+        "name": "Gentle preinfusion flow profile",
+        "id": "Gentle preinfusion flow profile",
+        "visible": false
+    },
+    { "name": "Gagné/Adaptive Allongé 94C v1.0", "id": "adaptive_allonge", "visible": false },
+    { "name": "Gagné/Adaptive Shot 92C v1.0", "id": "adaptive_espresso", "visible": false },
+    {
+        "name": "Adaptive (for medium roasts)",
+        "id": "adaptive_for_medium_roasts",
+        "visible": false
+    },
+    { "name": "Advanced spring lever", "id": "advanced_spring_lever", "visible": false },
+    { "name": "Advanced spring lever", "id": "advanced_spring_lever_2", "visible": false },
+    { "name": "Best overall pressure", "id": "best_overall_pressure", "visible": true },
+    {
+        "name": "Best Practice - Adaptive (for medium roasts)",
+        "id": "best_practice",
+        "visible": false
+    },
+    { "name": "Blooming Allongé", "id": "blooming_allonge", "visible": false },
+    { "name": "Blooming Espresso", "id": "blooming_espresso", "visible": false },
+    { "name": "Classic Italian espresso", "id": "classic_italian_espresso", "visible": true },
+    { "name": "Cleaning/Forward flush", "id": "cleaning_forward_flush", "visible": false },
+    { "name": "Cleaning Forward Flush x5", "id": "cleaning_forward_flush_x5", "visible": false },
+    {
+        "name": "Cleaning/Weber Spring Clean",
+        "id": "cleaning_weber_spring_clean",
+        "visible": false
+    },
+    { "name": "Pour over basket/Cold brew 22g in, 375ml out", "id": "cold_brew", "visible": false },
+    { "name": "Cremina lever machine", "id": "cremina", "visible": false },
+    { "name": "D-Flow / default", "id": "d_flow_default", "visible": false },
+    { "name": "Damian's LM Leva", "id": "damian_s_lm_leva", "visible": false },
+    { "name": "Damian's LRv2", "id": "damian_s_lr_v2", "visible": false },
+    { "name": "Damian's LRv3", "id": "damian_s_lr_v3", "visible": false },
+    { "name": "Default", "id": "default", "visible": true },
+    {
+        "name": "E61 with fast preinfusion to 9 bar",
+        "id": "e61 with fast preinfusion to 9 bar",
+        "visible": false
+    },
+    { "name": "E61 espresso machine", "id": "e61_classic_at_9_bar", "visible": false },
+    { "name": "E61 rocketing up to 10 bar", "id": "e61_rocketing_up_to_10_bar", "visible": false },
+    {
+        "name": "Easy blooming - active pressure decline",
+        "id": "easy_blooming_active_pressure_decline",
+        "visible": false
+    },
+    {
+        "name": "Easy Blooming - Pressure Dynamic Decline",
+        "id": "easy_blooming_pressure_dynamic_decline",
+        "visible": false
+    },
+    { "name": "Extractamundo Dos!", "id": "extractamundo_dos", "visible": false },
+    { "name": "Filter 2.0", "id": "filter_2_0", "visible": false },
+    { "name": "Filter 2.1", "id": "filter_2_1", "visible": false },
+    { "name": "Test/Flow calibration", "id": "flow_calibration", "visible": false },
+    {
+        "name": "Flow profile for milky drinks",
+        "id": "flow_profile_for_milky_drinks",
+        "visible": false
+    },
+    {
+        "name": "Flow profile for straight espresso",
+        "id": "flow_profile_for_straight_espresso",
+        "visible": false
+    },
+    { "name": "Gentle and sweet", "id": "gentle_and_sweet", "visible": false },
+    {
+        "name": "Gentle flat 2.5 ml per second",
+        "id": "gentle_flat_2_5_ml_per_second",
+        "visible": false
+    },
+    {
+        "name": "Gentler but still traditional 8.4 bar",
+        "id": "gentler_but_still_traditional_8_4_bar",
+        "visible": false
+    },
+    { "name": "Hybrid pour over espresso", "id": "hybrid_pour_over_espresso", "visible": false },
+    { "name": "I got your back", "id": "i_got_your_back", "visible": false },
+    {
+        "name": "Innovative long preinfusion",
+        "id": "innovative_long_preinfusion",
+        "visible": false
+    },
+    {
+        "name": "Italian Australian espresso",
+        "id": "italian_australian_espresso",
+        "visible": false
+    },
+    {
+        "name": "Pour over basket/Kalita 20g in, 340ml out",
+        "id": "kalita_20g_in_340g_out",
+        "visible": false
+    },
+    { "name": "Londonium", "id": "londinium", "visible": false },
+    {
+        "name": "Low pressure lever machine at 6 bar",
+        "id": "low_pressure_lever_machine_at_6_bar",
+        "visible": false
+    },
+    { "name": "GHC/manual flow control", "id": "manual_flow", "visible": false },
+    { "name": "GHC/manual pressure control", "id": "manual_pressure", "visible": false },
+    { "name": "Pour over basket/Decent pour over", "id": "pour_over", "visible": false },
+    {
+        "name": "Preinfuse then 45ml of water",
+        "id": "preinfuse_then_45ml_of_water",
+        "visible": false
+    },
+    { "name": "Rao Allongé", "id": "rao_allonge", "visible": false },
+    { "name": "Tea/in a basket", "id": "tea_in_a_basket", "visible": false },
+    { "name": "Tea portafilter/black tea", "id": "tea_portafilter", "visible": false },
+    {
+        "name": "Tea portafilter/Bug Bite Oolong",
+        "id": "tea_portafilter_blue_willow_black_honey_oolong",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Oolong 1st extraction",
+        "id": "tea_portafilter_blue_willow_black_phoenix_1",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Oolong 2nd extraction",
+        "id": "tea_portafilter_blue_willow_black_phoenix_2",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Yunnan green",
+        "id": "tea_portafilter_blue_willow_lunar_winter",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Sencha",
+        "id": "tea_portafilter_blue_willow_tsuyuhikari_sencha",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Chinese green",
+        "id": "tea_portafilter_chinese_green",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/Japanese green",
+        "id": "tea_portafilter_japanese_green",
+        "visible": false
+    },
+    {
+        "name": "Tea portafilter/no pressure",
+        "id": "tea_portafilter_no_pressure",
+        "visible": false
+    },
+    { "name": "Tea portafilter/oolong", "id": "tea_portafilter_oolong", "visible": false },
+    {
+        "name": "Tea portafilter/oolong dark",
+        "id": "tea_portafilter_oolong_dark",
+        "visible": false
+    },
+    { "name": "Tea portafilter/tisane", "id": "tea_portafilter_tisane", "visible": false },
+    { "name": "Tea portafilter/white tea", "id": "tea_portafilter_white", "visible": false },
+    { "name": "Traditional lever machine", "id": "traditional_lever_machine", "visible": true },
+    {
+        "name": "Trendy 6 bar low pressure shot",
+        "id": "trendy_6_bar_low_pressure_shot",
+        "visible": false
+    },
+    { "name": "TurboBloom", "id": "turbo_bloom", "visible": false },
+    { "name": "TurboTurbo", "id": "turbo_turbo", "visible": false },
+    {
+        "name": "Two spring lever machine to 9 bar",
+        "id": "two_spring_lever_machine_to_9_bar",
+        "visible": false
+    },
+    { "name": "Pour over basket/V60 15g in, 250g out", "id": "v60_15g", "visible": false },
+    { "name": "Pour over basket/V60 20g in, 340g out", "id": "v60_20g", "visible": false },
+    { "name": "Pour over basket/V60 22g in, 375g out", "id": "v60_22g", "visible": false },
+    { "name": "Cleaning/Weber Spring Clean", "id": "weber_spring_clean", "visible": false }
+]
