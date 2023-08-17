@@ -16,7 +16,7 @@ describe('Predefined profiles', () => {
                         JSON.parse(
                             fs
                                 .readFileSync(
-                                    path.resolve(__dirname, '../../public/profiles', `${id}.json`)
+                                    path.resolve(__dirname, '../public/profiles', `${id}.json`)
                                 )
                                 .toString()
                         )

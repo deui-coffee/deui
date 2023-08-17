@@ -9,11 +9,14 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Install deps
+        run: npm ci
+      - name: Run tests
+        run: npm test
       - name: Build
-        run: |
-          npm ci
-          npm run build
-          echo "staging.deui.coffee" > dist/CNAME
+        run: npm run build
+      - name: Generate CNAME
+        run: echo "staging.deui.coffee" > dist/CNAME
       - name: Deploy
         if: success()
         uses: crazy-max/ghaction-github-pages@v2
