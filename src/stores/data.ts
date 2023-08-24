@@ -220,14 +220,6 @@ export const useDataStore = create<DataStore>((set, get) => {
                 if (chunk.type === ChunkType.WebSocketOpen) {
                     set({ wsState: WebSocketState.Open })
 
-                    setTimeout(async () => {
-                        try {
-                            await exec('scan')
-                        } catch (e) {
-                            console.warn('Scan failed')
-                        }
-                    })
-
                     continue
                 }
 
@@ -240,9 +232,27 @@ export const useDataStore = create<DataStore>((set, get) => {
                 const { payload: data } = chunk
 
                 if (isStateMessage(data)) {
-                    set({ remoteState: data.payload })
+                    const remoteState = data.payload
 
-                    const { id: remoteProfileId } = data.payload.profile
+                    set({ remoteState })
+
+                    setTimeout(async () => {
+                        if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
+                            return
+                        }
+
+                        if (remoteState.scanning || remoteState.connecting || remoteState.device) {
+                            return
+                        }
+
+                        try {
+                            await exec('scan')
+                        } catch (e) {
+                            console.warn('Scan failed', e)
+                        }
+                    })
+
+                    const { id: remoteProfileId } = remoteState.profile
 
                     const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
 
