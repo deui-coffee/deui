@@ -1,11 +1,9 @@
 import { Buffer } from 'buffer'
 import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
-import cors from 'cors'
-import express, { Request, Response } from 'express'
+import express, { Response } from 'express'
 import bodyParser from 'body-parser'
 import noble, { Characteristic } from '@abandonware/noble'
-import { createProxyMiddleware } from 'http-proxy-middleware'
 import {
     BluetoothState,
     CharAddr,
@@ -21,6 +19,8 @@ import { broadcast, upgrade, wsServer } from './ws'
 import { z } from 'zod'
 import production from './middlewares/production'
 import development from './middlewares/development'
+import getDefaultRemoteState from '../utils/getDefaultRemoteState'
+import { produce } from 'immer'
 
 const app = express()
 
@@ -44,14 +44,7 @@ app.get('/', (_, res) => {
     res.status(404).end()
 })
 
-let State: RemoteState = {
-    bluetoothState: BluetoothState.Unknown,
-    scanning: false,
-    connecting: false,
-    discoveringCharacteristics: false,
-    device: undefined,
-    ready: false,
-}
+let State: RemoteState = getDefaultRemoteState()
 
 app.post('/scan', (_, res) => {
     if (State.bluetoothState !== 'poweredOn') {
@@ -143,6 +136,7 @@ noble.on('discover', (device) => {
                 connecting: false,
                 discoveringCharacteristics: false,
                 device: JSON.parse(device.toString()),
+                deviceReady: false,
             })
 
             for (let i = 0; i < nextCharacteristics.length; i++) {
@@ -170,7 +164,7 @@ noble.on('discover', (device) => {
         info('Connected')
 
         setState({
-            ready: true,
+            deviceReady: true,
         })
     })
 
@@ -181,7 +175,7 @@ noble.on('discover', (device) => {
 
         setState({
             device: undefined,
-            ready: false,
+            deviceReady: false,
         })
 
         info('Disconnected')
@@ -259,7 +253,9 @@ const ExecCommand = z.object({
         .literal(ShotExecMethod.Frame)
         .or(z.literal(ShotExecMethod.Header))
         .or(z.literal(ShotExecMethod.Tail))
-        .or(z.literal(ShotExecMethod.ShotSettings)),
+        .or(z.literal(ShotExecMethod.ShotSettings))
+        .or(z.literal(ShotExecMethod.ShotBeginProfileWrite))
+        .or(z.literal(ShotExecMethod.ShotEndProfileWrite)),
     params: z.string().regex(/[a-f\d]{2,}/i),
 })
 
@@ -283,6 +279,14 @@ app.post('/exec', (req, res) => {
         case ShotExecMethod.ShotSettings:
             charAddr = CharAddr.ShotSettings
             break
+        case ShotExecMethod.ShotBeginProfileWrite:
+        case ShotExecMethod.ShotEndProfileWrite:
+            return void setState({
+                profile: {
+                    id: Buffer.from(command.params as any, 'hex').toString(),
+                    ready: command.method === ShotExecMethod.ShotEndProfileWrite,
+                },
+            })
         default:
             break
     }
@@ -290,11 +294,15 @@ app.post('/exec', (req, res) => {
     writeCharacteristic(charAddr, Buffer.from(command.params as any, 'hex'))(req, res)
 })
 
-function setState(partial: Partial<RemoteState>) {
-    State = {
-        ...State,
-        ...partial,
-    }
+function setState(fn: Partial<RemoteState> | ((state: RemoteState) => void)) {
+    State = produce(
+        State,
+        typeof fn === 'function'
+            ? fn
+            : (draft) => {
+                  Object.assign(draft, fn)
+              }
+    )
 
     broadcast({
         type: MsgType.State,

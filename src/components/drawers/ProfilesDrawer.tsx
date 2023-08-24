@@ -10,7 +10,7 @@ interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
 }
 
 export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
-    const { profileManifest: currentProfileManifest, setProfileManifest } = useDataStore()
+    const { profile, setProfileId } = useDataStore()
 
     const profiles = allProfiles.filter(({ visible }) => visible)
 
@@ -25,17 +25,28 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             ]}
         >
             <ul css={tw`py-20`}>
-                {profiles.map((profileManifest) => (
-                    <li key={profileManifest.id}>
+                {profiles.map(({ id, name }) => (
+                    <li key={id}>
                         <ListItem
-                            id={`${profileManifest.id}`}
+                            id={id}
                             onClick={() => {
-                                setProfileManifest(profileManifest)
+                                setTimeout(async () => {
+                                    /**
+                                     * Because we don't have any loading indicator here let's
+                                     * just make setting the profile id a non-blocking thing.
+                                     */
+                                    try {
+                                        await setProfileId(id, { upload: true })
+                                    } catch (e) {
+                                        console.warn('Failed to set the profile', id)
+                                    }
+                                })
+
                                 onResolve?.()
                             }}
-                            active={profileManifest.id === currentProfileManifest?.id}
+                            active={id === profile?.id}
                         >
-                            {profileManifest.name}
+                            {name}
                         </ListItem>
                     </li>
                 ))}

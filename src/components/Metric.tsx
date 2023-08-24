@@ -101,7 +101,7 @@ export const Metrics: Metrics = {
         },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Shot time', property: Prop.ShotSampleTime, unit: 's' },
+        { label: 'Time', property: Prop.ShotSampleTime, unit: 's' },
     ],
     [MachineMode.Water]: [],
 }

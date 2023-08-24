@@ -2,15 +2,15 @@ import React from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Metric, { Metrics } from '../Metric'
-import { MachineMode, Prop } from '$/types'
+import { MachineMode } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
-import { useDataStore, useMachineMode } from '$/stores/data'
+import { useCurrentProfileLabel } from '$/stores/data'
 
 export default function MetricsView() {
-    const { name: profileLabel } = useDataStore().profileManifest || {}
+    const profileLabel = useCurrentProfileLabel()
 
     const { setView, machineMode } = useUiStore()
 

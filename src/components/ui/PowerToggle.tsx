@@ -2,7 +2,8 @@ import React from 'react'
 import { MajorState } from '$/types'
 import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
-import { exec, useMajorState } from '$/stores/data'
+import { useMajorState } from '$/stores/data'
+import { exec } from '$/utils/comms'
 
 const labels = ['Sleep']
 

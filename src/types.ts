@@ -253,6 +253,7 @@ export enum BeverageType {
 }
 
 export const Profile = z.object({
+    id: z.string(),
     author: z.string(),
     beverage_type: z
         .literal(BeverageType.Espresso)
@@ -280,8 +281,12 @@ export const Profile = z.object({
 
 export type Profile = z.infer<typeof Profile>
 
-export function isProfile(payload: unknown): payload is Profile {
-    return Profile.safeParse(payload).success
+export const RawProfile = Profile.omit({ id: true })
+
+export type RawProfile = z.infer<typeof RawProfile>
+
+export function isRawProfile(payload: unknown): payload is RawProfile {
+    return RawProfile.safeParse(payload).success
 }
 
 export enum WebSocketState {
@@ -356,6 +361,13 @@ export enum Prop {
     TargetGroupTemp,
 }
 
+export const RemoteProfile = z.object({
+    id: z.string().or(z.undefined()),
+    ready: z.boolean(),
+})
+
+export type RemoteProfile = z.infer<typeof RemoteProfile>
+
 export const RemoteState = z.object({
     bluetoothState: z
         .literal(BluetoothState.Unknown)
@@ -368,7 +380,8 @@ export const RemoteState = z.object({
     connecting: z.boolean(),
     discoveringCharacteristics: z.boolean(),
     device: Peripheral.or(z.undefined()),
-    ready: z.boolean(),
+    deviceReady: z.boolean(),
+    profile: RemoteProfile,
 })
 
 export type RemoteState = z.infer<typeof RemoteState>
@@ -548,6 +561,8 @@ export enum ShotExecMethod {
     Frame = 'exec_writeShotFrame',
     Tail = 'exec_writeShotTail',
     ShotSettings = 'exec_writeShotSettings',
+    ShotBeginProfileWrite = 'exec_beginProfileWrite',
+    ShotEndProfileWrite = 'exec_endProfileWrite',
 }
 
 export interface ShotExecCommand {

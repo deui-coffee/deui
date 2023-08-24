@@ -1,8 +1,9 @@
 import Drawer, { DrawerProps } from '$/components/drawers/Drawer'
-import { exec, useDataStore, useIsOn } from '$/stores/data'
+import { useDataStore, useIsOn } from '$/stores/data'
 import { WebSocketState } from '$/types'
 import tw from 'twin.macro'
 import Button from '../primitives/Button'
+import { exec } from '$/utils/comms'
 
 interface PrototypeDrawerProps extends Pick<DrawerProps, 'onReject'> {}
 
