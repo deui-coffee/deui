@@ -550,6 +550,7 @@ export enum ServerErrorCode {
     AlreadyConnected,
     NotConnected,
     UnknownCharacteristic,
+    AlreadyWritingShot,
 }
 
 export const profiles = (rawProfiles as ProfileManifest[]).sort(({ id: a }, { id: b }) =>

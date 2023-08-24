@@ -281,12 +281,21 @@ app.post('/exec', (req, res) => {
             break
         case ShotExecMethod.ShotBeginProfileWrite:
         case ShotExecMethod.ShotEndProfileWrite:
-            return void setState({
+            if (command.method === ShotExecMethod.ShotBeginProfileWrite && !State.profile.ready) {
+                /**
+                 * Reject attempts to write new profile structure if one is already being written.
+                 */
+                return void res.status(409).json({ code: ServerErrorCode.AlreadyWritingShot })
+            }
+
+            setState({
                 profile: {
                     id: Buffer.from(command.params as any, 'hex').toString(),
                     ready: command.method === ShotExecMethod.ShotEndProfileWrite,
                 },
             })
+
+            return void res.status(200).end()
         default:
             break
     }
