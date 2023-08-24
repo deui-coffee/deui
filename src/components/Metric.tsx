@@ -89,9 +89,9 @@ export const Metrics: Metrics = {
         { label: 'Metal temp', property: Prop.ShotHeadTemp, unit: '°C' },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Shot time', property: Prop.ShotSampleTime, unit: 's' },
+        { label: 'Shot time', property: Prop.EspressoTime, unit: 's' },
     ],
-    [MachineMode.Flush]: [],
+    [MachineMode.Flush]: [{ label: 'Time', property: Prop.FlushTime, unit: 's' }],
     [MachineMode.Steam]: [
         {
             label: 'Steam temp',
@@ -101,7 +101,7 @@ export const Metrics: Metrics = {
         },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Time', property: Prop.ShotSampleTime, unit: 's' },
+        { label: 'Time', property: Prop.SteamTime, unit: 's' },
     ],
-    [MachineMode.Water]: [],
+    [MachineMode.Water]: [{ label: 'Time', property: Prop.WaterTime, unit: 's' }],
 }

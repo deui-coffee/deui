@@ -1,5 +1,5 @@
 import { Status } from '$/components/StatusIndicator'
-import { CharAddr, MajorState, ShotSettings, isCharMessage, profiles } from '$/types'
+import { CharAddr, MajorState, MinorState, ShotSettings, isCharMessage, profiles } from '$/types'
 import {
     ChunkType,
     MachineMode,
@@ -19,6 +19,7 @@ import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
 import { getLastKnownProfile, getProfile, storeProfileId } from '$/utils/profile'
 import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
+import stopwatch from '$/utils/stopwatch'
 
 interface DataStore {
     wsState: WebSocketState
@@ -51,6 +52,36 @@ export const useDataStore = create<DataStore>((set, get) => {
                 Object.assign(next.properties, properties)
             })
         )
+    }
+
+    const timer = stopwatch()
+
+    let lastMajorState: MajorState | undefined
+
+    function setMachineStateProperties(majorState: MajorState, minorState: MinorState) {
+        if (lastMajorState !== majorState) {
+            timer.stop()
+
+            const timerProp = {
+                [MajorState.Steam]: Prop.SteamTime,
+                [MajorState.HotWater]: Prop.WaterTime,
+                [MajorState.HotWaterRinse]: Prop.FlushTime,
+                [MajorState.Espresso]: Prop.EspressoTime,
+            }[majorState as number]
+
+            if (typeof timerProp !== 'undefined') {
+                timer.start({
+                    onTick(t) {
+                        setProperties({ [timerProp]: t })
+                    },
+                })
+            }
+        }
+
+        setProperties({
+            [Prop.MajorState]: majorState,
+            [Prop.MinorState]: minorState,
+        })
     }
 
     function getCurrentShotSettings(): ShotSettings {
@@ -224,10 +255,10 @@ export const useDataStore = create<DataStore>((set, get) => {
 
                         switch (uuid) {
                             case CharAddr.StateInfo:
-                                return void setProperties({
-                                    [Prop.MajorState]: buf.readUint8(0),
-                                    [Prop.MinorState]: buf.readUint8(1),
-                                })
+                                return void setMachineStateProperties(
+                                    buf.readUint8(0),
+                                    buf.readUint8(1)
+                                )
                             case CharAddr.WaterLevels:
                                 return void setProperties({
                                     [Prop.WaterLevel]: buf.readUint16BE() / 0x100 / 50, // 0-1 (50mm tank)
