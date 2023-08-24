@@ -1,5 +1,13 @@
 import { Status } from '$/components/StatusIndicator'
-import { CharAddr, MajorState, MinorState, ShotSettings, isCharMessage, profiles } from '$/types'
+import {
+    BluetoothState,
+    CharAddr,
+    MajorState,
+    MinorState,
+    ShotSettings,
+    isCharMessage,
+    profiles,
+} from '$/types'
 import {
     ChunkType,
     MachineMode,
@@ -338,7 +346,7 @@ export function useStatus() {
         return Status.Off
     }
 
-    if (remoteState.device) {
+    if (remoteState.deviceReady) {
         return Status.On
     }
 
@@ -398,6 +406,18 @@ export function usePhase() {
 
     if (remoteState.connecting) {
         return 'Connecting to DE1…'
+    }
+
+    if (remoteState.discoveringCharacteristics) {
+        return 'Setting up…'
+    }
+
+    if (remoteState.bluetoothState === BluetoothState.PoweredOff) {
+        return 'Bluetooth is off'
+    }
+
+    if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
+        return 'Bluetooth is unavailable'
     }
 }
 
