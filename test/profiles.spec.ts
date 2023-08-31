@@ -1,4 +1,4 @@
-import { Profile } from '$/types'
+import { Profile, RawProfile } from '$/types'
 import profiles from '../src/generated/profiles.json'
 import fs from 'fs'
 import path from 'path'
@@ -12,7 +12,7 @@ describe('Predefined profiles', () => {
 
             it('is valid', () => {
                 expect(() => {
-                    Profile.parse(
+                    RawProfile.parse(
                         JSON.parse(
                             fs
                                 .readFileSync(
