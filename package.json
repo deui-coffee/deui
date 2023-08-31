@@ -7,7 +7,7 @@
     "dev": "vite --host",
     "prettier": "prettier --write src test",
     "preview": "vite preview",
-    "ws": "npm run build-server --silent | node -",
+    "ws": "npm run build-server --silent | cross-env NODE_ENV=development node -",
     "start": "conc npm:dev npm:ws",
     "test": "jest",
     "pkg:build-server": "npm run build-server --silent -- --outdir=dist",

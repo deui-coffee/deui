@@ -1,9 +1,10 @@
 import { NextFunction, Request, Response } from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import cors from 'cors'
+import env from '../env'
 
 export default function development() {
-    if (process.env.NODE_ENV === 'production') {
+    if (env === 'production') {
         return (_: Request, __: Response, next: NextFunction) => {
             next()
         }
