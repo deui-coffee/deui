@@ -1,6 +1,6 @@
 import { IncomingMessage } from 'http'
 import { Duplex } from 'stream'
-import { WebSocketServer } from 'ws'
+import { WebSocket, WebSocketServer } from 'ws'
 
 export const wsServer = new WebSocketServer({ noServer: true, path: '/' })
 
@@ -10,8 +10,10 @@ export function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer) {
     })
 }
 
+export function send(ws: WebSocket, payload: unknown) {
+    ws.send(JSON.stringify(payload))
+}
+
 export function broadcast(payload: unknown) {
-    wsServer.clients.forEach((ws) => {
-        ws.send(JSON.stringify(payload))
-    })
+    wsServer.clients.forEach((ws) => void send(ws, payload))
 }

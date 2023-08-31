@@ -19,7 +19,7 @@ import {
     ShotExecMethod,
 } from '../types'
 import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
-import { broadcast, upgrade, wsServer } from './ws'
+import { broadcast, send, upgrade, wsServer } from './ws'
 import { z } from 'zod'
 import production from './middlewares/production'
 import development from './middlewares/development'
@@ -359,12 +359,12 @@ noble.on('scanStop', () => void setState({ scanning: false }))
 wsServer.on('connection', (ws) => {
     info('New client')
 
-    broadcast({
+    send(ws, {
         type: MsgType.State,
         payload: State,
     })
 
-    broadcast({
+    send(ws, {
         type: MsgType.Characteristics,
         payload: characteristicValues,
     })
