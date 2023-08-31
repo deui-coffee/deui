@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Buffer } from 'buffer'
 import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
