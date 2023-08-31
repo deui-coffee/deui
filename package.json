@@ -1,6 +1,6 @@
 {
   "name": "deui-coffee",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "scripts": {
     "build": "tsc && vite build",
     "build-server": "esbuild src/server/index.ts --platform=node --target=node16 --bundle --packages=external",
@@ -71,6 +71,9 @@
     "typescript": "^5.1.5",
     "vite": "^2.7.2"
   },
-  "files": ["dist/*", "!dist/.DS_Store"],
+  "files": [
+    "dist/*",
+    "!dist/.DS_Store"
+  ],
   "bin": "./dist/index.js"
 }
