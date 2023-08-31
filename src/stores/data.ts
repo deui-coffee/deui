@@ -64,23 +64,34 @@ export const useDataStore = create<DataStore>((set, get) => {
 
     const timer = stopwatch()
 
-    let lastMajorState: MajorState | undefined
+    let lastState: [MajorState, MinorState] | undefined
 
     function setMachineStateProperties(majorState: MajorState, minorState: MinorState) {
-        if (lastMajorState !== majorState) {
+        const [lastMajorState, lastMinorState] = lastState || []
+
+        if (lastMajorState !== majorState || lastMinorState !== minorState) {
             timer.stop()
 
-            const timerProp = {
-                [MajorState.Steam]: Prop.SteamTime,
-                [MajorState.HotWater]: Prop.WaterTime,
-                [MajorState.HotWaterRinse]: Prop.FlushTime,
-                [MajorState.Espresso]: Prop.EspressoTime,
-            }[majorState as number]
+            let timerProp: Prop | undefined
+
+            if (majorState === MajorState.Espresso && minorState === MinorState.Pour) {
+                timerProp = Prop.EspressoTime
+            } else {
+                /**
+                 * We have to be more precise!
+                 */
+
+                timerProp = {
+                    [MajorState.Steam]: Prop.SteamTime,
+                    [MajorState.HotWater]: Prop.WaterTime,
+                    [MajorState.HotWaterRinse]: Prop.FlushTime,
+                }[majorState as number]
+            }
 
             if (typeof timerProp !== 'undefined') {
                 timer.start({
                     onTick(t) {
-                        setProperties({ [timerProp]: t })
+                        setProperties({ [timerProp as Prop]: t })
                     },
                 })
             }

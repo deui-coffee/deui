@@ -20,6 +20,7 @@ function Item({ active = false, ...props }: ItemProps) {
                     absolute
                     invisible
                     opacity-0
+                    whitespace-nowrap
                 `,
                 active &&
                     tw`

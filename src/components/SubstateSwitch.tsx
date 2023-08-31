@@ -11,7 +11,11 @@ export default function SubstateSwitch() {
             items={[
                 [MinorState.Steaming, 'Steaming'],
                 [MinorState.HeatWaterTank, 'Warming up'],
+                [MinorState.HeatWaterHeater, 'Warming up'],
+                [MinorState.StabilizeMixTemp, 'Stabilizing'],
+                [MinorState.PreInfuse, 'Preinfuse'],
                 [MinorState.Pour, 'Pouring'],
+                [MinorState.Flush, 'Flushing'],
             ]}
             value={substate}
         />

@@ -5,6 +5,7 @@ import { useSwipeable } from 'react-swipeable'
 import { ButtonHTMLAttributes, useEffect, useState } from 'react'
 import tw from 'twin.macro'
 import { machineModeLineup, useUiStore } from '$/stores/ui'
+import SubstateSwitch from '../SubstateSwitch'
 
 interface ItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
     mode: MachineMode
@@ -120,44 +121,61 @@ export default function Revolver() {
 
     return (
         <div
-            {...handlers}
-            css={[
-                tw`
+            css={tw`
                     h-full
-                    overflow-hidden
-                    text-white
-                    text-[1.75rem]
                     relative
-                `,
-            ]}
+                `}
         >
             <div
-                style={{
-                    transform: `translateY(${(144 - 70) / 2}px) translateY(${-phase * 70}px)`,
-                }}
-                css={[
-                    tw`
-                        transition-transform
-                        duration-500
-                    `,
-                ]}
+                css={tw`
+                        absolute
+                        left-1/2
+                        top-1/2
+                        -translate-y-1/2
+                        pointer-events-none
+                        dark:text-medium-grey
+                        text-[1.75rem]
+                        font-medium
+                    `}
             >
-                {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map(
-                    (i) =>
-                        Math.abs(phase + i) < limit && (
-                            <Item
-                                onClick={() => {
-                                    setPhase(phase + i)
-                                }}
-                                active={!i}
-                                key={phase + i}
-                                mode={getMode(phase + i)}
-                                style={{
-                                    top: `${(phase + i) * 70}px`,
-                                }}
-                            />
-                        )
-                )}
+                <SubstateSwitch />
+            </div>
+            <div
+                {...handlers}
+                css={tw`
+                        h-full
+                        overflow-hidden
+                        text-white
+                        text-[1.75rem]
+                        relative
+                    `}
+            >
+                <div
+                    style={{
+                        transform: `translateY(${(144 - 70) / 2}px) translateY(${-phase * 70}px)`,
+                    }}
+                    css={tw`
+                            transition-transform
+                            duration-500
+                        `}
+                >
+                    {[-4, -3, -2, -1, 0, 1, 2, 3, 4].map(
+                        (i) =>
+                            Math.abs(phase + i) < limit && (
+                                <Item
+                                    onClick={() => {
+                                        setPhase(phase + i)
+                                    }}
+                                    active={!i}
+                                    key={phase + i}
+                                    mode={getMode(phase + i)}
+                                    style={{
+                                        top: `${(phase + i) * 70}px`,
+                                    }}
+                                />
+                            )
+                    )}
+                </div>
             </div>
         </div>
     )
