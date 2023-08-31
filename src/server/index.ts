@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+import os from 'os'
+// import { promises as dns } from 'dns'
 import { Buffer } from 'buffer'
 import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
@@ -38,9 +40,30 @@ app.use(development())
 
 const Port = process.env.PORT || 3001
 
-createServer(app)
-    .on('upgrade', upgrade)
-    .listen(Port, () => void info('Listening on %d…', Port))
+const server = createServer(app).on('upgrade', upgrade)
+
+// @ts-ignore 0.0.0.0 is a valid host. TS expects a number (?).
+server.listen(Port, '0.0.0.0', () => {
+    info('Listening on %d…', Port)
+
+    const addrs: string[] = []
+
+    Object.values(os.networkInterfaces())
+        .flatMap((i) => i ?? [])
+        .filter(({ address, family } = {} as any) => {
+            return (
+                address &&
+                (family === 'IPv4' ||
+                    // @ts-expect-error Can be a number in node 18.0-18.3
+                    family === 4)
+            )
+        })
+        .forEach(({ address }) => {
+            addrs.push(`http://${address}:${Port}/`)
+        })
+
+    console.log(`Deui running at:\n${addrs.map((addr) => `- ${addr}`).join('\n')}`)
+})
 
 app.get('/', (_, res) => {
     res.status(404).end()
