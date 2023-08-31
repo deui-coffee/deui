@@ -294,7 +294,7 @@ export const useDataStore = create<DataStore>((set, get) => {
                                 })
                             case CharAddr.ShotSample:
                                 return void setProperties({
-                                    [Prop.ShotSampleTime]: 0, // buf.readUint16BE(0),
+                                    [Prop.ShotSampleTime]: buf.readUint16BE(0),
                                     [Prop.ShotGroupPressure]: buf.readUInt16BE(2) / 0x1000,
                                     [Prop.ShotGroupFlow]: buf.readUint16BE(4) / 0x1000,
                                     [Prop.ShotMixTemp]: buf.readUint16BE(6) / 0x100,
