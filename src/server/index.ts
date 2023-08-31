@@ -184,13 +184,13 @@ noble.on('discover', (device) => {
                     default:
                 }
             }
+
+            setState({
+                deviceReady: true,
+            })
         })
 
         info('Connected')
-
-        setState({
-            deviceReady: true,
-        })
     })
 
     device.once('disconnect', (err) => {
