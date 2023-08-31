@@ -3,13 +3,17 @@
   "version": "0.0.0",
   "scripts": {
     "build": "tsc && vite build",
+    "build-server": "esbuild src/server/index.ts --platform=node --target=node16 --bundle --packages=external",
     "dev": "vite --host",
     "prettier": "prettier --write src test",
     "preview": "vite preview",
-    "ws": "esbuild src/server/index.ts --platform=node --target=node16 --bundle --packages=external | node -",
+    "ws": "npm run build-server --silent | node -",
     "start": "conc npm:dev npm:ws",
-    "start-prod": "npm run build && cross-env NODE_ENV=production npm run ws",
-    "test": "jest"
+    "test": "jest",
+    "pkg:build-server": "npm run build-server --silent -- --outdir=dist",
+    "pkg:build-client": "cross-env NODE_ENV=production npm run build --silent",
+    "pkg:build": "npm run pkg:build-client && npm run pkg:build-server",
+    "prepack": "npm run pkg:build"
   },
   "dependencies": {
     "@abandonware/noble": "^1.9.2-21",
@@ -66,5 +70,7 @@
     "twin.macro": "^2.8.2",
     "typescript": "^5.1.5",
     "vite": "^2.7.2"
-  }
+  },
+  "files": ["dist/*", "!dist/.DS_Store"],
+  "bin": "./dist/index.js"
 }

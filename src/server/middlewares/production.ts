@@ -9,7 +9,7 @@ export default function production() {
         }
     }
 
-    return serveStatic(path.resolve(__dirname, 'dist'), {
+    return serveStatic(path.resolve(__dirname, '.'), {
         index: 'index.html',
     })
 }
