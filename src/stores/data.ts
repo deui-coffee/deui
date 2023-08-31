@@ -141,9 +141,16 @@ export const useDataStore = create<DataStore>((set, get) => {
             return
         }
 
-        if (!remoteProfileId || !profile || remoteProfileId === profile.id) {
+        if (!profile) {
             /**
-             * Already up-to-date or there's nothing to upload. Do nothing.
+             * No profile to upload.
+             */
+            return
+        }
+
+        if (remoteProfileId === profile.id) {
+            /**
+             * Current profile is already the one available to other clients.
              */
             return
         }
@@ -258,7 +265,7 @@ export const useDataStore = create<DataStore>((set, get) => {
 
                     try {
                         if (newProfileId) {
-                            await setProfileId(newProfileId)
+                            await setProfileId(newProfileId, { upload: !remoteProfileId })
                         }
                     } catch (e) {
                         console.warn('Failed to apply remote profile id', newProfileId)
