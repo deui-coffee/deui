@@ -1,25 +1,11 @@
 import { Prop } from '$/types'
-import React, { useRef } from 'react'
+import React from 'react'
 import tw from 'twin.macro'
 import { useDataStore } from '$/stores/data'
-import { useSmoothWaterLevelEffect } from '$/hooks/useSmoothWaterLevelEffect'
 
 export default function WaterBar() {
-    const { [Prop.WaterCapacity]: waterCapacity = 1500 } = useDataStore().properties
-
-    const textRef = useRef<HTMLSpanElement>(null)
-
-    const barRef = useRef<HTMLDivElement>(null)
-
-    useSmoothWaterLevelEffect((level) => {
-        if (textRef.current) {
-            textRef.current.innerHTML = `${Math.floor(level * waterCapacity)}`
-        }
-
-        if (barRef.current) {
-            barRef.current.style.width = `${100 * level}%`
-        }
-    })
+    const { [Prop.WaterCapacity]: waterCapacity = 1500, [Prop.WaterLevel]: waterLevel = 0 } =
+        useDataStore().properties
 
     return (
         <div
@@ -42,7 +28,9 @@ export default function WaterBar() {
             ]}
         >
             <div
-                ref={barRef}
+                style={{
+                    width: `${Math.floor(waterLevel * waterCapacity)}`,
+                }}
                 css={[
                     tw`
                         absolute
@@ -68,7 +56,7 @@ export default function WaterBar() {
                     `,
                 ]}
             >
-                <span ref={textRef}>0</span>
+                <span>{100 * waterLevel}%</span>
                 <span
                     css={[
                         tw`
