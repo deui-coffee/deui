@@ -37,7 +37,7 @@ export function useSmoothWaterLevelEffect(onChange?: (level: number) => void) {
              * - 0 -> 1: 100% of the duration,
              * - 1 -> 0.5: 50% of it, and so on.
              */
-            let pos = (t - startedAt) / (Duration * Math.abs(dist))
+            let pos = dist === 0 ? 1 : (t - startedAt) / (Duration * Math.abs(dist))
 
             if (pos > 1) {
                 pos = 1
