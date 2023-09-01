@@ -1,6 +1,6 @@
 {
   "name": "deui-coffee",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "scripts": {
     "build": "tsc && vite build",
     "build-server": "esbuild src/server/index.ts --platform=node --target=node16 --bundle --packages=external",
