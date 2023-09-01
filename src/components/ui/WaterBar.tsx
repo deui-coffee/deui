@@ -2,6 +2,7 @@ import { Prop } from '$/types'
 import React from 'react'
 import tw from 'twin.macro'
 import { useDataStore } from '$/stores/data'
+import { css } from '@emotion/react'
 
 export default function WaterBar() {
     const { [Prop.WaterCapacity]: waterCapacity = 1500, [Prop.WaterLevel]: waterLevel = 0 } =
@@ -32,6 +33,9 @@ export default function WaterBar() {
                     width: `${100 * waterLevel}%`,
                 }}
                 css={[
+                    css`
+                        transition: 0.5s width;
+                    `,
                     tw`
                         absolute
                         bg-lightBlue
