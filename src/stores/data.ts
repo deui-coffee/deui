@@ -28,7 +28,6 @@ import { getLastKnownProfile, getProfile, storeProfileId } from '$/utils/profile
 import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
 import stopwatch from '$/utils/stopwatch'
-import { floor } from '$/utils'
 import avg from '$/utils/avg'
 
 interface DataStore {
@@ -299,7 +298,7 @@ export const useDataStore = create<DataStore>((set, get) => {
                                 )
                             case CharAddr.WaterLevels:
                                 return void setProperties({
-                                    [Prop.WaterLevel]: floor(avg(buf.readUint16BE() / 0x100 / 50)), // 0.00-1.00 (50mm tank)
+                                    [Prop.WaterLevel]: avg(buf.readUint16BE() / 0x100 / 50, 7), // 0.00-1.00 (50mm tank)
                                 })
                             case CharAddr.Temperatures:
                                 return void setProperties({
