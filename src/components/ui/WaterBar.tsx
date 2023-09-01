@@ -29,7 +29,7 @@ export default function WaterBar() {
         >
             <div
                 style={{
-                    width: `${Math.floor(waterLevel * waterCapacity)}`,
+                    width: `${100 * waterLevel}%`,
                 }}
                 css={[
                     tw`
@@ -56,7 +56,7 @@ export default function WaterBar() {
                     `,
                 ]}
             >
-                <span>{100 * waterLevel}%</span>
+                <span>{Math.floor(waterLevel * waterCapacity)}</span>
                 <span
                     css={[
                         tw`
