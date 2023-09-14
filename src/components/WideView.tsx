@@ -1,11 +1,10 @@
 import Clock from '$/components/ui/Clock'
 import Controller from '$/components/ui/Controller'
 import WaterBar from '$/components/ui/WaterBar'
-import { Layer, MajorState } from '$/types'
+import { Layer } from '$/types'
 import { useDataStore, useMajorState, useStatus, useWaterLevel } from '$/stores/data'
 import { Prop } from '$/types'
 import mlToL from '$/utils/mlToL'
-import { css } from '@emotion/react'
 import React, { HTMLAttributes, ReactNode } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
@@ -63,19 +62,16 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                 </div>
             </div>
             <Toolbar>
-                <Pane />
-                {typeof water === 'number' && (
-                    <Pane
-                        title={
-                            <>
-                                <span>Water</span>
-                                <span>{mlToL(waterCapacity)}L MAX</span>
-                            </>
-                        }
-                    >
-                        <WaterBar />
-                    </Pane>
-                )}
+                <Pane
+                    title={
+                        <>
+                            <span>Water</span>
+                            <span>{mlToL(waterCapacity)}L MAX</span>
+                        </>
+                    }
+                >
+                    <WaterBar />
+                </Pane>
                 <Pane title="Settings">
                     <Button
                         onClick={async () => {
@@ -87,7 +83,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                         }}
                     >
                         <StatusIndicator value={status} />
-                        Manage
+                        Edit
                     </Button>
                 </Pane>
                 <Pane title="Power">
@@ -104,35 +100,16 @@ type PaneProps = Omit<HTMLAttributes<HTMLDivElement>, 'title'> & {
 
 function Pane({ children, title, ...props }: PaneProps) {
     return (
-        <div
-            {...props}
-            css={[
-                tw`
-                    h-full
-                    flex-shrink-0
-
-                    [& + *]:pl-[1px]
-                `,
-                children
-                    ? css`
-                          flex-basis: 25%;
-                      `
-                    : tw`
-                        flex-grow
-                    `,
-            ]}
-        >
+        <div {...props} css={tw`h-full`}>
             <div
-                css={[
-                    tw`
-                        bg-[#fafafa]
-                        h-full
-                        w-full
-                        px-6
-                        pb-6
-                        dark:bg-black
-                    `,
-                ]}
+                css={tw`
+                    bg-[#fafafa]
+                    dark:bg-black
+                    h-full
+                    w-full
+                    px-6
+                    pb-6
+                `}
             >
                 {!!title && (
                     <Label

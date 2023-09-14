@@ -17,13 +17,11 @@ export default function Controller() {
 
     return (
         <div
-            css={[
-                tw`
-                    max-w-[69rem]
-                    w-full
-                    px-20
-                `,
-            ]}
+            css={tw`
+                max-w-[69rem]
+                w-full
+                px-20
+            `}
         >
             <div
                 css={[
@@ -38,12 +36,23 @@ export default function Controller() {
                     `,
                 ]}
             >
-                <div css={[tw`px-4 flex-shrink-0`]}>
+                <div
+                    css={tw`
+                        px-4
+                        flex-shrink-0
+                    `}
+                >
                     <Control label="Function">
                         <Revolver />
                     </Control>
                 </div>
-                <div css={[tw`px-4 flex-shrink-0 min-w-0`]}>
+                <div
+                    css={tw`
+                        px-4
+                        flex-shrink-0
+                        min-w-0
+                    `}
+                >
                     <Control label="Profile">
                         <button
                             onClick={async () => {
@@ -80,23 +89,15 @@ export default function Controller() {
                             ]}
                         >
                             <div
-                                css={[
-                                    tw`
-                                        flex-grow
-                                        min-w-0
-                                        truncate
-                                    `,
-                                ]}
+                                css={tw`
+                                    flex-grow
+                                    min-w-0
+                                    truncate
+                                `}
                             >
                                 {profileLabel || 'No profile'}
                             </div>
-                            <div
-                                css={[
-                                    tw`
-                                        ml-6
-                                    `,
-                                ]}
-                            >
+                            <div css={tw`ml-6`}>
                                 <svg
                                     width="21"
                                     height="13"
@@ -114,21 +115,19 @@ export default function Controller() {
                     </Control>
                 </div>
             </div>
-            <div css={[tw`mt-8`]}>
+            <div css={tw`mt-8`}>
                 <Control>
                     <div
-                        css={[
-                            tw`
-                                h-full
-                                items-center
-                                grid
-                                grid-cols-5
-                                gap-8
-                                px-10
+                        css={tw`
+                            h-full
+                            items-center
+                            grid
+                            grid-cols-5
+                            gap-8
+                            px-10
 
-                                [> *]:-translate-y-1.5
-                            `,
-                        ]}
+                            [> *]:-translate-y-1.5
+                        `}
                     >
                         {Metrics[machineMode].map((metricProps) => (
                             <Metric key={metricProps.property} {...metricProps} />
@@ -147,14 +146,12 @@ function Control(props: WrappedControlProps) {
         <PrewrappedControl
             {...props}
             fill
-            css={[
-                tw`
-                    border
-                    border-lighter-grey
-                    lg:h-[144px]
-                    dark:border-0
-                `,
-            ]}
+            css={tw`
+                border
+                border-lighter-grey
+                lg:h-[144px]
+                dark:border-0
+            `}
         />
     )
 }
