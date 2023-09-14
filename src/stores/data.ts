@@ -396,17 +396,41 @@ export function useAutoConnectEffect() {
     const { connect, disconnect } = useDataStore()
 
     useEffect(() => {
-        async function fn() {
-            try {
-                await connect()
-            } catch (e) {
-                console.warn('Connect failed', e)
+        let mounted = true
+
+        setTimeout(async () => {
+            let attempts = 0
+
+            while (true) {
+                if (!mounted) {
+                    return
+                }
+
+                try {
+                    await connect()
+
+                    attempts = 0
+                } catch (e) {
+                    console.warn('Connect failed', e)
+
+                    /**
+                     * 40 x 250ms = 10s, max.
+                     */
+                    attempts = Math.min(40, attempts + 1)
+                }
+
+                /**
+                 * Wait a while before trying to reconnect.
+                 */
+                await new Promise((resolve) => void setTimeout(resolve, attempts * 250))
             }
+        })
+
+        return () => {
+            mounted = false
+
+            disconnect()
         }
-
-        fn()
-
-        return disconnect
     }, [disconnect, connect])
 }
 
@@ -430,6 +454,10 @@ export function usePhase() {
     const { wsState, remoteState } = useDataStore()
 
     const status = useStatus()
+
+    if (wsState === WebSocketState.Closed) {
+        return 'Reconnecting shortly…'
+    }
 
     if (status !== Status.Busy) {
         return
