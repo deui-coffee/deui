@@ -53,7 +53,7 @@ interface UiStore {
     setMachineMode: (machineMode: MachineMode) => void
 }
 
-export const useUiStore = create<UiStore>((set, get) => {
+export const useUiStore = create<UiStore>((set) => {
     function setState(fn: (next: UiStore) => void) {
         set((current) => produce(current, fn))
     }

@@ -36,40 +36,23 @@ export default function Metric({
                 `,
             ]}
         >
-            <Label>{label}</Label>
+            <Label css={tw`justify-center`}>
+                {label} {unit}
+            </Label>
             <div
-                css={[
-                    tw`
-                        -mt-1
-                        text-t2
-                        lg:text-[2.5rem]
-                    `,
-                    !value &&
-                        tw`
-                            opacity-20
-                        `,
-                ]}
+                css={tw`
+                    text-center
+                    text-t2
+                    lg:text-[2.5rem]
+                `}
             >
                 <span
-                    css={[
-                        tw`
-                            text-dark-grey
-                            dark:text-lighter-grey
-                        `,
-                    ]}
+                    css={tw`
+                        text-light-grey
+                        dark:text-medium-grey
+                    `}
                 >
                     {formatFn(value)}
-                </span>
-                <span
-                    css={[
-                        tw`
-                            dark:text-medium-grey
-                            ml-2
-                            text-light-grey
-                        `,
-                    ]}
-                >
-                    {unit}
                 </span>
             </div>
         </div>
@@ -89,9 +72,9 @@ export const Metrics: Metrics = {
         { label: 'Metal temp', property: Prop.ShotHeadTemp, unit: '°C' },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Shot time', property: Prop.EspressoTime, unit: 's' },
+        { label: 'Shot time', property: Prop.EspressoTime, unit: 'sec' },
     ],
-    [MachineMode.Flush]: [{ label: 'Time', property: Prop.FlushTime, unit: 's' }],
+    [MachineMode.Flush]: [{ label: 'Time', property: Prop.FlushTime, unit: 'sec' }],
     [MachineMode.Steam]: [
         {
             label: 'Steam temp',
@@ -101,7 +84,7 @@ export const Metrics: Metrics = {
         },
         { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
         { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Time', property: Prop.SteamTime, unit: 's' },
+        { label: 'Time', property: Prop.SteamTime, unit: 'sec' },
     ],
-    [MachineMode.Water]: [{ label: 'Time', property: Prop.WaterTime, unit: 's' }],
+    [MachineMode.Water]: [{ label: 'Time', property: Prop.WaterTime, unit: 'sec' }],
 }
