@@ -213,141 +213,151 @@ export const useDataStore = create<DataStore>((set, get) => {
 
             set({ wsState: WebSocketState.Opening })
 
-            ctrl = wsStream(`ws://${location.hostname}:3001`)
+            /**
+             * Let's give the opening state at least 250ms TTL so that in case of a network
+             * glitch we don't flash with a barely noticable "Opening…" in the UI.
+             */
+            await new Promise((resolve) => void setTimeout(resolve, 250))
 
-            while (true) {
-                const chunk = await ctrl.read()
+            try {
+                ctrl = wsStream(`ws://${location.hostname}:3001`)
 
-                if (!chunk) {
-                    /**
-                     * This should be impossible because we break this while
-                     * on `ws:close`. Either way, we can catch that outside.
-                     */
-                    throw new Error('Invalid chunk')
-                }
+                while (true) {
+                    const chunk = await ctrl.read()
 
-                if (chunk.type === ChunkType.WebSocketClose) {
-                    set({
-                        wsState: WebSocketState.Closed,
-                        remoteState: getDefaultRemoteState(),
-                        properties: getDefaultProperties(),
-                    })
-
-                    break
-                }
-
-                if (chunk.type === ChunkType.WebSocketOpen) {
-                    set({ wsState: WebSocketState.Open })
-
-                    continue
-                }
-
-                if (chunk.type === ChunkType.WebSocketError) {
-                    console.warn('WebSocker errored', chunk.payload)
-
-                    continue
-                }
-
-                const { payload: data } = chunk
-
-                if (isStateMessage(data)) {
-                    const remoteState = data.payload
-
-                    set({ remoteState })
-
-                    setTimeout(async () => {
-                        if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
-                            return
-                        }
-
-                        if (remoteState.scanning || remoteState.connecting || remoteState.device) {
-                            return
-                        }
-
-                        try {
-                            await exec('scan')
-                        } catch (e) {
-                            console.warn('Scan failed', e)
-                        }
-                    })
-
-                    const { id: remoteProfileId } = remoteState.profile
-
-                    const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
-
-                    try {
-                        if (newProfileId) {
-                            await setProfileId(newProfileId, { upload: !remoteProfileId })
-                        }
-                    } catch (e) {
-                        console.warn('Failed to apply remote profile id', newProfileId)
+                    if (!chunk) {
+                        /**
+                         * This should be impossible because we break this while
+                         * on `ws:close`. Either way, we can catch that outside.
+                         */
+                        throw new Error('Invalid chunk')
                     }
 
-                    continue
-                }
+                    if (chunk.type === ChunkType.WebSocketClose) {
+                        break
+                    }
 
-                if (isCharMessage(data)) {
-                    Object.entries(data.payload).forEach(([uuid, payload]) => {
-                        const buf = Buffer.from(payload, 'base64')
+                    if (chunk.type === ChunkType.WebSocketOpen) {
+                        set({ wsState: WebSocketState.Open })
 
-                        switch (uuid) {
-                            case CharAddr.StateInfo:
-                                return void setMachineStateProperties(
-                                    buf.readUint8(0),
-                                    buf.readUint8(1)
-                                )
-                            case CharAddr.WaterLevels:
-                                return void setProperties({
-                                    [Prop.WaterLevel]: avg(buf.readUint16BE() / 0x100 / 50, 7), // 0.00-1.00 (50mm tank)
-                                })
-                            case CharAddr.Temperatures:
-                                return void setProperties({
-                                    [Prop.WaterHeater]: buf.readUint16BE(0) / 0x100, // 1°C every 256
-                                    [Prop.SteamHeater]: buf.readUint16BE(2) / 0x100,
-                                    [Prop.GroupHeater]: buf.readUint16BE(4) / 0x100,
-                                    [Prop.ColdWater]: buf.readUint16BE(6) / 0x100,
-                                    [Prop.TargetWaterHeater]: buf.readUint16BE(8) / 0x100,
-                                    [Prop.TargetSteamHeater]: buf.readUint16BE(10) / 0x100,
-                                    [Prop.TargetGroupHeater]: buf.readUint16BE(12) / 0x100,
-                                    [Prop.TargetColdWater]: buf.readUint16BE(14) / 0x100,
-                                })
-                            case CharAddr.ShotSample:
-                                return void setProperties({
-                                    [Prop.ShotSampleTime]: buf.readUint16BE(0),
-                                    [Prop.ShotGroupPressure]: buf.readUInt16BE(2) / 0x1000,
-                                    [Prop.ShotGroupFlow]: buf.readUint16BE(4) / 0x1000,
-                                    [Prop.ShotMixTemp]: buf.readUint16BE(6) / 0x100,
-                                    [Prop.ShotHeadTemp]: (buf.readUint32BE(8) >> 8) / 0x10000,
-                                    [Prop.ShotSetMixTemp]: buf.readUint16BE(11) / 0x100,
-                                    [Prop.ShotSetHeadTemp]: buf.readUint16BE(13) / 0x100,
-                                    [Prop.ShotSetGroupPressure]: buf.readUint8(15) / 0x10,
-                                    [Prop.ShotSetGroupFlow]: buf.readUint8(16) / 0x10,
-                                    [Prop.ShotFrameNumber]: buf.readUint8(17),
-                                    [Prop.ShotSteamTemp]: buf.readUint8(18),
-                                })
-                            case CharAddr.ShotSettings:
-                                return void setProperties({
-                                    [Prop.SteamSettings]: buf.readUint8(0),
-                                    [Prop.TargetSteamTemp]: buf.readUint8(1),
-                                    [Prop.TargetSteamLength]: buf.readUint8(2),
-                                    [Prop.TargetHotWaterTemp]: buf.readUint8(3),
-                                    [Prop.TargetHotWaterVol]: buf.readUint8(4),
-                                    [Prop.TargetHotWaterLength]: buf.readUint8(5),
-                                    [Prop.TargetEspressoVol]: buf.readUint8(6),
-                                    [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x100,
-                                })
-                            case CharAddr.HeaderWrite:
-                                return void console.log('HeaderWrite', decodeShotHeader(buf))
-                            case CharAddr.FrameWrite:
-                                return void console.log('FrameWrite', decodeShotFrame(buf))
+                        continue
+                    }
+
+                    if (chunk.type === ChunkType.WebSocketError) {
+                        throw chunk.payload
+                    }
+
+                    const { payload: data } = chunk
+
+                    if (isStateMessage(data)) {
+                        const remoteState = data.payload
+
+                        set({ remoteState })
+
+                        setTimeout(async () => {
+                            if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
+                                return
+                            }
+
+                            if (
+                                remoteState.scanning ||
+                                remoteState.connecting ||
+                                remoteState.device
+                            ) {
+                                return
+                            }
+
+                            try {
+                                await exec('scan')
+                            } catch (e) {
+                                console.warn('Scan failed', e)
+                            }
+                        })
+
+                        const { id: remoteProfileId } = remoteState.profile
+
+                        const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
+
+                        try {
+                            if (newProfileId) {
+                                await setProfileId(newProfileId, { upload: !remoteProfileId })
+                            }
+                        } catch (e) {
+                            console.warn('Failed to apply remote profile id', newProfileId)
                         }
-                    })
 
-                    continue
+                        continue
+                    }
+
+                    if (isCharMessage(data)) {
+                        Object.entries(data.payload).forEach(([uuid, payload]) => {
+                            const buf = Buffer.from(payload, 'base64')
+
+                            switch (uuid) {
+                                case CharAddr.StateInfo:
+                                    return void setMachineStateProperties(
+                                        buf.readUint8(0),
+                                        buf.readUint8(1)
+                                    )
+                                case CharAddr.WaterLevels:
+                                    return void setProperties({
+                                        [Prop.WaterLevel]: avg(buf.readUint16BE() / 0x100 / 50, 7), // 0.00-1.00 (50mm tank)
+                                    })
+                                case CharAddr.Temperatures:
+                                    return void setProperties({
+                                        [Prop.WaterHeater]: buf.readUint16BE(0) / 0x100, // 1°C every 256
+                                        [Prop.SteamHeater]: buf.readUint16BE(2) / 0x100,
+                                        [Prop.GroupHeater]: buf.readUint16BE(4) / 0x100,
+                                        [Prop.ColdWater]: buf.readUint16BE(6) / 0x100,
+                                        [Prop.TargetWaterHeater]: buf.readUint16BE(8) / 0x100,
+                                        [Prop.TargetSteamHeater]: buf.readUint16BE(10) / 0x100,
+                                        [Prop.TargetGroupHeater]: buf.readUint16BE(12) / 0x100,
+                                        [Prop.TargetColdWater]: buf.readUint16BE(14) / 0x100,
+                                    })
+                                case CharAddr.ShotSample:
+                                    return void setProperties({
+                                        [Prop.ShotSampleTime]: buf.readUint16BE(0),
+                                        [Prop.ShotGroupPressure]: buf.readUInt16BE(2) / 0x1000,
+                                        [Prop.ShotGroupFlow]: buf.readUint16BE(4) / 0x1000,
+                                        [Prop.ShotMixTemp]: buf.readUint16BE(6) / 0x100,
+                                        [Prop.ShotHeadTemp]: (buf.readUint32BE(8) >> 8) / 0x10000,
+                                        [Prop.ShotSetMixTemp]: buf.readUint16BE(11) / 0x100,
+                                        [Prop.ShotSetHeadTemp]: buf.readUint16BE(13) / 0x100,
+                                        [Prop.ShotSetGroupPressure]: buf.readUint8(15) / 0x10,
+                                        [Prop.ShotSetGroupFlow]: buf.readUint8(16) / 0x10,
+                                        [Prop.ShotFrameNumber]: buf.readUint8(17),
+                                        [Prop.ShotSteamTemp]: buf.readUint8(18),
+                                    })
+                                case CharAddr.ShotSettings:
+                                    return void setProperties({
+                                        [Prop.SteamSettings]: buf.readUint8(0),
+                                        [Prop.TargetSteamTemp]: buf.readUint8(1),
+                                        [Prop.TargetSteamLength]: buf.readUint8(2),
+                                        [Prop.TargetHotWaterTemp]: buf.readUint8(3),
+                                        [Prop.TargetHotWaterVol]: buf.readUint8(4),
+                                        [Prop.TargetHotWaterLength]: buf.readUint8(5),
+                                        [Prop.TargetEspressoVol]: buf.readUint8(6),
+                                        [Prop.TargetGroupTemp]: buf.readUint16BE(7) / 0x100,
+                                    })
+                                case CharAddr.HeaderWrite:
+                                    return void console.log('HeaderWrite', decodeShotHeader(buf))
+                                case CharAddr.FrameWrite:
+                                    return void console.log('FrameWrite', decodeShotFrame(buf))
+                            }
+                        })
+
+                        continue
+                    }
                 }
-            }
+            } finally {
+                set({
+                    wsState: WebSocketState.Closed,
+                    remoteState: getDefaultRemoteState(),
+                    properties: getDefaultProperties(),
+                })
 
-            ctrl = undefined
+                ctrl = undefined
+            }
         },
 
         disconnect() {
