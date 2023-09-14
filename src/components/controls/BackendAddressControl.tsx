@@ -48,7 +48,7 @@ export default function BackendAddressControl({ label = 'Connection', ...props }
                 />
                 <TextField
                     ref={fieldRef}
-                    defaultValue={`ws://${location.hostname}:3001`}
+                    defaultValue={`${location.hostname}:3001`}
                     readOnly
                     css={tw`
                         cursor-default
