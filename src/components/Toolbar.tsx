@@ -27,7 +27,7 @@ export default function Toolbar({ children, ...props }: HTMLAttributes<HTMLDivEl
                         h-[9rem]
                         w-full
                         mx-auto
-                        max-w-[1400px]
+                        max-w-[64rem]
                         grid
                     `,
                 ]}

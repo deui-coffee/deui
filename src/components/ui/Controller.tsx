@@ -18,7 +18,7 @@ export default function Controller() {
     return (
         <div
             css={tw`
-                max-w-[69rem]
+                max-w-[71rem]
                 w-full
                 px-20
             `}
