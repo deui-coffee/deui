@@ -1,10 +1,17 @@
 import React from 'react'
 import TextSwitch from '$/components/TextSwitch'
-import { MinorState } from '$/types'
-import { useMinorState } from '$/stores/data'
+import { ConnectionPhase, MachineMode, MinorState } from '$/types'
+import { useConnectionPhase, useMinorState } from '$/stores/data'
+import { useUiStore } from '$/stores/ui'
 
 export default function SubstateSwitch() {
     const substate = useMinorState()
+
+    const { machineMode } = useUiStore()
+
+    const connPhase = useConnectionPhase()
+
+    const value = machineMode === MachineMode.Server ? connPhase : substate
 
     return (
         <TextSwitch
@@ -16,8 +23,15 @@ export default function SubstateSwitch() {
                 [MinorState.PreInfuse, 'Preinfuse'],
                 [MinorState.Pour, 'Pouring'],
                 [MinorState.Flush, 'Flushing'],
+                [ConnectionPhase.WaitingToReconnect, 'Reconnecting'],
+                [ConnectionPhase.Opening, 'Opening'],
+                [ConnectionPhase.Scanning, 'Scanning'],
+                [ConnectionPhase.ConnectingAdapters, 'Connecting to DE1'],
+                [ConnectionPhase.SettingUp, 'Setting up'],
+                [ConnectionPhase.BluetoothOff, 'Bluetooth off'],
+                [ConnectionPhase.NoBluetooth, 'No bluetooth'],
             ]}
-            value={substate}
+            value={value}
         />
     )
 }

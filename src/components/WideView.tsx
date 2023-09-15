@@ -2,13 +2,12 @@ import Clock from '$/components/ui/Clock'
 import Controller from '$/components/ui/Controller'
 import WaterBar from '$/components/ui/WaterBar'
 import { Layer } from '$/types'
-import { useDataStore, useMajorState, useStatus, useWaterLevel } from '$/stores/data'
+import { useDataStore, useMajorState, useWaterLevel } from '$/stores/data'
 import { Prop } from '$/types'
 import mlToL from '$/utils/mlToL'
 import React, { HTMLAttributes, ReactNode } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
-import StatusIndicator from './StatusIndicator'
 import Toolbar from './Toolbar'
 import SettingsDrawer from './drawers/SettingsDrawer'
 import Button from './primitives/Button'
@@ -16,8 +15,6 @@ import Label from './primitives/Label'
 import PowerToggle from './ui/PowerToggle'
 
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
-    const status = useStatus()
-
     const { [Prop.WaterCapacity]: waterCapacity = 0 } = useDataStore().properties
 
     const water = useWaterLevel()
@@ -82,7 +79,6 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                             }
                         }}
                     >
-                        <StatusIndicator value={status} />
                         Edit
                     </Button>
                 </Pane>

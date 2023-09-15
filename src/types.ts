@@ -605,3 +605,14 @@ export interface ShotSettings {
     // U16P8 So we know what to set the group to
     TargetGroupTemp: number
 }
+
+export enum ConnectionPhase {
+    Irrelevant = 1000,
+    WaitingToReconnect,
+    Opening,
+    Scanning,
+    ConnectingAdapters,
+    SettingUp,
+    BluetoothOff,
+    NoBluetooth,
+}

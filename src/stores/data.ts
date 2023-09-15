@@ -2,6 +2,7 @@ import { Status } from '$/components/StatusIndicator'
 import {
     BluetoothState,
     CharAddr,
+    ConnectionPhase,
     MajorState,
     MinorState,
     ShotSettings,
@@ -451,40 +452,61 @@ export function useWaterLevel() {
 }
 
 export function usePhase() {
+    switch (useConnectionPhase()) {
+        case ConnectionPhase.BluetoothOff:
+            return 'Bluetooth is off'
+        case ConnectionPhase.ConnectingAdapters:
+            return 'Connecting to DE1…'
+        case ConnectionPhase.NoBluetooth:
+            return 'Bluetooth is unavailable'
+        case ConnectionPhase.Opening:
+            return 'Opening…'
+        case ConnectionPhase.Scanning:
+            return 'Looking for DE1…'
+        case ConnectionPhase.SettingUp:
+            return 'Setting up…'
+        case ConnectionPhase.WaitingToReconnect:
+            return 'Reconnecting shortly…'
+        case ConnectionPhase.Irrelevant:
+        default:
+    }
+}
+
+export function useConnectionPhase() {
     const { wsState, remoteState } = useDataStore()
 
     const status = useStatus()
 
     if (wsState === WebSocketState.Closed) {
-        return 'Reconnecting shortly…'
+        return ConnectionPhase.WaitingToReconnect
     }
 
     if (status !== Status.Busy) {
-        return
+        return ConnectionPhase.Irrelevant
     }
 
     if (wsState === WebSocketState.Opening) {
-        return 'Opening…'
+        return ConnectionPhase.Opening
     }
 
     if (remoteState.scanning) {
-        return 'Looking for DE1…'
+        return ConnectionPhase.Scanning
     }
 
     if (remoteState.connecting) {
-        return 'Connecting to DE1…'
+        return ConnectionPhase.ConnectingAdapters
     }
 
     if (remoteState.discoveringCharacteristics) {
-        return 'Setting up…'
+        return ConnectionPhase.SettingUp
     }
 
     if (remoteState.bluetoothState === BluetoothState.PoweredOff) {
-        return 'Bluetooth is off'
+        return ConnectionPhase.BluetoothOff
     }
 
     if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
-        return 'Bluetooth is unavailable'
+        return ConnectionPhase.NoBluetooth
     }
 }
 

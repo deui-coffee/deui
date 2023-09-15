@@ -1,4 +1,4 @@
-import { usePropValue } from '$/stores/data'
+import { usePropValue, useStatus } from '$/stores/data'
 import { MachineMode, MajorState, Prop } from '$/types'
 import { css } from '@emotion/react'
 import { useSwipeable } from 'react-swipeable'
@@ -6,6 +6,7 @@ import { ButtonHTMLAttributes, useEffect, useState } from 'react'
 import tw from 'twin.macro'
 import { machineModeLineup, useUiStore } from '$/stores/ui'
 import SubstateSwitch from '../SubstateSwitch'
+import StatusIndicator, { Status } from '../StatusIndicator'
 
 interface ItemProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> {
     mode: MachineMode
@@ -69,6 +70,8 @@ function getMode(phase: number): MachineMode {
 }
 
 export default function Revolver() {
+    const status = useStatus()
+
     const [phase, setPhase] = useState(0)
 
     const handlers = useSwipeable({
@@ -81,7 +84,7 @@ export default function Revolver() {
         },
     })
 
-    const { setMachineMode } = useUiStore()
+    const { setMachineMode, machineMode } = useUiStore()
 
     useEffect(() => {
         setMachineMode(getMode(phase))
@@ -136,6 +139,7 @@ export default function Revolver() {
                     relative
                 `}
         >
+            <StatusIndicator value={machineMode === MachineMode.Server ? status : Status.None} />
             <div
                 css={tw`
                         absolute
