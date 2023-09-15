@@ -36,12 +36,12 @@ export default function Metric({
                 `,
             ]}
         >
-            <Label css={tw`justify-center`}>
+            <Label css={tw`lg:justify-center`}>
                 {label} {unit}
             </Label>
             <div
                 css={tw`
-                    text-center
+                    lg:text-center
                     text-t2
                     lg:text-[2.5rem]
                 `}
