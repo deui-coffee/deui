@@ -31,6 +31,7 @@ export const machineModeLineup = [
     MachineMode.Steam,
     MachineMode.Flush,
     MachineMode.Water,
+    MachineMode.Server,
 ]
 
 interface UiStore {

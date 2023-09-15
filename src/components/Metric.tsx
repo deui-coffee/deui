@@ -59,7 +59,10 @@ export default function Metric({
     )
 }
 
-type Metrics = Record<MachineMode, MetricOwnProps[]>
+type Metrics = Record<
+    MachineMode.Espresso | MachineMode.Flush | MachineMode.Steam | MachineMode.Water,
+    MetricOwnProps[]
+>
 
 export const Metrics: Metrics = {
     [MachineMode.Espresso]: [

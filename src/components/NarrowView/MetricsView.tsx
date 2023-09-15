@@ -8,11 +8,14 @@ import TextSwitch from '$/components/TextSwitch'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
+import useMetrics from '$/hooks/useMetrics'
 
 export default function MetricsView() {
     const profileLabel = useCurrentProfileLabel()
 
     const { setView, machineMode } = useUiStore()
+
+    const metrics = useMetrics()
 
     return (
         <div tw="px-14">
@@ -33,7 +36,9 @@ export default function MetricsView() {
                             [MachineMode.Flush],
                             [MachineMode.Water],
                         ]}
-                        value={machineMode}
+                        value={
+                            machineMode === MachineMode.Server ? MachineMode.Espresso : machineMode
+                        }
                     />
                 </h1>
                 <p
@@ -117,7 +122,7 @@ export default function MetricsView() {
                     `,
                 ]}
             >
-                {Metrics[machineMode].map((metricProps) => (
+                {metrics.map((metricProps) => (
                     <Metric key={metricProps.property} {...metricProps} />
                 ))}
             </div>

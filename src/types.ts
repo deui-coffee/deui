@@ -470,6 +470,7 @@ export interface WsOpenChunk {
 export type Chunk = WsCloseChunk | WsErrorChunk | WsMessageChunk | WsOpenChunk
 
 export enum MachineMode {
+    Server = 'Server',
     Espresso = 'Espresso',
     Steam = 'Steam',
     Flush = 'Flush',

@@ -97,9 +97,19 @@ export default function Revolver() {
                       [MajorState.Steam]: MachineMode.Steam,
                       [MajorState.HotWater]: MachineMode.Water,
                       [MajorState.HotWaterRinse]: MachineMode.Flush,
+                      [MajorState.Espresso]: MachineMode.Espresso,
                   }[majorState]
 
-        const to = machineModeLineup.indexOf(newMode || MachineMode.Espresso)
+        if (!newMode) {
+            /**
+             * Stay in the current machine mode if the new mode has not been
+             * recognized. Usually it means that we've finished doing something
+             * and we're in "idle" mode.
+             */
+            return
+        }
+
+        const to = machineModeLineup.indexOf(newMode)
 
         setPhase((c) => {
             const from = (n + (c % n)) % n

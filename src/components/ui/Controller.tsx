@@ -2,18 +2,18 @@ import PrewrappedControl, { ControlProps } from '$/components/Control'
 import Metric, { Metrics } from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
 import { css } from '@emotion/react'
-import React, { HTMLAttributes } from 'react'
+import { HTMLAttributes } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
 import { Layer } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
-import { useUiStore } from '$/stores/ui'
+import useMetrics from '$/hooks/useMetrics'
 
 export default function Controller() {
-    const { machineMode } = useUiStore()
-
     const profileLabel = useCurrentProfileLabel()
+
+    const metrics = useMetrics()
 
     return (
         <div
@@ -129,7 +129,7 @@ export default function Controller() {
                             [> *]:-translate-y-1.5
                         `}
                     >
-                        {Metrics[machineMode].map((metricProps) => (
+                        {metrics.map((metricProps) => (
                             <Metric key={metricProps.property} {...metricProps} />
                         ))}
                     </div>
