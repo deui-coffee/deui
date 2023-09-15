@@ -23,7 +23,7 @@ export default function SubstateSwitch() {
                 [MinorState.PreInfuse, 'Preinfuse'],
                 [MinorState.Pour, 'Pouring'],
                 [MinorState.Flush, 'Flushing'],
-                [ConnectionPhase.WaitingToReconnect, 'Reconnecting'],
+                [ConnectionPhase.WaitingToReconnect, 'Waiting'],
                 [ConnectionPhase.Opening, 'Opening'],
                 [ConnectionPhase.Scanning, 'Scanning'],
                 [ConnectionPhase.ConnectingAdapters, 'Connecting to DE1'],

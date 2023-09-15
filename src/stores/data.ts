@@ -218,7 +218,7 @@ export const useDataStore = create<DataStore>((set, get) => {
              * Let's give the opening state at least 250ms TTL so that in case of a network
              * glitch we don't flash with a barely noticable "Opening…" in the UI.
              */
-            await new Promise((resolve) => void setTimeout(resolve, 250))
+            await new Promise((resolve) => void setTimeout(resolve, 1000))
 
             try {
                 ctrl = wsStream(`ws://${location.hostname}:3001`)
