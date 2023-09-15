@@ -35,10 +35,9 @@ export default function MetricsView() {
                             [MachineMode.Steam],
                             [MachineMode.Flush],
                             [MachineMode.Water],
+                            [MachineMode.Server],
                         ]}
-                        value={
-                            machineMode === MachineMode.Server ? MachineMode.Espresso : machineMode
-                        }
+                        value={machineMode}
                     />
                 </h1>
                 <p
