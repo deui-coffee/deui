@@ -1,5 +1,5 @@
 import PrewrappedControl, { ControlProps } from '$/components/Control'
-import Metric, { Metrics } from '$/components/Metric'
+import Metric from '$/components/Metric'
 import Revolver from '$/components/ui/Revolver'
 import { css } from '@emotion/react'
 import { HTMLAttributes } from 'react'
@@ -9,6 +9,8 @@ import ProfilesDrawer from '../drawers/ProfilesDrawer'
 import { Layer } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
 import useMetrics from '$/hooks/useMetrics'
+
+const profilesDrawer = toaster(ProfilesDrawer, Layer.Drawer)
 
 export default function Controller() {
     const profileLabel = useCurrentProfileLabel()
@@ -57,7 +59,7 @@ export default function Controller() {
                         <button
                             onClick={async () => {
                                 try {
-                                    await toaster(ProfilesDrawer, Layer.Drawer).pop()
+                                    await profilesDrawer.pop()
                                 } catch (e) {
                                     // Do nothing.
                                 }

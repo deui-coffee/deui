@@ -14,12 +14,10 @@ import Button from './primitives/Button'
 import Label from './primitives/Label'
 import PowerToggle from './ui/PowerToggle'
 
+const settingsDrawer = toaster(SettingsDrawer, Layer.Drawer)
+
 export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
     const { [Prop.WaterCapacity]: waterCapacity = 0 } = useDataStore().properties
-
-    const water = useWaterLevel()
-
-    const majorState = useMajorState()
 
     const ready = true // typeof majorState !== 'undefined' && majorState !== MajorState.Sleep
 
@@ -73,7 +71,7 @@ export default function WideView(props: HTMLAttributes<HTMLDivElement>) {
                     <Button
                         onClick={async () => {
                             try {
-                                await toaster(SettingsDrawer, Layer.Drawer).pop()
+                                await settingsDrawer.pop()
                             } catch (e) {
                                 // Do nothing.
                             }
