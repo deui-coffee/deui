@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { HTMLAttributes, ReactNode, useEffect, useRef } from 'react'
+import { HTMLAttributes, ReactNode, useEffect, useReducer, useRef, useState } from 'react'
 import { useDiscardableEffect } from 'toasterhea'
 import tw from 'twin.macro'
 
@@ -16,7 +16,17 @@ export interface DrawerProps extends HTMLAttributes<HTMLDivElement> {
 export default function Drawer({ children, onReject, ...props }: DrawerProps) {
     const bodyRef = useRef<HTMLDivElement>(null)
 
-    useDiscardableEffect()
+    const [ready, setReady] = useState(false)
+
+    useEffect(() => {
+        setReady(true)
+    }, [])
+
+    useDiscardableEffect((discard) => {
+        setReady(false)
+
+        bodyRef.current?.addEventListener('transitionend', discard)
+    })
 
     useEffect(() => {
         function onEvent(e: MouseEvent | TouchEvent) {
@@ -61,12 +71,20 @@ export default function Drawer({ children, onReject, ...props }: DrawerProps) {
                     h-full
                     left-0
                     top-0
+                    opacity-0
                 `,
+                css`
+                    transition: 350ms opacity;
+                `,
+                ready && tw`opacity-100`,
             ]}
         >
             <div
                 ref={bodyRef}
                 css={[
+                    css`
+                        transition: 350ms transform;
+                    `,
                     tw`
                         w-[32rem]
                         h-full
@@ -75,11 +93,12 @@ export default function Drawer({ children, onReject, ...props }: DrawerProps) {
                         absolute
                         right-0
                         top-0
-                        transition-transform
                         overflow-auto
                         shadow-[0 0 15px rgba(0, 0, 0, 0.08)]
                         dark:shadow-[0 0 10px 5px rgba(0, 0, 0, 0.25)]
+                        translate-x-full
                     `,
+                    ready && tw`translate-x-0`,
                 ]}
             >
                 {children}
