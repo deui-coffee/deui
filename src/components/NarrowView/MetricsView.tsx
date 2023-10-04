@@ -80,7 +80,10 @@ export default function MetricsView() {
             >
                 <div
                     css={[
-                        tw`flex-grow`,
+                        tw`
+                            flex-grow
+                            truncate
+                        `,
                         !profileLabel &&
                             tw`
                                 dark:text-medium-grey

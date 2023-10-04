@@ -55,6 +55,9 @@ export default function NarrowView(props: HTMLAttributes<HTMLDivElement>) {
                     {viewLineup.map(({ id, component: ViewComponent }) => (
                         <div
                             key={`${id}`}
+                            css={tw`
+                                min-w-0
+                            `}
                             style={{
                                 flex: `0 0 ${100 / count}%`,
                             }}
