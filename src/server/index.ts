@@ -120,9 +120,11 @@ async function setup(
     de1: Peripheral,
     {
         onBeforeUpdatingCharacteristics,
+        onDisconnect,
         onUuid,
     }: {
         onBeforeUpdatingCharacteristics?: () => void
+        onDisconnect?: () => void
         onUuid?: (uuid: string, characteristic: Characteristic) => void
     } = {}
 ) {
@@ -134,7 +136,7 @@ async function setup(
             deviceReady: false,
         })
 
-        info('We are done')
+        onDisconnect?.()
     })
 
     de1.once('connect', async (err) => {
@@ -232,6 +234,13 @@ noble.on('discover', (device) => {
             await setup(device, {
                 onBeforeUpdatingCharacteristics() {
                     characteristics = {}
+                },
+                onDisconnect() {
+                    /**
+                     * There's nothing we can do with the found device
+                     * nor with the connection. It's time to start over.
+                     */
+                    noble.startScanning([], false)
                 },
                 onUuid(uuid, characteristic) {
                     characteristics[uuid] = characteristic
