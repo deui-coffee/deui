@@ -6,6 +6,8 @@ export const info = debug('deui-server:info')
 
 export const error = debug('deui-server:error')
 
+export const verbose = debug('deui-server:verbose')
+
 export function fromF817(value: number) {
     return (value & 0x80) === 0 ? value / 10 : value & 0x7f
 }
@@ -66,7 +68,7 @@ export async function watchCharacteristic(
     const charName = getCharName(uuid)
 
     char.on('data', (data) => {
-        info('Data received', charName, data)
+        verbose('Data received', charName, data)
 
         onData?.(uuid, data)
     })
