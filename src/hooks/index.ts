@@ -1,4 +1,6 @@
-import { useDataStore } from '$/stores/data'
+import { useDataStore, useMajorState } from '$/stores/data'
+import { useUiStore } from '$/stores/ui'
+import { MachineMode, MajorState } from '$/types'
 import { useCallback } from 'react'
 
 export function useSetProfileIdCallback() {
@@ -20,4 +22,22 @@ export function useSetProfileIdCallback() {
         },
         [setProfileId]
     )
+}
+
+export function useIsMachineModeActive() {
+    const majorState = useMajorState()
+
+    switch (useUiStore().machineMode) {
+        case MachineMode.Espresso:
+            return majorState === MajorState.Espresso
+        case MachineMode.Flush:
+            return majorState === MajorState.HotWaterRinse
+        case MachineMode.Steam:
+            return majorState === MajorState.Steam
+        case MachineMode.Water:
+            return majorState === MajorState.HotWater
+        default:
+    }
+
+    return false
 }
