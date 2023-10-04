@@ -35,10 +35,6 @@ export const machineModeLineup = [
 ]
 
 interface UiStore {
-    isEditingBackendUrl: boolean
-
-    setIsEditingBackendUrl: (value: boolean) => void
-
     theme: Theme
 
     setTheme: (theme: Theme) => void
@@ -54,21 +50,16 @@ interface UiStore {
     setMachineMode: (machineMode: MachineMode) => void
 }
 
+const initialTheme =
+    localStorage.getItem(StorageKey.Theme) === Theme.Dark ? Theme.Dark : Theme.Light
+
 export const useUiStore = create<UiStore>((set) => {
     function setState(fn: (next: UiStore) => void) {
         set((current) => produce(current, fn))
     }
 
     return {
-        isEditingBackendUrl: false,
-
-        setIsEditingBackendUrl(value) {
-            setState((next) => {
-                next.isEditingBackendUrl = value
-            })
-        },
-
-        theme: localStorage.getItem(StorageKey.Theme) === Theme.Dark ? Theme.Dark : Theme.Light,
+        theme: initialTheme,
 
         setTheme(theme) {
             localStorage.setItem(StorageKey.Theme, theme)
