@@ -1,3 +1,5 @@
+import { profiles } from '$/types'
+
 function round(value: number) {
     return 0 | (0.5 + value)
 }
@@ -12,4 +14,8 @@ export function toU10P0(value: number): [number, number] {
 
 export function toU8P1(value: number) {
     return round(value * 2)
+}
+
+export function getVisibleProfiles() {
+    return profiles.filter(({ visible }) => visible)
 }

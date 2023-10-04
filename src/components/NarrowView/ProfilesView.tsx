@@ -1,15 +1,32 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
+import { getVisibleProfiles } from '$/utils'
+import { useSetProfileIdCallback } from '$/hooks'
+import { useDataStore } from '$/stores/data'
+
+const profiles = getVisibleProfiles()
 
 export default function ProfilesView() {
-    return <></>
+    const { profile } = useDataStore()
+
+    const setProfileId = useSetProfileIdCallback()
+
+    return (
+        <>
+            {profiles.map(({ id, name }) => (
+                <Item key={id} id={id} onClick={setProfileId} active={id === profile?.id}>
+                    {name}
+                </Item>
+            ))}
+        </>
+    )
 }
 
 type ItemProps = {
     children?: ReactNode
     id: string
-    onClick?: (arg0: string) => void
+    onClick?: (profileId: string) => void
     active?: boolean
 }
 
@@ -39,8 +56,12 @@ function Item({ id, children, onClick: onClickProp, active }: ItemProps) {
             css={[
                 css`
                     -webkit-tap-highlight-color: transparent;
+                    grid-template-columns: 4px 1fr;
+                    gap: 52px;
                 `,
                 tw`
+                    items-center
+                    grid
                     appearance-none
                     text-t1
                     h-16
@@ -48,8 +69,7 @@ function Item({ id, children, onClick: onClickProp, active }: ItemProps) {
                     text-left
                     text-light-grey
                     dark:text-medium-grey
-                    px-14
-                    relative
+                    pr-14
                 `,
                 active === true &&
                     tw`
@@ -61,16 +81,11 @@ function Item({ id, children, onClick: onClickProp, active }: ItemProps) {
             <div
                 css={[
                     tw`
-                        absolute
                         invisible
-                        left-0
                         h-6
                         w-1
-                        top-0
                         bg-dark-grey
                         dark:bg-lighter-grey
-                        top-1/2
-                        -translate-y-1/2
                     `,
                     active === true &&
                         tw`
@@ -78,7 +93,13 @@ function Item({ id, children, onClick: onClickProp, active }: ItemProps) {
                         `,
                 ]}
             />
-            {children}
+            <div
+                css={tw`
+                    truncate
+                `}
+            >
+                {children}
+            </div>
         </button>
     )
 }

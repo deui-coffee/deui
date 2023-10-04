@@ -4,25 +4,27 @@ import ListItem from '$/components/ListItem'
 import tw from 'twin.macro'
 import { profiles as allProfiles } from '$/types'
 import { useDataStore } from '$/stores/data'
+import { getVisibleProfiles } from '$/utils'
+import { useSetProfileIdCallback } from '$/hooks'
 
 interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
     onResolve?: () => void
 }
 
-export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
-    const { profile, setProfileId } = useDataStore()
+const profiles = getVisibleProfiles()
 
-    const profiles = allProfiles.filter(({ visible }) => visible)
+export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
+    const { profile } = useDataStore()
+
+    const setProfileId = useSetProfileIdCallback()
 
     return (
         <Drawer
             onReject={onReject}
-            css={[
-                tw`
-                    hidden
-                    lg:block
-                `,
-            ]}
+            css={tw`
+                hidden
+                lg:block
+            `}
         >
             <ul css={tw`py-20`}>
                 {profiles.map(({ id, name }) => (
@@ -30,17 +32,7 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
                         <ListItem
                             id={id}
                             onClick={() => {
-                                setTimeout(async () => {
-                                    /**
-                                     * Because we don't have any loading indicator here let's
-                                     * just make setting the profile id a non-blocking thing.
-                                     */
-                                    try {
-                                        await setProfileId(id, { upload: true })
-                                    } catch (e) {
-                                        console.warn('Failed to set the profile', id)
-                                    }
-                                })
+                                setProfileId(id)
 
                                 onResolve?.()
                             }}
