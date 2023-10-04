@@ -547,22 +547,6 @@ export function useConnectionPhase() {
     }
 }
 
-export function useMachineMode() {
-    const majorState = useMajorState()
-
-    switch (majorState) {
-        case MajorState.Steam:
-            return MachineMode.Steam
-        case MajorState.HotWater:
-            return MachineMode.Water
-        case MajorState.Clean:
-            return MachineMode.Flush
-        case MajorState.Espresso:
-        default:
-            return MachineMode.Espresso
-    }
-}
-
 export function useCurrentProfileLabel() {
     const profileId = useDataStore().profile?.id
 
