@@ -7,7 +7,7 @@ import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
 import express, { Response } from 'express'
 import bodyParser from 'body-parser'
-import noble, { Characteristic } from '@abandonware/noble'
+import noble, { Characteristic, Peripheral } from '@abandonware/noble'
 import {
     BluetoothState,
     CharAddr,
@@ -116,51 +116,56 @@ function setCharacteristicValue(uuid: string, data: Buffer) {
     })
 }
 
-noble.on('discover', (device) => {
-    const {
-        state,
-        advertisement: { localName },
-    } = device
-
-    if (!/^de1(\x00)?$/i.test(localName)) {
-        return
-    }
-
-    if (state !== 'disconnected') {
-        return void info('DE1 found. State: %s. Doing nothing.', state)
-    }
-
-    info('DE1 found')
-
-    device.once('connect', (err) => {
-        if (err) {
-            setState({
-                connecting: false,
-            })
-
-            return void error('Connect failed: %s', err)
-        }
+async function setup(
+    de1: Peripheral,
+    {
+        onBeforeUpdatingCharacteristics,
+        onUuid,
+    }: {
+        onBeforeUpdatingCharacteristics?: () => void
+        onUuid?: (uuid: string, characteristic: Characteristic) => void
+    } = {}
+) {
+    de1.once('disconnect', (reason) => {
+        info('Disconnected. Reason: %s', reason)
 
         setState({
-            discoveringCharacteristics: true,
+            device: undefined,
+            deviceReady: false,
         })
 
-        device.discoverAllServicesAndCharacteristics(async (err, _, nextCharacteristics) => {
-            if (err) {
-                setState({
-                    connecting: false,
-                    discoveringCharacteristics: false,
-                })
+        info('We are done')
+    })
 
-                return void error('discoverAllServicesAndCharacteristics failed: %s', err)
+    de1.once('connect', async (err) => {
+        info('Connected to DE1. Setting up.')
+
+        function requireConnected() {
+            if (de1.state !== 'connected') {
+                throw new Error('Device not connected')
+            }
+        }
+
+        try {
+            if (err) {
+                throw err
             }
 
-            characteristics = {}
+            setState({
+                discoveringCharacteristics: true,
+            })
+
+            requireConnected()
+
+            const { characteristics: nextCharacteristics } =
+                await de1.discoverAllServicesAndCharacteristicsAsync()
+
+            onBeforeUpdatingCharacteristics?.()
 
             setState({
                 connecting: false,
                 discoveringCharacteristics: false,
-                device: JSON.parse(device.toString()),
+                device: JSON.parse(de1.toString()),
                 deviceReady: false,
             })
 
@@ -169,7 +174,9 @@ noble.on('discover', (device) => {
 
                 const uuid = longCharacteristicUUID(ch.uuid)
 
-                characteristics[uuid] = ch
+                onUuid?.(uuid, ch)
+
+                requireConnected()
 
                 switch (uuid) {
                     case CharAddr.StateInfo:
@@ -185,47 +192,55 @@ noble.on('discover', (device) => {
                 }
             }
 
+            requireConnected()
+
             setState({
                 deviceReady: true,
             })
-        })
-
-        info('Connected')
-    })
-
-    device.once('disconnect', (err) => {
-        if (err) {
-            return void error('Disconnect failed: %s', err)
-        }
-
-        setState({
-            device: undefined,
-            deviceReady: false,
-        })
-
-        info('Disconnected')
-
-        // Start over!
-        noble.startScanning([], false)
-    })
-
-    info('Connecting…')
-
-    try {
-        noble.stopScanning(() => {
+        } catch (e) {
+            error('Connect failed', e)
+        } finally {
             setState({
-                connecting: true,
+                connecting: false,
+                discoveringCharacteristics: false,
             })
+        }
+    })
 
-            try {
-                device.connect()
-            } catch (e) {
-                error('connect failed', e)
-            }
-        })
-    } catch (e) {
-        error('stopScanning failed', e)
+    info('Stopping the scan…')
+
+    await noble.stopScanningAsync()
+
+    info('Connecting to DE1…')
+
+    setState({
+        connecting: true,
+    })
+
+    await de1.connectAsync()
+}
+
+noble.on('discover', (device) => {
+    if (!/^de1(\x00)?$/i.test(device.advertisement.localName)) {
+        return
     }
+
+    info('Found DE1')
+
+    void (async () => {
+        try {
+            await setup(device, {
+                onBeforeUpdatingCharacteristics() {
+                    characteristics = {}
+                },
+                onUuid(uuid, characteristic) {
+                    characteristics[uuid] = characteristic
+                },
+            })
+        } catch (e) {
+            error('Something went wrong', e)
+        }
+    })()
 })
 
 function writeCharacteristic(
