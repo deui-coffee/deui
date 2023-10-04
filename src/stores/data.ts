@@ -30,6 +30,7 @@ import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
 import stopwatch from '$/utils/stopwatch'
 import avg from '$/utils/avg'
+import { min } from 'lodash'
 
 interface DataStore {
     wsState: WebSocketState
@@ -53,6 +54,18 @@ function getDefaultProperties(): Properties {
     }
 }
 
+type Stopwatch = ReturnType<typeof stopwatch>
+
+function formatStopwatchKey(majorState: MajorState, minorState: MinorState) {
+    return `${majorState}:${minorState}`
+}
+
+type TimedProp = Prop.EspressoTime | Prop.SteamTime | Prop.WaterTime | Prop.FlushTime
+
+const TimedPropMap: Record<string, TimedProp | undefined> = {
+    [formatStopwatchKey(MajorState.Espresso, MinorState.Pour)]: Prop.EspressoTime,
+}
+
 export const useDataStore = create<DataStore>((set, get) => {
     let ctrl: WsController | undefined
 
@@ -64,40 +77,64 @@ export const useDataStore = create<DataStore>((set, get) => {
         )
     }
 
-    const timer = stopwatch()
+    const timers: Record<TimedProp, Stopwatch | undefined> = {
+        [Prop.EspressoTime]: undefined,
+        [Prop.SteamTime]: undefined,
+        [Prop.WaterTime]: undefined,
+        [Prop.FlushTime]: undefined,
+    }
 
-    let lastState: [MajorState, MinorState] | undefined
+    let recentTimer: Stopwatch | undefined
+
+    function engageTimerForState(majorState: MajorState, minorState: MinorState) {
+        const timedProp: TimedProp | undefined =
+            TimedPropMap[formatStopwatchKey(majorState, minorState)]
+
+        if (!timedProp) {
+            /**
+             * No further timer work is gonna happen. Stop current one
+             * and ignore the rest of the flow.
+             */
+            recentTimer?.stop()
+
+            recentTimer = undefined
+
+            return
+        }
+
+        const timer = timers[timedProp] || (timers[timedProp] = stopwatch())
+
+        if (timer === recentTimer) {
+            /**
+             * We're received a second hit for the same timer. Skip.
+             */
+            return
+        }
+
+        /**
+         * Timers are different at this point, we know. Stop the
+         * previous one and start the current one.
+         */
+        recentTimer?.stop()
+
+        /**
+         * And remeber the current one for the next round of states.
+         */
+        recentTimer = timer
+
+        /**
+         * Start the current timer and make it update associated
+         * timed prop.
+         */
+        timer.start({
+            onTick(t) {
+                setProperties({ [timedProp]: t })
+            },
+        })
+    }
 
     function setMachineStateProperties(majorState: MajorState, minorState: MinorState) {
-        const [lastMajorState, lastMinorState] = lastState || []
-
-        if (lastMajorState !== majorState || lastMinorState !== minorState) {
-            timer.stop()
-
-            let timerProp: Prop | undefined
-
-            if (majorState === MajorState.Espresso && minorState === MinorState.Pour) {
-                timerProp = Prop.EspressoTime
-            } else {
-                /**
-                 * We have to be more precise!
-                 */
-
-                timerProp = {
-                    [MajorState.Steam]: Prop.SteamTime,
-                    [MajorState.HotWater]: Prop.WaterTime,
-                    [MajorState.HotWaterRinse]: Prop.FlushTime,
-                }[majorState as number]
-            }
-
-            if (typeof timerProp !== 'undefined') {
-                timer.start({
-                    onTick(t) {
-                        setProperties({ [timerProp as Prop]: t })
-                    },
-                })
-            }
-        }
+        engageTimerForState(majorState, minorState)
 
         setProperties({
             [Prop.MajorState]: majorState,
