@@ -122,7 +122,7 @@ noble.on('discover', (device) => {
         advertisement: { localName },
     } = device
 
-    if (localName !== 'DE1') {
+    if (!/^de1(\x00)?$/i.test(localName)) {
         return
     }
 
