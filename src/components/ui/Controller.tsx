@@ -8,7 +8,7 @@ import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
 import { Layer } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
-import useMetrics from '$/hooks/useMetrics'
+import { useMetrics } from '$/hooks'
 
 const profilesDrawer = toaster(ProfilesDrawer, Layer.Drawer)
 

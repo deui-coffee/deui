@@ -1,9 +1,9 @@
 import SettingsView from '$/components/NarrowView/SettingsView'
 import MetricsView from '$/components/NarrowView/MetricsView'
 import ProfilesView from '$/components/NarrowView/ProfilesView'
-import SettingsIcon from '$/icons/SettingsIcon'
-import MetricsIcon from '$/icons/MetricsIcon'
-import ProfilesIcon from '$/icons/ProfilesIcon'
+import { SettingsIcon } from '$/icons'
+import { MetricsIcon } from '$/icons'
+import { ProfilesIcon } from '$/icons'
 import { z } from 'zod'
 import rawProfiles from './generated/profiles.json'
 
@@ -615,4 +615,15 @@ export enum ConnectionPhase {
     SettingUp,
     BluetoothOff,
     NoBluetooth,
+}
+
+export enum Period {
+    Am = 'am',
+    Pm = 'pm',
+}
+
+export interface Time {
+    period: Period
+    hour: string
+    minute: string
 }
