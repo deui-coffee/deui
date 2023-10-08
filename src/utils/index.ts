@@ -19,3 +19,7 @@ export function toU8P1(value: number) {
 export function getVisibleProfiles() {
     return profiles.filter(({ visible }) => visible)
 }
+
+export function mlToL(value: number) {
+    return (value / 1000).toFixed(1)
+}
