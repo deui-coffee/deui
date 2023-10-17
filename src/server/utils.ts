@@ -1,31 +1,18 @@
-import { CharAddr } from '../types'
+import os from 'os'
+import { CharAddr, ServerErrorCode } from '../types'
 import { Characteristic } from '@abandonware/noble'
 import debug from 'debug'
-import { IncomingMessage } from 'http'
-import { Duplex } from 'stream'
+import { Application } from 'express'
+import { createServer } from 'http'
 import { WebSocket, WebSocketServer } from 'ws'
+import { z } from 'zod'
+import { getCharName } from '../shared/utils'
 
 export const info = debug('deui-server:info')
 
 export const error = debug('deui-server:error')
 
 export const verbose = debug('deui-server:verbose')
-
-export function fromF817(value: number) {
-    return (value & 0x80) === 0 ? value / 10 : value & 0x7f
-}
-
-export function toF817(value: number) {
-    if (value > 0x7f) {
-        return 0x7f
-    }
-
-    if (value > 12.75) {
-        return 0x80 | (0.5 + value)
-    }
-
-    return 0xff & (0.5 + value * 10)
-}
 
 async function subscribe(char: Characteristic) {
     try {
@@ -35,31 +22,6 @@ async function subscribe(char: Characteristic) {
     } catch (e) {
         error('failed to subscribe')
     }
-}
-
-const charNames = {
-    [CharAddr.Versions]: 'Versions',
-    [CharAddr.RequestedState]: 'RequestedState',
-    [CharAddr.SetTime]: 'SetTime',
-    [CharAddr.ShotDirectory]: 'ShotDirectory',
-    [CharAddr.ReadFromMMR]: 'ReadFromMMR',
-    [CharAddr.WriteToMMR]: 'WriteToMMR',
-    [CharAddr.ShotMapRequest]: 'ShotMapRequest',
-    [CharAddr.DeleteShotRange]: 'DeleteShotRange',
-    [CharAddr.FWMapRequest]: 'FWMapRequest',
-    [CharAddr.Temperatures]: 'Temperatures',
-    [CharAddr.ShotSettings]: 'ShotSettings',
-    [CharAddr.Deprecated]: 'Deprecated',
-    [CharAddr.ShotSample]: 'ShotSample',
-    [CharAddr.StateInfo]: 'StateInfo',
-    [CharAddr.HeaderWrite]: 'HeaderWrite',
-    [CharAddr.FrameWrite]: 'FrameWrite',
-    [CharAddr.WaterLevels]: 'WaterLevels',
-    [CharAddr.Calibration]: 'Calibration',
-}
-
-export function getCharName(uuid: CharAddr) {
-    return charNames[uuid]
 }
 
 export async function watchCharacteristic(
@@ -97,16 +59,69 @@ export function longCharacteristicUUID(uuid: string) {
 
 export const wsServer = new WebSocketServer({ noServer: true, path: '/' })
 
-export function upgrade(req: IncomingMessage, socket: Duplex, head: Buffer) {
-    wsServer.handleUpgrade(req, socket, head, (ws) => {
-        wsServer.emit('connection', ws, req)
-    })
-}
-
 export function send(ws: WebSocket, payload: unknown) {
     ws.send(JSON.stringify(payload))
 }
 
 export function broadcast(payload: unknown) {
     wsServer.clients.forEach((ws) => void send(ws, payload))
+}
+
+export function startDeuiServer(app: Application, { port }: { port: number }) {
+    const server = createServer(app).on('upgrade', (req, socket, head) => {
+        wsServer.handleUpgrade(req, socket, head, (ws) => {
+            wsServer.emit('connection', ws, req)
+        })
+    })
+
+    // @ts-ignore 0.0.0.0 is a valid host. TS expects a number (?).
+    server.listen(port, '0.0.0.0', () => {
+        info('Listening on %d…', port)
+
+        const addrs: string[] = []
+
+        Object.values(os.networkInterfaces())
+            .flatMap((i) => i ?? [])
+            .filter(({ address, family } = {} as any) => {
+                return (
+                    address &&
+                    (family === 'IPv4' ||
+                        // @ts-expect-error Can be a number in node 18.0-18.3
+                        family === 4)
+                )
+            })
+            .forEach(({ address }) => {
+                addrs.push(`http://${address}:${port}/`)
+            })
+
+        console.log(`Deui running at:\n${addrs.map((addr) => `- ${addr}`).join('\n')}`)
+    })
+}
+
+const KnownError = z.union([
+    z.number(),
+    z.object({
+        code: z
+            .union([
+                z.literal(ServerErrorCode.NotPoweredOn),
+                z.literal(ServerErrorCode.AlreadyScanning),
+                z.literal(ServerErrorCode.AlreadyConnecting),
+                z.literal(ServerErrorCode.AlreadyConnected),
+                z.literal(ServerErrorCode.NotConnected),
+                z.literal(ServerErrorCode.UnknownCharacteristic),
+                z.literal(ServerErrorCode.AlreadyWritingShot),
+            ])
+            .optional(),
+        statusCode: z.number(),
+    }),
+])
+
+type KnownError = z.infer<typeof KnownError>
+
+export function isKnownError(error: unknown): error is KnownError {
+    return KnownError.safeParse(error).success
+}
+
+export function knownError(statusCode: number, code: ServerErrorCode): KnownError {
+    return { statusCode, code }
 }
