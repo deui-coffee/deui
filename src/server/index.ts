@@ -39,8 +39,6 @@ startDeuiServer(app, {
     port: Number(process.env.PORT) || 3001,
 })
 
-app.use(rescue())
-
 app.use(
     router({
         scan() {
@@ -59,6 +57,8 @@ app.use(
         },
     })
 )
+
+app.use(rescue())
 
 let State: RemoteState = getDefaultRemoteState()
 
