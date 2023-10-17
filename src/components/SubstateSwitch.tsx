@@ -26,7 +26,7 @@ export default function SubstateSwitch() {
                 [ConnectionPhase.WaitingToReconnect, 'Waiting'],
                 [ConnectionPhase.Opening, 'Opening'],
                 [ConnectionPhase.Scanning, 'Scanning'],
-                [ConnectionPhase.ConnectingAdapters, 'Connecting to DE1'],
+                [ConnectionPhase.ConnectingAdapters, 'Connecting'],
                 [ConnectionPhase.SettingUp, 'Setting up'],
                 [ConnectionPhase.BluetoothOff, 'Bluetooth off'],
                 [ConnectionPhase.NoBluetooth, 'No bluetooth'],
