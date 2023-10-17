@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 
 import os from 'os'
-// import { promises as dns } from 'dns'
 import { Buffer } from 'buffer'
 import { IncomingMessage, createServer } from 'http'
 import morgan from 'morgan'
@@ -18,8 +17,16 @@ import {
     ShotExecCommand,
     ShotExecMethod,
 } from '../types'
-import { error, info, longCharacteristicUUID, watchCharacteristic } from './utils'
-import { broadcast, send, upgrade, wsServer } from './ws'
+import {
+    error,
+    info,
+    longCharacteristicUUID,
+    watchCharacteristic,
+    broadcast,
+    send,
+    upgrade,
+    wsServer,
+} from './utils'
 import { z } from 'zod'
 import production from './middlewares/production'
 import development from './middlewares/development'
