@@ -1,4 +1,4 @@
-import useCurrentTime from '$/hooks/useCurrentTime'
+import { useCurrentTime } from '$/hooks'
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 

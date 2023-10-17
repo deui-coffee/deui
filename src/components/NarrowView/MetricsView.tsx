@@ -8,7 +8,7 @@ import TextSwitch from '$/components/TextSwitch'
 import { useUiStore } from '$/stores/ui'
 import { ViewId } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
-import useMetrics from '$/hooks/useMetrics'
+import { useMetrics } from '$/hooks'
 
 export default function MetricsView() {
     const profileLabel = useCurrentProfileLabel()

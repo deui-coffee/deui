@@ -8,7 +8,7 @@ import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
 import { Layer } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
-import useMetrics from '$/hooks/useMetrics'
+import { useMetrics } from '$/hooks'
 
 const profilesDrawer = toaster(ProfilesDrawer, Layer.Drawer)
 
@@ -101,14 +101,16 @@ export default function Controller() {
                             </div>
                             <div css={tw`ml-6`}>
                                 <svg
-                                    width="21"
-                                    height="13"
-                                    viewBox="0 0 21 13"
+                                    width="11"
+                                    height="19"
+                                    viewBox="0 0 11 19"
                                     fill="none"
                                     xmlns="http://www.w3.org/2000/svg"
                                 >
                                     <path
-                                        d="M20.031 1.054a1.5 1.5 0 0 1 0 2.122l-8.485 8.485a1.5 1.5 0 0 1-2.121 0L.939 3.176a1.5 1.5 0 1 1 2.122-2.122l7.424 7.425 7.425-7.425a1.5 1.5 0 0 1 2.121 0z"
+                                        fillRule="evenodd"
+                                        clipRule="evenodd"
+                                        d="M1.006 1.353a1.5 1.5 0 0 1 2.122 0l7.07 7.07a1.5 1.5 0 0 1 0 2.122l-7.066 7.067a1.5 1.5 0 0 1-2.122-2.121l6.007-6.007-6.01-6.01a1.5 1.5 0 0 1 0-2.121z"
                                         fill="currentColor"
                                     />
                                 </svg>

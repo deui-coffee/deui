@@ -3,6 +3,7 @@ import tw from 'twin.macro'
 import Label from './primitives/Label'
 import { usePropValue } from '$/stores/data'
 import { MachineMode, Prop } from '$/types'
+import { useIsMachineModeActive } from '$/hooks'
 
 interface MetricOwnProps {
     property: Prop
@@ -26,6 +27,8 @@ export default function Metric({
 }: Props) {
     const value = usePropValue(property) || 0
 
+    const active = useIsMachineModeActive()
+
     return (
         <div
             {...props}
@@ -47,10 +50,17 @@ export default function Metric({
                 `}
             >
                 <span
-                    css={tw`
-                        text-light-grey
-                        dark:text-medium-grey
-                    `}
+                    css={[
+                        tw`
+                            text-light-grey
+                            dark:text-medium-grey
+                        `,
+                        active &&
+                            tw`
+                                text-darker-grey
+                                dark:text-lighter-grey
+                            `,
+                    ]}
                 >
                     {formatFn(value)}
                 </span>

@@ -4,7 +4,6 @@ import 'twin.macro'
 import tw from 'twin.macro'
 import GlobalStyles from './GlobalStyles'
 import WideView from './components/WideView'
-import usePreventNavigatingAwayEffect from '$/hooks/usePreventNavigatingAwayEffect'
 import NarrowView from '$/components/NarrowView'
 import { Container } from 'toasterhea'
 import { Layer } from './types'
@@ -14,8 +13,6 @@ import Debug from './components/Debug'
 
 const App = () => {
     const { theme } = useUiStore()
-
-    usePreventNavigatingAwayEffect()
 
     useAutoConnectEffect()
 
