@@ -1,6 +1,6 @@
 import React from 'react'
 import 'twin.macro'
-import ThemeControl from '../../controls/ThemeControl'
+import ThemeControl from '../controls/ThemeControl'
 import Control from '$/components/Control'
 import { mlToL } from '$/utils'
 import WaterBar from '$/components/ui/WaterBar'
