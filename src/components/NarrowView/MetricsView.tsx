@@ -1,7 +1,6 @@
-import React from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import Metric, { Metrics } from '../Metric'
+import Metric from '../Metric'
 import { MachineMode } from '$/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
@@ -15,7 +14,7 @@ export default function MetricsView() {
 
     const { setView, machineMode } = useUiStore()
 
-    const metrics = [...useMetrics()].sort(({ vpos: a = 100 }, { vpos: b = 100 }) => a - b)
+    const metrics = useMetrics({ verticalLayout: true })
 
     return (
         <div tw="px-14">
@@ -124,8 +123,8 @@ export default function MetricsView() {
                     `,
                 ]}
             >
-                {metrics.map((metricProps) => (
-                    <Metric key={metricProps.property} {...metricProps} />
+                {metrics.map((property) => (
+                    <Metric key={property} property={property} />
                 ))}
             </div>
         </div>

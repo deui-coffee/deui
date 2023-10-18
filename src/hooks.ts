@@ -2,7 +2,7 @@ import { useDataStore, useMajorState } from '$/stores/data'
 import { useUiStore } from '$/stores/ui'
 import { MachineMode, MajorState, Period, Time } from '$/types'
 import { useCallback, useEffect, useState } from 'react'
-import { Metrics } from '$/components/Metric'
+import { Metrics, VerticalMetrics } from '$/components/Metric'
 
 export function useSetProfileIdCallback() {
     const { setProfileId } = useDataStore()
@@ -95,7 +95,7 @@ export function useCurrentTime() {
     return time
 }
 
-export function useMetrics() {
+export function useMetrics({ verticalLayout }: { verticalLayout?: boolean } = {}) {
     const { machineMode } = useUiStore()
 
     const [measurableMachineMode, setMeasurableMachineMode] = useState(
@@ -110,5 +110,5 @@ export function useMetrics() {
         setMeasurableMachineMode(machineMode)
     }, [machineMode])
 
-    return Metrics[measurableMachineMode]
+    return [...(verticalLayout ? VerticalMetrics : Metrics)[measurableMachineMode]]
 }

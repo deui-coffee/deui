@@ -133,8 +133,8 @@ export default function Controller() {
                             [> *]:-translate-y-1.5
                         `}
                     >
-                        {metrics.map((metricProps) => (
-                            <Metric key={metricProps.property} {...metricProps} />
+                        {metrics.map((property) => (
+                            <Metric key={property} property={property} />
                         ))}
                     </div>
                 </Control>
