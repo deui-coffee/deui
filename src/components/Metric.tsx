@@ -103,6 +103,12 @@ export const Metrics: Metrics = {
     ],
     [MachineMode.Steam]: [
         {
+            label: 'Goal temp',
+            property: Prop.TargetSteamTemp,
+            unit: '°C',
+            formatFn: (v) => `${v}`,
+        },
+        {
             label: 'Steam temp',
             property: Prop.ShotSteamTemp,
             unit: '°C',
@@ -113,6 +119,26 @@ export const Metrics: Metrics = {
         { label: 'Time', property: Prop.SteamTime, unit: 'sec', formatFn: toSeconds, vpos: 0 },
     ],
     [MachineMode.Water]: [
-        { label: 'Time', property: Prop.WaterTime, unit: 'sec', formatFn: toSeconds },
+        {
+            label: 'Goal temp',
+            property: Prop.TargetHotWaterTemp,
+            unit: '°C',
+            formatFn: (v) => v.toFixed(0),
+        },
+        {
+            label: 'Goal vol',
+            property: Prop.TargetHotWaterVol,
+            unit: 'ml',
+            formatFn: (v) => v.toFixed(0),
+            vpos: 0,
+        },
+        { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s', vpos: 0 },
+        {
+            label: 'Time',
+            property: Prop.WaterTime,
+            unit: 'sec',
+            formatFn: toSeconds,
+            vpos: 0,
+        },
     ],
 }

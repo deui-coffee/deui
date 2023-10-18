@@ -54,14 +54,13 @@ function getDefaultProperties(): Properties {
 
 type Stopwatch = ReturnType<typeof stopwatch>
 
-function formatStopwatchKey(majorState: MajorState, minorState: MinorState) {
-    return `${majorState}:${minorState}`
-}
-
 type TimedProp = Prop.EspressoTime | Prop.SteamTime | Prop.WaterTime | Prop.FlushTime
 
-const TimedPropMap: Record<string, TimedProp | undefined> = {
-    [formatStopwatchKey(MajorState.Espresso, MinorState.Pour)]: Prop.EspressoTime,
+const majorToTimedPropMap: Partial<Record<MajorState, TimedProp>> = {
+    [MajorState.Espresso]: Prop.EspressoTime,
+    [MajorState.Steam]: Prop.SteamTime,
+    [MajorState.HotWater]: Prop.WaterTime,
+    [MajorState.HotWaterRinse]: Prop.FlushTime,
 }
 
 export const useDataStore = create<DataStore>((set, get) => {
@@ -85,22 +84,25 @@ export const useDataStore = create<DataStore>((set, get) => {
     let recentTimer: Stopwatch | undefined
 
     function engageTimerForState(majorState: MajorState, minorState: MinorState) {
-        const timedProp: TimedProp | undefined =
-            TimedPropMap[formatStopwatchKey(majorState, minorState)]
+        const pourTimedProp =
+            minorState === MinorState.Pour ? majorToTimedPropMap[majorState] : void 0
 
-        if (!timedProp) {
-            /**
-             * No further timer work is gonna happen. Stop current one
-             * and ignore the rest of the flow.
-             */
+        const npnflushTimedProp =
+            minorState !== MinorState.Flush ? majorToTimedPropMap[majorState] : void 0
+
+        if (!pourTimedProp) {
             recentTimer?.stop()
 
             recentTimer = undefined
 
+            if (npnflushTimedProp) {
+                setProperties({ [npnflushTimedProp]: 0 })
+            }
+
             return
         }
 
-        const timer = timers[timedProp] || (timers[timedProp] = stopwatch())
+        const timer = timers[pourTimedProp] || (timers[pourTimedProp] = stopwatch())
 
         if (timer === recentTimer) {
             /**
@@ -126,7 +128,7 @@ export const useDataStore = create<DataStore>((set, get) => {
          */
         timer.start({
             onTick(t) {
-                setProperties({ [timedProp]: t })
+                setProperties({ [pourTimedProp]: t })
             },
         })
     }
