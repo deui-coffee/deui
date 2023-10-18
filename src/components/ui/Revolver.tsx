@@ -87,8 +87,25 @@ export default function Revolver() {
     })
 
     useEffect(() => {
-        setMachineMode(getMode(phase))
-    }, [phase, setMachineMode])
+        const to = machineModeLineup.indexOf(machineMode)
+
+        setPhase((c) => {
+            const from = (n + (c % n)) % n
+
+            const right = (to - from + n) % n
+
+            const left = (to - from - n) % n
+
+            const absRight = Math.abs(right)
+
+            const absLeft = Math.abs(left)
+
+            return (
+                c +
+                (absLeft === absRight ? (c <= 0 ? right : left) : absRight < absLeft ? right : left)
+            )
+        })
+    }, [machineMode])
 
     const majorState = usePropValue(Prop.MajorState)
 
@@ -112,25 +129,8 @@ export default function Revolver() {
             return
         }
 
-        const to = machineModeLineup.indexOf(newMode)
-
-        setPhase((c) => {
-            const from = (n + (c % n)) % n
-
-            const right = (to - from + n) % n
-
-            const left = (to - from - n) % n
-
-            const absRight = Math.abs(right)
-
-            const absLeft = Math.abs(left)
-
-            return (
-                c +
-                (absLeft === absRight ? (c <= 0 ? right : left) : absRight < absLeft ? right : left)
-            )
-        })
-    }, [majorState])
+        setMachineMode(newMode)
+    }, [majorState, setMachineMode])
 
     return (
         <div
@@ -178,7 +178,7 @@ export default function Revolver() {
                             Math.abs(phase + i) < limit && (
                                 <Item
                                     onClick={() => {
-                                        setPhase(phase + i)
+                                        setMachineMode(getMode(phase + i))
                                     }}
                                     active={!i}
                                     key={phase + i}
