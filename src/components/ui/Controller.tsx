@@ -134,7 +134,10 @@ export default function Controller() {
                         `}
                     >
                         {metrics.map((property) => (
-                            <Metric key={property} property={property} />
+                            <Metric
+                                key={typeof property === 'function' ? property(false) : property}
+                                property={property}
+                            />
                         ))}
                     </div>
                 </Control>

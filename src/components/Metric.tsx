@@ -1,19 +1,36 @@
 import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Label from './primitives/Label'
-import { usePropValue } from '$/stores/data'
-import { MachineMode, Prop } from '$/types'
+import { useMinorState, usePropValue } from '$/stores/data'
+import { MachineMode, MinorState, Prop } from '$/types'
 import { useIsMachineModeActive } from '$/hooks'
 
 interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'property'> {
-    property: Prop
+    property: Prop | ((idle: boolean) => Prop)
 }
 
 function defaultFormatFn(value: number) {
     return value.toFixed(1)
 }
 
-export default function Metric({ property, ...props }: Props) {
+export default function Metric({ property: propertyProp, ...props }: Props) {
+    const minorState = useMinorState()
+
+    const idle = (() => {
+        switch (minorState) {
+            case MinorState.Flush:
+            case MinorState.Pour:
+            case MinorState.PreInfuse:
+            case MinorState.HeatWaterHeater:
+                return false
+            default:
+        }
+
+        return true
+    })()
+
+    const property = typeof propertyProp === 'function' ? propertyProp(idle) : propertyProp
+
     const value = usePropValue(property) || 0
 
     const active = useIsMachineModeActive()
@@ -68,7 +85,7 @@ export default function Metric({ property, ...props }: Props) {
 
 type Metrics = Record<
     MachineMode.Espresso | MachineMode.Flush | MachineMode.Steam | MachineMode.Water,
-    Prop[]
+    (Prop | ((idle?: boolean) => Prop))[]
 >
 
 const propToMetricMap: Partial<
@@ -85,6 +102,8 @@ const propToMetricMap: Partial<
     },
     [Prop.ShotGroupPressure]: { label: 'Pressure', unit: 'bar' },
     [Prop.ShotGroupFlow]: { label: 'Flow', unit: 'ml/s' },
+    [Prop.RecentEspressoMaxPressure]: { label: 'Max pressure', unit: 'bar' },
+    [Prop.RecentEspressoMaxFlow]: { label: 'Max flow', unit: 'ml/s' },
     [Prop.EspressoTime]: {
         label: 'Shot time',
         unit: 'sec',
@@ -127,8 +146,8 @@ export const Metrics: Metrics = {
     [MachineMode.Espresso]: [
         Prop.TargetGroupTemp,
         Prop.ShotHeadTemp,
-        Prop.ShotGroupPressure,
-        Prop.ShotGroupFlow,
+        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.ShotGroupPressure),
+        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.ShotGroupFlow),
         Prop.EspressoTime,
     ],
     [MachineMode.Flush]: [Prop.FlushTime],
@@ -150,8 +169,8 @@ export const Metrics: Metrics = {
 export const VerticalMetrics: Metrics = {
     ...Metrics,
     [MachineMode.Espresso]: [
-        Prop.ShotGroupPressure,
-        Prop.ShotGroupFlow,
+        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.ShotGroupPressure),
+        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.ShotGroupFlow),
         Prop.EspressoTime,
         Prop.TargetGroupTemp,
         Prop.ShotHeadTemp,

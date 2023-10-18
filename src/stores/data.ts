@@ -73,6 +73,51 @@ export const useDataStore = create<DataStore>((set, get) => {
         set((current) =>
             produce(current, (next) => {
                 Object.assign(next.properties, properties)
+
+                /**
+                 * Set recent max pressure and flow for Espresso.
+                 */
+                void (() => {
+                    const { [Prop.MajorState]: previousMajorState } = current.properties
+
+                    const { [Prop.MinorState]: minorState, [Prop.MajorState]: majorState } =
+                        next.properties
+
+                    if (previousMajorState !== majorState && majorState === MajorState.Espresso) {
+                        /**
+                         * Going from any state to `Espresso` resets the recent max flow & pressure.
+                         */
+
+                        Object.assign(next.properties, {
+                            [Prop.RecentEspressoMaxFlow]: 0,
+                            [Prop.RecentEspressoMaxPressure]: 0,
+                        })
+                    }
+
+                    if (majorState !== MajorState.Espresso || minorState !== MinorState.Pour) {
+                        /**
+                         * We only collect recent extremes for Espresso+Pour. Ignore
+                         * everything else.
+                         */
+                        return
+                    }
+
+                    const {
+                        [Prop.RecentEspressoMaxFlow]: recentMaxFlow = 0,
+                        [Prop.RecentEspressoMaxPressure]: recentMaxPressure = 0,
+                    } = next.properties
+
+                    const { [Prop.ShotGroupPressure]: pressure, [Prop.ShotGroupFlow]: flow } =
+                        properties
+
+                    if (typeof flow !== 'undefined' && recentMaxFlow < flow) {
+                        next.properties[Prop.RecentEspressoMaxFlow] = flow
+                    }
+
+                    if (typeof pressure !== 'undefined' && recentMaxPressure < pressure) {
+                        next.properties[Prop.RecentEspressoMaxPressure] = pressure
+                    }
+                })()
             })
         )
     }
