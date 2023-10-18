@@ -3,6 +3,7 @@ import {
     BluetoothState,
     CharAddr,
     ConnectionPhase,
+    MachineMode,
     MajorState,
     MinorState,
     ShotSettings,
@@ -19,8 +20,8 @@ import {
     isStateMessage,
 } from '$/types'
 import wsStream, { WsController } from '$/utils/wsStream'
-import { produce } from 'immer'
-import { useEffect, useMemo } from 'react'
+import { current, produce } from 'immer'
+import { MutableRefObject, useEffect, useMemo, useRef } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
 import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
@@ -29,6 +30,8 @@ import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
 import stopwatch from '$/utils/stopwatch'
 import avg from '$/utils/avg'
+import { useUiStore } from './ui'
+import { sleep } from '$/shared/utils'
 
 interface DataStore {
     wsState: WebSocketState
@@ -37,7 +40,7 @@ interface DataStore {
 
     properties: Properties
 
-    connect: () => Promise<void>
+    connect: (options?: { onDeviceReady?: () => void }) => Promise<void>
 
     disconnect: () => void
 
@@ -70,6 +73,64 @@ export const useDataStore = create<DataStore>((set, get) => {
         set((current) =>
             produce(current, (next) => {
                 Object.assign(next.properties, properties)
+            })
+        )
+    }
+
+    function setRemoteState(
+        remoteState: RemoteState,
+        { onDeviceReady }: { onDeviceReady?: () => void } = {}
+    ) {
+        /**
+         * Scan triggering.
+         */
+        void (async () => {
+            if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
+                return
+            }
+
+            if (remoteState.scanning || remoteState.connecting || remoteState.device) {
+                return
+            }
+
+            try {
+                await exec('scan')
+            } catch (e) {
+                console.warn('Scan failed', e)
+            }
+        })()
+
+        /**
+         * Profile setting.
+         */
+        void (async () => {
+            const { id: remoteProfileId } = remoteState.profile
+
+            const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
+
+            try {
+                if (newProfileId) {
+                    await setProfileId(newProfileId, { upload: !remoteProfileId })
+                }
+            } catch (e) {
+                console.warn('Failed to apply remote profile id', newProfileId)
+            }
+        })()
+
+        /**
+         * Readyness reporting.
+         */
+        void (() => {
+            const { deviceReady: previousDeviceReady } = get().remoteState
+
+            if (!previousDeviceReady && remoteState.deviceReady) {
+                onDeviceReady?.()
+            }
+        })()
+
+        set((store) =>
+            produce(store, (draft) => {
+                draft.remoteState = remoteState
             })
         )
     }
@@ -246,16 +307,16 @@ export const useDataStore = create<DataStore>((set, get) => {
 
         properties: getDefaultProperties(),
 
-        async connect() {
+        async connect({ onDeviceReady } = {}) {
             ctrl?.discard()
 
             set({ wsState: WebSocketState.Opening })
 
             /**
-             * Let's give the opening state at least 250ms TTL so that in case of a network
+             * Let's give the opening state at least 1s of TTL so that in case of a network
              * glitch we don't flash with a barely noticable "Opening…" in the UI.
              */
-            await new Promise((resolve) => void setTimeout(resolve, 1000))
+            await sleep()
 
             try {
                 ctrl = wsStream(`ws://${location.hostname}:3001`)
@@ -290,39 +351,9 @@ export const useDataStore = create<DataStore>((set, get) => {
                     if (isStateMessage(data)) {
                         const remoteState = data.payload
 
-                        set({ remoteState })
-
-                        setTimeout(async () => {
-                            if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
-                                return
-                            }
-
-                            if (
-                                remoteState.scanning ||
-                                remoteState.connecting ||
-                                remoteState.device
-                            ) {
-                                return
-                            }
-
-                            try {
-                                await exec('scan')
-                            } catch (e) {
-                                console.warn('Scan failed', e)
-                            }
+                        setRemoteState(remoteState, {
+                            onDeviceReady,
                         })
-
-                        const { id: remoteProfileId } = remoteState.profile
-
-                        const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
-
-                        try {
-                            if (newProfileId) {
-                                await setProfileId(newProfileId, { upload: !remoteProfileId })
-                            }
-                        } catch (e) {
-                            console.warn('Failed to apply remote profile id', newProfileId)
-                        }
 
                         continue
                     }
@@ -390,9 +421,11 @@ export const useDataStore = create<DataStore>((set, get) => {
             } finally {
                 set({
                     wsState: WebSocketState.Closed,
-                    remoteState: getDefaultRemoteState(),
-                    properties: getDefaultProperties(),
                 })
+
+                setProperties(getDefaultProperties())
+
+                setRemoteState(getDefaultRemoteState())
 
                 ctrl = undefined
             }
@@ -430,14 +463,36 @@ export function useStatus() {
     return Status.Busy
 }
 
+function clearReffedTimeoutId(ref: MutableRefObject<number | undefined>) {
+    if (ref.current) {
+        clearTimeout(ref.current)
+
+        ref.current = undefined
+    }
+}
+
 export function useAutoConnectEffect() {
     const { connect, disconnect } = useDataStore()
+
+    const { machineMode, setMachineMode } = useUiStore()
+
+    const machineModeRef = useRef(machineMode)
+
+    if (machineModeRef.current !== machineMode) {
+        machineModeRef.current = machineMode
+    }
+
+    const timeoutIdRef = useRef<number | undefined>(undefined)
+
+    useEffect(() => void clearReffedTimeoutId(timeoutIdRef), [machineMode])
 
     useEffect(() => {
         let mounted = true
 
-        setTimeout(async () => {
+        void (async () => {
             let attempts = 0
+
+            let reachedReadyness = false
 
             while (true) {
                 if (!mounted) {
@@ -445,7 +500,24 @@ export function useAutoConnectEffect() {
                 }
 
                 try {
-                    await connect()
+                    await connect({
+                        onDeviceReady() {
+                            reachedReadyness = true
+                            /**
+                             * Clear the previous timeouts to ensure integrity.
+                             */
+                            clearReffedTimeoutId(timeoutIdRef)
+
+                            /**
+                             * Schedule a switch from `Server` to `Espresso` in 2s.
+                             */
+                            timeoutIdRef.current = window.setTimeout(() => {
+                                if (mounted && machineModeRef.current === MachineMode.Server) {
+                                    setMachineMode(MachineMode.Espresso)
+                                }
+                            }, 2000)
+                        },
+                    })
 
                     attempts = 0
                 } catch (e) {
@@ -455,21 +527,40 @@ export function useAutoConnectEffect() {
                      * 40 x 250ms = 10s, max.
                      */
                     attempts = Math.min(40, attempts + 1)
+                } finally {
+                    if (reachedReadyness) {
+                        /**
+                         * At this point we're not connected and definitely
+                         * not ready. Take the user to the Server state.
+                         *
+                         * It's important to note that we only do it after
+                         * a successful connection to the machine (common sense).
+                         */
+                        setMachineMode(MachineMode.Server)
+                    }
+
+                    reachedReadyness = false
+
+                    /**
+                     * Whatever happened, clean up the timeout so we don't
+                     * switch to `Espresso` for no reason.
+                     */
+                    clearReffedTimeoutId(timeoutIdRef)
                 }
 
                 /**
                  * Wait a while before trying to reconnect.
                  */
-                await new Promise((resolve) => void setTimeout(resolve, attempts * 250))
+                await sleep(attempts * 250)
             }
-        })
+        })()
 
         return () => {
             mounted = false
 
             disconnect()
         }
-    }, [disconnect, connect])
+    }, [disconnect, connect, setMachineMode])
 }
 
 export function usePropValue(prop: Prop) {

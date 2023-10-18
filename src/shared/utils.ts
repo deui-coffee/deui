@@ -40,3 +40,7 @@ const charNames = {
 export function getCharName(uuid: CharAddr) {
     return charNames[uuid]
 }
+
+export function sleep(millis = 1000) {
+    return new Promise<void>((resolve) => void setTimeout(resolve, millis))
+}
