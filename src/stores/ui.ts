@@ -103,7 +103,7 @@ export const useUiStore = create<UiStore>((set) => {
             })
         },
 
-        machineMode: MachineMode.Espresso,
+        machineMode: MachineMode.Server,
 
         setMachineMode(machineMode) {
             setState((next) => {

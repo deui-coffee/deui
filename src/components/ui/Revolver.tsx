@@ -72,7 +72,9 @@ function getMode(phase: number): MachineMode {
 export default function Revolver() {
     const status = useStatus()
 
-    const [phase, setPhase] = useState(machineModeLineup.indexOf(MachineMode.Server))
+    const { setMachineMode, machineMode } = useUiStore()
+
+    const [phase, setPhase] = useState(machineModeLineup.indexOf(machineMode))
 
     const handlers = useSwipeable({
         preventDefaultTouchmoveEvent: true,
@@ -83,8 +85,6 @@ export default function Revolver() {
             setPhase((current) => current - 1)
         },
     })
-
-    const { setMachineMode, machineMode } = useUiStore()
 
     useEffect(() => {
         setMachineMode(getMode(phase))
