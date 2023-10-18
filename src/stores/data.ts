@@ -11,7 +11,6 @@ import {
 } from '$/types'
 import {
     ChunkType,
-    MachineMode,
     Profile,
     Prop,
     Properties,
@@ -30,7 +29,6 @@ import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
 import stopwatch from '$/utils/stopwatch'
 import avg from '$/utils/avg'
-import { min } from 'lodash'
 
 interface DataStore {
     wsState: WebSocketState

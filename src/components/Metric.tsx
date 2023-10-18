@@ -10,6 +10,7 @@ interface MetricOwnProps {
     label: string
     unit: string
     formatFn?: (value: number) => string
+    vpos?: number
 }
 
 type Props = Omit<HTMLAttributes<HTMLDivElement>, keyof MetricOwnProps> & MetricOwnProps
@@ -74,6 +75,10 @@ type Metrics = Record<
     MetricOwnProps[]
 >
 
+function toSeconds(value: number) {
+    return value.toFixed(0)
+}
+
 export const Metrics: Metrics = {
     [MachineMode.Espresso]: [
         {
@@ -83,11 +88,19 @@ export const Metrics: Metrics = {
             formatFn: (v) => `${v}`,
         },
         { label: 'Metal temp', property: Prop.ShotHeadTemp, unit: '°C' },
-        { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
-        { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Shot time', property: Prop.EspressoTime, unit: 'sec' },
+        { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar', vpos: 0 },
+        { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s', vpos: 0 },
+        {
+            label: 'Shot time',
+            property: Prop.EspressoTime,
+            unit: 'sec',
+            formatFn: toSeconds,
+            vpos: 0,
+        },
     ],
-    [MachineMode.Flush]: [{ label: 'Time', property: Prop.FlushTime, unit: 'sec' }],
+    [MachineMode.Flush]: [
+        { label: 'Time', property: Prop.FlushTime, unit: 'sec', formatFn: toSeconds },
+    ],
     [MachineMode.Steam]: [
         {
             label: 'Steam temp',
@@ -95,9 +108,11 @@ export const Metrics: Metrics = {
             unit: '°C',
             formatFn: (v) => `${v}`,
         },
-        { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar' },
-        { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s' },
-        { label: 'Time', property: Prop.SteamTime, unit: 'sec' },
+        { label: 'Pressure', property: Prop.ShotGroupPressure, unit: 'bar', vpos: 0 },
+        { label: 'Flow', property: Prop.ShotGroupFlow, unit: 'ml/s', vpos: 0 },
+        { label: 'Time', property: Prop.SteamTime, unit: 'sec', formatFn: toSeconds, vpos: 0 },
     ],
-    [MachineMode.Water]: [{ label: 'Time', property: Prop.WaterTime, unit: 'sec' }],
+    [MachineMode.Water]: [
+        { label: 'Time', property: Prop.WaterTime, unit: 'sec', formatFn: toSeconds },
+    ],
 }

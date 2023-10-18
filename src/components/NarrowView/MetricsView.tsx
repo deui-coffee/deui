@@ -15,7 +15,7 @@ export default function MetricsView() {
 
     const { setView, machineMode } = useUiStore()
 
-    const metrics = useMetrics()
+    const metrics = [...useMetrics()].sort(({ vpos: a = 100 }, { vpos: b = 100 }) => a - b)
 
     return (
         <div tw="px-14">
