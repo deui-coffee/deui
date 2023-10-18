@@ -3,6 +3,7 @@ import TextSwitch from '$/components/TextSwitch'
 import { ConnectionPhase, MachineMode, MinorState } from '$/types'
 import { useConnectionPhase, useMinorState } from '$/stores/data'
 import { useUiStore } from '$/stores/ui'
+import { useIsMachineModeActive } from '$/hooks'
 
 export default function SubstateSwitch() {
     const substate = useMinorState()
@@ -11,7 +12,15 @@ export default function SubstateSwitch() {
 
     const connPhase = useConnectionPhase()
 
-    const value = machineMode === MachineMode.Server ? connPhase : substate
+    const activeMode = useIsMachineModeActive()
+
+    const value = (() => {
+        if (machineMode === MachineMode.Server) {
+            return connPhase
+        }
+
+        return activeMode ? substate : void 0
+    })()
 
     return (
         <TextSwitch
