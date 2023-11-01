@@ -631,3 +631,68 @@ export interface Time {
     hour: string
     minute: string
 }
+
+export enum MMRAddr {
+    // Flash RW
+    ExternalFlash = /*       */ 0x000000,
+    // HWConfig
+    HWConfig = /*            */ 0x800000,
+    // Model
+    Model = /*               */ 0x800004,
+    // CPU Board Model * 1000. eg: 1100 = 1.1
+    CPUBoardModel = /*       */ 0x800008,
+    // v1.3+ Firmware Model (Unset = 0, DE1 = 1, DE1Plus = 2, DE1Pro = 3, DE1XL = 4, DE1Cafe = 5)
+    v13Model = /*            */ 0x80000c,
+    // CPU Board Firmware build number. (Starts at 1000 for 1.3, increments by 1 for every build)
+    CPUFirmwareBuild = /*    */ 0x800010,
+    // How many characters in debug buffer are valid. Accessing this pauses BLE debug logging.
+    DebugLen = /*            */ 0x802800,
+    // Last 4K of output. Zero terminated if buffer not full yet. Pauses BLE debug logging.
+    DebugBuffer = /*         */ 0x802804,
+    // BLEDebugConfig. (Reading restarts logging into the BLE log)
+    DebugConfig = /*         */ 0x803804,
+    // Fan threshold temp
+    FanThreshold = /*        */ 0x803808,
+    // Tank water temp threshold.
+    TankTemp = /*            */ 0x80380c,
+    // HeaterUp Phase 1 Flow Rate
+    HeaterUp1Flow = /*       */ 0x803810,
+    // HeaterUp Phase 2 Flow Rate
+    HeaterUp2Flow = /*       */ 0x803814,
+    // Water Heater Idle Temperature
+    WaterHeaterIdleTemp = /* */ 0x803818,
+    // GHC Info Bitmask, 0x1 = GHC LED Controller Present, 0x2 = GHC Touch Controller_Present, 0x4 GHC Active, 0x80000000 = Factory Mode
+    GHCInfo = /*             */ 0x80381c,
+    // TODO
+    PrefGHCMCI = /*          */ 0x803820,
+    // TODO
+    MaxShotPres = /*         */ 0x803824,
+    // Target steam flow rate
+    TargetSteamFlow = /*     */ 0x803828,
+    // Seconds of high steam flow * 100. Valid range 0.0 - 4.0. 0 may result in an overheated heater. Be careful.
+    SteamStartSecs = /*      */ 0x80382c,
+    // Current serial number
+    SerialN = /*             */ 0x803830,
+    // Nominal Heater Voltage (0, 120V or 230V). +1000 if it's a set value.
+    HeaterV = /*             */ 0x803834,
+    // HeaterUp Phase 2 Timeout
+    HeaterUp2Timeout = /*    */ 0x803838,
+    // Flow Estimation Calibration
+    CalFlowEst = /*          */ 0x80383c,
+    // Flush Flow Rate
+    FlushFlowRate = /*       */ 0x803840,
+    // Flush Temp
+    FlushTemp = /*           */ 0x803844,
+    // Flush Timeout
+    FlushTimeout = /*        */ 0x803848,
+    // Hot Water Flow Rate
+    HotWaterFlowRate = /*    */ 0x80384c,
+    // Steam Purge Mode
+    SteamPurgeMode = /*      */ 0x803850,
+    // Allow USB charging
+    AllowUSBCharging = /*    */ 0x803854,
+    // App Feature Flags
+    AppFeatureFlags = /*     */ 0x803858,
+    // Refill Kit Present
+    RefillKitPresent = /*    */ 0x80385c,
+}
