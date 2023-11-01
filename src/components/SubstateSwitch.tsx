@@ -1,12 +1,20 @@
 import React from 'react'
 import TextSwitch from '$/components/TextSwitch'
-import { ConnectionPhase, MachineMode, MinorState } from '$/types'
-import { useConnectionPhase, useMinorState } from '$/stores/data'
+import { ConnectionPhase, MachineMode, MajorState, MinorState } from '$/types'
+import { useConnectionPhase, useMajorState, useMinorState } from '$/stores/data'
 import { useUiStore } from '$/stores/ui'
 import { useIsMachineModeActive } from '$/hooks'
 
+enum CustomState {
+    Running = 2001,
+}
+
 export default function SubstateSwitch() {
-    const substate = useMinorState()
+    const substate = ((majorState, minorState) => {
+        return majorState === MajorState.Steam && minorState === MinorState.Pour
+            ? CustomState.Running
+            : minorState
+    })(useMajorState(), useMinorState())
 
     const { machineMode } = useUiStore()
 
@@ -25,6 +33,7 @@ export default function SubstateSwitch() {
                 [MinorState.StabilizeMixTemp, 'Stabilizing'],
                 [MinorState.PreInfuse, 'Preinfuse'],
                 [MinorState.Pour, 'Pouring'],
+                [CustomState.Running, 'Running'],
                 [MinorState.Flush, 'Flushing'],
                 [ConnectionPhase.WaitingToReconnect, 'Waiting'],
                 [ConnectionPhase.Opening, 'Opening'],
