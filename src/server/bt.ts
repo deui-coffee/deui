@@ -70,6 +70,7 @@ export async function setupDe1(
         onBeforeDiscoveringCharacteristics,
         onBeforeUpdatingCharacteristics,
         onCharacteristicDiscover,
+        onCharacteristicsReady,
         onDeviceReady,
         onDeviceSetupDone,
         onDisconnect,
@@ -79,6 +80,7 @@ export async function setupDe1(
         onBeforeDiscoveringCharacteristics?: (device: Peripheral) => void
         onBeforeUpdatingCharacteristics?: (device: Peripheral) => void
         onCharacteristicDiscover?: (characteristic: Characteristic) => void | Promise<void>
+        onCharacteristicsReady?: () => Promise<void>
         onDeviceReady?: (device: Peripheral) => void
         onDeviceSetupDone?: (device: Peripheral) => void
         onDisconnect?: () => void
@@ -124,6 +126,8 @@ export async function setupDe1(
                 requireConnected()
 
                 switch (uuid) {
+                    case CharAddr.WriteToMMR:
+                    case CharAddr.ReadFromMMR:
                     case CharAddr.StateInfo:
                     case CharAddr.WaterLevels:
                     case CharAddr.Temperatures:
@@ -136,6 +140,10 @@ export async function setupDe1(
                     default:
                 }
             }
+
+            requireConnected()
+
+            await onCharacteristicsReady?.()
 
             requireConnected()
 
