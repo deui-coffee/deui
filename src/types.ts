@@ -365,6 +365,8 @@ export enum Prop {
     FlushTime,
     RecentEspressoMaxFlow,
     RecentEspressoMaxPressure,
+    Flow,
+    Pressure,
 }
 
 export const RemoteProfile = z.object({

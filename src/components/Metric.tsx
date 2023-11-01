@@ -100,8 +100,8 @@ const propToMetricMap: Partial<
         label: 'Metal temp',
         unit: '°C',
     },
-    [Prop.ShotGroupPressure]: { label: 'Pressure', unit: 'bar' },
-    [Prop.ShotGroupFlow]: { label: 'Flow', unit: 'ml/s' },
+    [Prop.Pressure]: { label: 'Pressure', unit: 'bar' },
+    [Prop.Flow]: { label: 'Flow', unit: 'ml/s' },
     [Prop.RecentEspressoMaxPressure]: { label: 'Max pressure', unit: 'bar' },
     [Prop.RecentEspressoMaxFlow]: { label: 'Max flow', unit: 'ml/s' },
     [Prop.EspressoTime]: {
@@ -146,22 +146,22 @@ export const Metrics: Metrics = {
     [MachineMode.Espresso]: [
         Prop.TargetGroupTemp,
         Prop.ShotHeadTemp,
-        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.ShotGroupPressure),
-        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.ShotGroupFlow),
+        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.Pressure),
+        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.Flow),
         Prop.EspressoTime,
     ],
     [MachineMode.Flush]: [Prop.FlushTime],
     [MachineMode.Steam]: [
         Prop.TargetSteamTemp,
         Prop.ShotSteamTemp,
-        Prop.ShotGroupPressure,
-        Prop.ShotGroupFlow,
+        Prop.Pressure,
+        Prop.Flow,
         Prop.SteamTime,
     ],
     [MachineMode.Water]: [
         Prop.TargetHotWaterTemp,
         Prop.TargetHotWaterVol,
-        Prop.ShotGroupFlow,
+        Prop.Flow,
         Prop.WaterTime,
     ],
 }
@@ -169,8 +169,8 @@ export const Metrics: Metrics = {
 export const VerticalMetrics: Metrics = {
     ...Metrics,
     [MachineMode.Espresso]: [
-        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.ShotGroupPressure),
-        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.ShotGroupFlow),
+        (idle) => (idle ? Prop.RecentEspressoMaxPressure : Prop.Pressure),
+        (idle) => (idle ? Prop.RecentEspressoMaxFlow : Prop.Flow),
         Prop.EspressoTime,
         Prop.TargetGroupTemp,
         Prop.ShotHeadTemp,

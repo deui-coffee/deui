@@ -118,6 +118,27 @@ export const useDataStore = create<DataStore>((set, get) => {
                         next.properties[Prop.RecentEspressoMaxPressure] = pressure
                     }
                 })()
+
+                /**
+                 * Set (or reset) displayed flow and displayed pressure props.
+                 */
+                void (() => {
+                    const {
+                        [Prop.ShotGroupPressure]: pressure,
+                        [Prop.ShotGroupFlow]: flow,
+                        [Prop.MinorState]: minorState,
+                    } = next.properties
+
+                    const isPour = minorState === MinorState.Pour
+
+                    if (typeof flow !== 'undefined') {
+                        next.properties[Prop.Flow] = isPour ? flow : 0
+                    }
+
+                    if (typeof pressure !== 'undefined') {
+                        next.properties[Prop.Pressure] = isPour ? pressure : 0
+                    }
+                })()
             })
         )
     }
