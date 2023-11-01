@@ -126,7 +126,6 @@ export async function setupDe1(
                 requireConnected()
 
                 switch (uuid) {
-                    case CharAddr.WriteToMMR:
                     case CharAddr.ReadFromMMR:
                     case CharAddr.StateInfo:
                     case CharAddr.WaterLevels:
