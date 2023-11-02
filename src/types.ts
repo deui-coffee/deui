@@ -593,7 +593,7 @@ export enum SteamSetting {
 
 export interface ShotSettings {
     // Defines the steam shot
-    SteamSettings: SteamSetting
+    SteamSettings: number
     // U8P0 Valid range is 140 - 160
     TargetSteamTemp: number
     // U8P0 Length in seconds of steam
@@ -695,4 +695,8 @@ export enum MMRAddr {
     AppFeatureFlags = /*     */ 0x803858,
     // Refill Kit Present
     RefillKitPresent = /*    */ 0x80385c,
+}
+
+export enum RefillPreset {
+    AutoDetect = 2,
 }

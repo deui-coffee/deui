@@ -1,4 +1,5 @@
-import { CharAddr } from '../types'
+import EventEmitter from 'events'
+import { CharAddr, MMRAddr } from '../types'
 
 export function fromF817(value: number) {
     return (value & 0x80) === 0 ? value / 10 : value & 0x7f
@@ -14,6 +15,14 @@ export function toF817(value: number) {
     }
 
     return 0xff & (0.5 + value * 10)
+}
+
+export function toU8P0(value: number) {
+    return Math.max(0, Math.min(0xff, (value + 0.5) | 0))
+}
+
+export function toU16P8(value: number) {
+    return Math.max(0, Math.min(0xffff, (value * 256 + 0.5) | 0))
 }
 
 const charNames = {
@@ -43,4 +52,24 @@ export function getCharName(uuid: CharAddr) {
 
 export function sleep(millis = 1000) {
     return new Promise<void>((resolve) => void setTimeout(resolve, millis))
+}
+
+export class MMREventEmitter extends EventEmitter {
+    on(eventName: 'read', listener: (addr: MMRAddr, data: Buffer) => void): this
+
+    on(eventName: string | symbol, listener: (...args: any[]) => void): this {
+        return super.on(eventName, listener)
+    }
+
+    emit(eventName: 'read', addr: MMRAddr, data: Buffer): boolean
+
+    emit(eventName: string | symbol, ...args: any[]): boolean {
+        return super.emit(eventName, ...args)
+    }
+
+    off(eventName: 'read', listener: (addr: MMRAddr, data: Buffer) => void): this
+
+    off(eventName: string | symbol, listener: (...args: any[]) => void): this {
+        return super.off(eventName, listener)
+    }
 }
