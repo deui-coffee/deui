@@ -1,4 +1,4 @@
-import { profiles } from '$/types'
+import { profiles } from '../types'
 
 function round(value: number) {
     return 0 | (0.5 + value)
