@@ -220,7 +220,64 @@ setupBluetooth({
                     },
 
                     async onCharacteristicsReady() {
-                        console.log('FAN THRESHOLD', await Mmr.read(MMRAddr.FanThreshold, 0))
+                        await Mmr.read(MMRAddr.GHCInfo, 0)
+
+                        /**
+                         * @todo We may consider sending the profile here. In order to be able
+                         * to do it we gotta store it somewhere. Storage is a whole another topic.
+                         */
+
+                        await Mmr.write(MMRAddr.FanThreshold, Mmr.formatUint32(0))
+
+                        await Char.write(
+                            CharAddr.ShotSettings,
+                            toEncodedShotSettings({
+                                SteamSettings: SteamSetting.LowPower,
+                                TargetSteamTemp: toU8P0(160),
+                                TargetSteamLength: toU8P0(120),
+                                TargetHotWaterTemp: toU8P0(85),
+                                TargetHotWaterVol: toU8P0(50),
+                                TargetHotWaterLength: toU8P0(60),
+                                TargetEspressoVol: toU8P0(200),
+                                TargetGroupTemp: toU8P0(92),
+                            })
+                        )
+
+                        await Char.write(
+                            CharAddr.WaterLevels,
+                            Buffer.from([
+                                ...Mmr.formatUint16(toU16P8(0)),
+                                ...Mmr.formatUint16(toU16P8(5)),
+                            ])
+                        )
+
+                        await Mmr.read(MMRAddr.CPUBoardModel, 2)
+
+                        await Mmr.tweakHeaters()
+
+                        await Mmr.read(MMRAddr.RefillKitPresent, 0)
+
+                        await Mmr.read(MMRAddr.SerialN, 0)
+
+                        /**
+                         * In reality, the refill kit setting is more complex. We're going with the
+                         * default values. For more info see:
+                         * https://github.com/decentespresso/de1app/blob/21b6664b826301c07204ed3eaf21f785e049c129/de1plus/de1_comms.tcl#L1138-L1153
+                         */
+                        await Mmr.write(
+                            MMRAddr.RefillKitPresent,
+                            Mmr.formatUint32(RefillPreset.AutoDetect, { littleEndian: true })
+                        )
+
+                        await Mmr.read(MMRAddr.CalFlowEst, 0)
+
+                        await sleep(5000)
+
+                        await Char.read(CharAddr.StateInfo)
+
+                        await sleep(7000)
+
+                        await Mmr.read(MMRAddr.HeaterV, 1)
                     },
 
                     onDisconnect() {
@@ -291,5 +348,108 @@ const Mmr = {
                 emitter.off('read', onRead)
             }
         }
+    },
+
+    async write(addr: MMRAddr, value: Buffer) {
+        const buf = Buffer.alloc(20, 0)
+
+        buf.writeUint32BE(addr)
+
+        buf.writeUint8(value.byteLength % 0xff, 0)
+
+        value.copy(buf, 4)
+
+        const characteristic = characteristics[CharAddr.WriteToMMR]
+
+        if (!characteristic) {
+            throw new Error('No WriteToMMR characteristic')
+        }
+
+        await characteristic.writeAsync(buf, false)
+    },
+
+    async tweakHeaters() {
+        await Mmr.write(MMRAddr.HeaterUp1Flow, Mmr.formatUint32(20, { littleEndian: true }))
+
+        await Mmr.write(MMRAddr.HeaterUp2Flow, Mmr.formatUint32(40, { littleEndian: true }))
+
+        await Mmr.write(MMRAddr.WaterHeaterIdleTemp, Mmr.formatUint32(990, { littleEndian: true }))
+
+        await Mmr.write(MMRAddr.HeaterUp2Timeout, Mmr.formatUint32(10, { littleEndian: true }))
+
+        await Mmr.write(MMRAddr.SteamPurgeMode, Mmr.formatUint32(0, { littleEndian: true }))
+
+        await Mmr.writeFlushTimeout(5)
+
+        await Mmr.writeFlushFlowRate(6)
+
+        await Mmr.writeHotwaterFlowRate(10)
+    },
+
+    async writeHotwaterFlowRate(rate: number) {
+        await Mmr.write(
+            MMRAddr.HotWaterFlowRate,
+            Mmr.formatUint32((rate * 10) | 0, { littleEndian: true })
+        )
+    },
+
+    async writeFlushFlowRate(rate: number) {
+        await Mmr.write(
+            MMRAddr.FlushFlowRate,
+            Mmr.formatUint32((rate * 10) | 0, { littleEndian: true })
+        )
+    },
+
+    async writeFlushTimeout(seconds: number) {
+        await Mmr.write(
+            MMRAddr.FlushTimeout,
+            Mmr.formatUint32((seconds * 10) | 0, { littleEndian: true })
+        )
+    },
+
+    formatUint32(value: number, { littleEndian = false } = {}) {
+        const buf = Buffer.alloc(4, 0)
+
+        if (littleEndian) {
+            buf.writeUint32LE(value)
+        } else {
+            buf.writeUint32BE(value)
+        }
+
+        return buf
+    },
+
+    formatUint16(value: number, { littleEndian = false } = {}) {
+        const buf = Buffer.alloc(2, 0)
+
+        if (littleEndian) {
+            buf.writeUint16LE(value)
+        } else {
+            buf.writeUint16BE(value)
+        }
+
+        return buf
+    },
+}
+
+const Char = {
+    async write(addr: CharAddr, buffer: Buffer) {
+        const characteristic = characteristics[addr]
+
+        if (!characteristic) {
+            throw new Error('No characteristic')
+        }
+
+        await characteristic.writeAsync(buffer, false)
+    },
+
+    async read(addr: CharAddr) {
+        const characteristic = characteristics[addr]
+
+        if (!characteristic) {
+            throw new Error('No characteristic')
+        }
+
+        await characteristic.readAsync()
     },
 }
