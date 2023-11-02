@@ -220,14 +220,17 @@ setupBluetooth({
                     },
 
                     async onCharacteristicsReady() {
-                        await Mmr.read(MMRAddr.GHCInfo, 0)
+                        /**
+                         * @todo We may consider checking for GHC like so
+                         * await Mmr.read(MMRAddr.GHCInfo, 0)
+                         */
 
                         /**
                          * @todo We may consider sending the profile here. In order to be able
                          * to do it we gotta store it somewhere. Storage is a whole another topic.
                          */
 
-                        await Mmr.write(MMRAddr.FanThreshold, Mmr.formatUint32(0))
+                        await Mmr.write(MMRAddr.FanThreshold, Mmr.formatUint32(60))
 
                         await Char.write(
                             CharAddr.ShotSettings,
@@ -251,13 +254,22 @@ setupBluetooth({
                             ])
                         )
 
-                        await Mmr.read(MMRAddr.CPUBoardModel, 2)
+                        /**
+                         * @todo We may want to check the board model:
+                         * await Mmr.read(MMRAddr.CPUBoardModel, 2)
+                         */
 
                         await Mmr.tweakHeaters()
 
-                        await Mmr.read(MMRAddr.RefillKitPresent, 0)
+                        /**
+                         * @todo We may want read refill kit info here:
+                         * await Mmr.read(MMRAddr.RefillKitPresent, 0)
+                         */
 
-                        await Mmr.read(MMRAddr.SerialN, 0)
+                        /**
+                         * @todo We may want to read the serial number here:
+                         * await Mmr.read(MMRAddr.SerialN, 0)
+                         */
 
                         /**
                          * In reality, the refill kit setting is more complex. We're going with the
@@ -269,7 +281,11 @@ setupBluetooth({
                             Mmr.formatUint32(RefillPreset.AutoDetect, { littleEndian: true })
                         )
 
-                        await Mmr.read(MMRAddr.CalFlowEst, 0)
+                        /**
+                         * @todo We may want to deal with calibration, You'd read the current
+                         * multiplier like so:
+                         * await Mmr.read(MMRAddr.CalFlowEst, 0)
+                         */
 
                         await sleep(5000)
 
@@ -310,7 +326,7 @@ const Mmr = {
 
         buf.writeUint32BE(addr)
 
-        buf.writeUint8(length % 0xff, 0)
+        buf.writeUint8(length, 0)
 
         const characteristic = characteristics[CharAddr.ReadFromMMR]
 
@@ -355,7 +371,7 @@ const Mmr = {
 
         buf.writeUint32BE(addr)
 
-        buf.writeUint8(value.byteLength % 0xff, 0)
+        buf.writeUint8(value.byteLength, 0)
 
         value.copy(buf, 4)
 
