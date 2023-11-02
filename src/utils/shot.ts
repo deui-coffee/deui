@@ -1,5 +1,5 @@
 import { Buffer } from 'buffer'
-import { fromF817, toF817 } from '$/shared/utils'
+import { fromF817, toF817 } from '../shared/utils'
 import {
     FrameFlag,
     Profile,
@@ -15,7 +15,7 @@ import {
     ShotHeader,
     ShotSettings,
     ShotTailFrame,
-} from '$/types'
+} from '../types'
 import { toU10P0, toU8P1, toU8P4 } from '.'
 
 export function toShotHeader(
