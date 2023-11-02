@@ -1,5 +1,5 @@
 import os from 'os'
-import { CharAddr, ServerErrorCode } from '../types'
+import { CharAddr, MMRAddr, ServerErrorCode } from '../types'
 import { Characteristic } from '@abandonware/noble'
 import debug from 'debug'
 import { Application } from 'express'
@@ -7,6 +7,7 @@ import { createServer } from 'http'
 import { WebSocket, WebSocketServer } from 'ws'
 import { z } from 'zod'
 import { getCharName } from '../shared/utils'
+import EventEmitter from 'events'
 
 export const info = debug('deui-server:info')
 
@@ -124,4 +125,24 @@ export function isKnownError(error: unknown): error is KnownError {
 
 export function knownError(statusCode: number, code: ServerErrorCode): KnownError {
     return { statusCode, code }
+}
+
+export class MMREventEmitter extends EventEmitter {
+    on(eventName: 'read', listener: (addr: MMRAddr, data: Buffer) => void): this
+
+    on(eventName: string | symbol, listener: (...args: any[]) => void): this {
+        return super.on(eventName, listener)
+    }
+
+    emit(eventName: 'read', addr: MMRAddr, data: Buffer): boolean
+
+    emit(eventName: string | symbol, ...args: any[]): boolean {
+        return super.emit(eventName, ...args)
+    }
+
+    off(eventName: 'read', listener: (addr: MMRAddr, data: Buffer) => void): this
+
+    off(eventName: string | symbol, listener: (...args: any[]) => void): this {
+        return super.off(eventName, listener)
+    }
 }

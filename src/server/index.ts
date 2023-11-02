@@ -23,6 +23,7 @@ import {
     send,
     wsServer,
     startDeuiServer,
+    MMREventEmitter,
 } from './utils'
 import production from './middlewares/production'
 import development from './middlewares/development'
@@ -31,7 +32,7 @@ import { produce } from 'immer'
 import { setupBluetooth, setupDe1 } from './bt'
 import { router } from './router'
 import { rescue } from './middlewares/errors'
-import { MMREventEmitter, sleep, toU16P8, toU8P0 } from '../shared/utils'
+import { sleep, toU16P8, toU8P0 } from '../shared/utils'
 import { toEncodedShotSettings } from '../utils/shot'
 
 const app = express()
@@ -282,7 +283,7 @@ const Mmr = {
                         } catch (e) {
                             reject(e)
                         }
-                    })
+                    })()
                 }),
             ])
         } finally {
