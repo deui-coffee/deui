@@ -15,7 +15,7 @@ import {
 
 let initialized = false
 
-export function setupBluetooth(app: Application, { scan = false } = {}) {
+export function setupBluetooth(app: Application) {
     if (initialized) {
         throw new Error('Noble already set up')
     }
@@ -39,11 +39,19 @@ export function setupBluetooth(app: Application, { scan = false } = {}) {
             return
         }
 
+        const { bluetoothState: currentState } = app.locals.remoteState
+
+        if (state === currentState) {
+            return
+        }
+
         setRemoteState(app, (rs) => {
             rs.bluetoothState = state
         })
 
-        if (state !== BluetoothState.PoweredOn) {
+        if (state === BluetoothState.PoweredOn) {
+            noble.startScanning([], false)
+        } else {
             noble.stopScanning()
         }
     })
@@ -253,10 +261,6 @@ export function setupBluetooth(app: Application, { scan = false } = {}) {
     process.on('SIGQUIT', teardown)
 
     process.on('SIGTERM', teardown)
-
-    if (scan && app.locals.remoteState.bluetoothState === BluetoothState.PoweredOn) {
-        noble.startScanning([], false)
-    }
 }
 
 function isBluetoothState(value: string): value is BluetoothState {

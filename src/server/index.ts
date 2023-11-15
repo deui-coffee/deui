@@ -37,4 +37,4 @@ app.use(rescue())
 
 listen(app, { port: process.env.PORT })
 
-setupBluetooth(app, { scan: true })
+setupBluetooth(app)
