@@ -8,12 +8,13 @@ declare global {
     namespace Express {
         interface Locals {
             /**
-             * State shared between the client and this server.
+             * State shared between the client and the server.
              */
             remoteState: RemoteState
 
             /**
-             * Most recent state of each characteristic, updates as we move forward.
+             * State of individual characteristic (recent reads). It's also
+             * shared with the client but not as part of the general "state".
              */
             characteristicValues: Partial<Record<CharAddr, string>>
 
