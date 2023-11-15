@@ -97,9 +97,17 @@ export const useUiStore = create<UiStore>((set) => {
                     return viewLineup.findIndex(({ id }) => id === instruction)
                 })()
 
-                next.viewIndex = newIndex
+                const newView = viewLineup[newIndex]
 
-                next.viewId = viewLineup[newIndex].id
+                if (newView) {
+                    next.viewIndex = newIndex
+
+                    next.viewId = newView.id
+
+                    return
+                }
+
+                console.warn('New view does not exist. Ignoring the switch.')
             })
         },
 

@@ -17,6 +17,7 @@
         "jsx": "react-jsx",
         "jsxImportSource": "@emotion/react",
         "baseUrl": "./",
+        "noUncheckedIndexedAccess": true,
         "paths": {
             "$/*": ["src/*"]
         }

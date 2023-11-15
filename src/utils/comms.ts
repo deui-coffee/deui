@@ -39,9 +39,7 @@ export async function uploadProfile(
         params: Buffer.from(profile.id),
     })
 
-    for (let i = 0; i < payloads.length; i++) {
-        const { method, payload: params } = payloads[i]
-
+    for (const { method, payload: params } of payloads) {
         await exec({
             method,
             params,
