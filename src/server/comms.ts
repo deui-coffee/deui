@@ -135,7 +135,7 @@ export const Char = Object.freeze({
             throw new Error('No characteristic')
         }
 
-        await characteristic.readAsync()
+        return characteristic.readAsync()
     },
 
     formatUint16(value: number) {

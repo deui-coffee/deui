@@ -146,8 +146,6 @@ export function setupBluetooth(app: Application) {
                     },
 
                     async onCharacteristicsReady() {
-                        return
-
                         /**
                          * @todo We may consider checking for GHC like so
                          * await Mmr.read(app, MMRAddr.GHCInfo, 0)
@@ -167,17 +165,17 @@ export function setupBluetooth(app: Application) {
                                 SteamSettings: SteamSetting.LowPower,
                                 TargetSteamTemp: toU8P0(160),
                                 TargetSteamLength: toU8P0(120),
-                                TargetHotWaterTemp: toU8P0(85),
-                                TargetHotWaterVol: toU8P0(50),
+                                TargetHotWaterTemp: toU8P0(98),
+                                TargetHotWaterVol: toU8P0(70),
                                 TargetHotWaterLength: toU8P0(60),
                                 TargetEspressoVol: toU8P0(200),
-                                TargetGroupTemp: toU8P0(92),
+                                TargetGroupTemp: toU8P0(88),
                             })
                         )
 
                         await Mmr.write(app, MMRAddr.TargetSteamFlow, Mmr.formatUint32(250))
 
-                        await Mmr.write(app, MMRAddr.SteamStartSecs, Mmr.formatUint32(70))
+                        await Mmr.write(app, MMRAddr.SteamStartSecs, Mmr.formatUint32(70)) // 0.7s
 
                         await Char.write(
                             app,
