@@ -76,7 +76,7 @@
   "legacy_profile_type": "settings_2c",
   "type": "advanced",
   "lang": "en",
-  "hidden": true,
+  "hidden": false,
   "reference_file": "Extractamundo_Dos",
   "changes_since_last_espresso": "",
   "version": 2

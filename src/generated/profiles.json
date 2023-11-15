@@ -8,11 +8,7 @@
     },
     { "name": "Gagné/Adaptive Allongé 94C v1.0", "id": "adaptive_allonge", "visible": false },
     { "name": "Gagné/Adaptive Shot 92C v1.0", "id": "adaptive_espresso", "visible": false },
-    {
-        "name": "Adaptive (for medium roasts)",
-        "id": "adaptive_for_medium_roasts",
-        "visible": false
-    },
+    { "name": "Adaptive (for medium roasts)", "id": "adaptive_for_medium_roasts", "visible": true },
     { "name": "Advanced spring lever", "id": "advanced_spring_lever", "visible": false },
     { "name": "Advanced spring lever", "id": "advanced_spring_lever_2", "visible": false },
     { "name": "Best overall pressure", "id": "best_overall_pressure", "visible": true },
@@ -22,7 +18,7 @@
         "visible": false
     },
     { "name": "Blooming Allongé", "id": "blooming_allonge", "visible": false },
-    { "name": "Blooming Espresso", "id": "blooming_espresso", "visible": false },
+    { "name": "Blooming Espresso", "id": "blooming_espresso", "visible": true },
     { "name": "Classic Italian espresso", "id": "classic_italian_espresso", "visible": true },
     { "name": "Cleaning/Forward flush", "id": "cleaning_forward_flush", "visible": false },
     { "name": "Cleaning Forward Flush x5", "id": "cleaning_forward_flush_x5", "visible": false },
@@ -56,7 +52,7 @@
         "visible": false
     },
     { "name": "Extractamundo Dos!", "id": "extractamundo_dos", "visible": false },
-    { "name": "Filter 2.0", "id": "filter_2_0", "visible": false },
+    { "name": "Filter 2.0", "id": "filter_2_0", "visible": true },
     { "name": "Filter 2.1", "id": "filter_2_1", "visible": false },
     { "name": "Test/Flow calibration", "id": "flow_calibration", "visible": false },
     {
@@ -69,7 +65,7 @@
         "id": "flow_profile_for_straight_espresso",
         "visible": false
     },
-    { "name": "Gentle and sweet", "id": "gentle_and_sweet", "visible": false },
+    { "name": "Gentle and sweet", "id": "gentle_and_sweet", "visible": true },
     {
         "name": "Gentle flat 2.5 ml per second",
         "id": "gentle_flat_2_5_ml_per_second",
