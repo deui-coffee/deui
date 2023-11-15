@@ -21,6 +21,6 @@
             "$/*": ["src/*"]
         }
     },
-    "include": ["./src", "test/profiles.spec.ts"],
+    "include": ["./src", "test/profiles.spec.ts", "./types/**/*.d.ts"],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

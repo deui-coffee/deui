@@ -1,13 +1,14 @@
-import os from 'os'
-import { CharAddr, MMRAddr, ServerErrorCode } from '../types'
 import { Characteristic } from '@abandonware/noble'
 import debug from 'debug'
-import { Application } from 'express'
+import EventEmitter from 'events'
+import { Application, Locals } from 'express'
 import { createServer } from 'http'
+import { Draft, produce } from 'immer'
+import os from 'os'
 import { WebSocket, WebSocketServer } from 'ws'
 import { z } from 'zod'
 import { getCharName } from '../shared/utils'
-import EventEmitter from 'events'
+import { CharAddr, MMRAddr, MsgType, ServerErrorCode } from '../types'
 
 export const info = debug('deui-server:info')
 
@@ -58,45 +59,12 @@ export function longCharacteristicUUID(uuid: string) {
     return `0000${uuid}-0000-1000-8000-00805f9b34fb` as CharAddr
 }
 
-export const wsServer = new WebSocketServer({ noServer: true, path: '/' })
-
 export function send(ws: WebSocket, payload: unknown) {
     ws.send(JSON.stringify(payload))
 }
 
-export function broadcast(payload: unknown) {
-    wsServer.clients.forEach((ws) => void send(ws, payload))
-}
-
-export function startDeuiServer(app: Application, { port }: { port: number }) {
-    const server = createServer(app).on('upgrade', (req, socket, head) => {
-        wsServer.handleUpgrade(req, socket, head, (ws) => {
-            wsServer.emit('connection', ws, req)
-        })
-    })
-
-    // @ts-ignore 0.0.0.0 is a valid host. TS expects a number (?).
-    server.listen(port, '0.0.0.0', () => {
-        info('Listening on %d…', port)
-
-        const addrs: string[] = []
-
-        Object.values(os.networkInterfaces())
-            .flatMap((i) => i ?? [])
-            .filter(({ address, family } = {} as any) => {
-                return (
-                    address &&
-                    (family === 'IPv4' ||
-                        // @ts-expect-error Can be a number in node 18.0-18.3
-                        family === 4)
-                )
-            })
-            .forEach(({ address }) => {
-                addrs.push(`http://${address}:${port}/`)
-            })
-
-        console.log(`Deui running at:\n${addrs.map((addr) => `- ${addr}`).join('\n')}`)
-    })
+export function broadcast(wss: WebSocketServer, payload: unknown) {
+    wss.clients.forEach((ws) => void send(ws, payload))
 }
 
 const KnownError = z.union([
@@ -145,4 +113,71 @@ export class MMREventEmitter extends EventEmitter {
     off(eventName: string | symbol, listener: (...args: any[]) => void): this {
         return super.off(eventName, listener)
     }
+}
+
+export function setRemoteState(
+    app: Application,
+    fn: (draft: Draft<Locals['remoteState']>) => void
+) {
+    app.locals.remoteState = produce(app.locals.remoteState, fn)
+
+    broadcast(app.locals.wss, {
+        type: MsgType.State,
+        payload: app.locals.remoteState,
+    })
+}
+
+export function listen(app: Application, options: { port?: number | string } = {}) {
+    const port = Number(options.port) || 3001
+
+    const server = createServer(app).on('upgrade', (req, socket, head) => {
+        const { wss } = app.locals
+
+        wss.handleUpgrade(req, socket, head, (ws) => {
+            wss.emit('connection', ws, req)
+        })
+    })
+
+    // @ts-ignore 0.0.0.0 is a valid host. TS expects a number (?).
+    server.listen(port, '0.0.0.0', () => {
+        info('Listening on %d…', port)
+
+        const addrs: string[] = []
+
+        Object.values(os.networkInterfaces())
+            .flatMap((i) => i ?? [])
+            .filter(({ address, family } = {} as any) => {
+                return (
+                    address &&
+                    (family === 'IPv4' ||
+                        // @ts-expect-error Can be a number in node 18.0-18.3
+                        family === 4)
+                )
+            })
+            .forEach(({ address }) => {
+                addrs.push(`http://${address}:${port}/`)
+            })
+
+        console.log(`Deui running at:\n${addrs.map((addr) => `- ${addr}`).join('\n')}`)
+    })
+
+    app.locals.wss.on('connection', (ws) => {
+        info('New client')
+
+        send(ws, {
+            type: MsgType.State,
+            payload: app.locals.remoteState,
+        })
+
+        send(ws, {
+            type: MsgType.Characteristics,
+            payload: app.locals.characteristicValues,
+        })
+
+        ws.on('close', () => void info('Client disconnected'))
+
+        ws.on('error', () => void error('Shit did happen, eh?'))
+
+        ws.on('message', (data) => void info('Received %s', data))
+    })
 }

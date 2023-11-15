@@ -1,28 +1,10 @@
-import {
-    CharAddr,
-    MajorState,
-    RemoteState,
-    ServerErrorCode,
-    ShotExecCommand,
-    ShotExecMethod,
-} from '../types'
-import { Characteristic } from '@abandonware/noble'
 import { Response, Router } from 'express'
 import { IncomingMessage } from 'http'
 import { z } from 'zod'
-import { knownError } from './utils'
+import { CharAddr, MajorState, ServerErrorCode, ShotExecCommand, ShotExecMethod } from '../types'
+import { knownError, setRemoteState } from './utils'
 
-export function router({
-    getCharacteristic,
-    getRemoteState,
-    scan,
-    setProfile,
-}: {
-    getCharacteristic: (uuid: string) => Characteristic | undefined
-    getRemoteState: () => RemoteState
-    scan?: () => void
-    setProfile?: (profile: Required<RemoteState['profile']>) => void
-}) {
+export function router() {
     const r = Router()
 
     function writeCharacteristic(
@@ -31,13 +13,14 @@ export function router({
         { withoutResponse = false }: { withoutResponse?: boolean } = {}
     ) {
         return async (_: IncomingMessage, res: Response) => {
-            const { device } = getRemoteState()
+            const {
+                remoteState: { device },
+                characteristics: { [uuid]: characteristic },
+            } = res.app.locals
 
             if (!device) {
                 throw knownError(409, ServerErrorCode.NotConnected)
             }
-
-            const characteristic = getCharacteristic(uuid)
 
             if (!characteristic) {
                 throw knownError(422, ServerErrorCode.UnknownCharacteristic)
@@ -53,27 +36,10 @@ export function router({
         throw 404
     })
 
+    /**
+     * @deprecated The server performs scans automatically now.
+     */
     r.post('/scan', (_, res) => {
-        const { bluetoothState, scanning, connecting, device } = getRemoteState()
-
-        if (bluetoothState !== 'poweredOn') {
-            throw knownError(409, ServerErrorCode.NotPoweredOn)
-        }
-
-        if (scanning) {
-            throw knownError(409, ServerErrorCode.AlreadyScanning)
-        }
-
-        if (connecting) {
-            throw knownError(409, ServerErrorCode.AlreadyConnecting)
-        }
-
-        if (device) {
-            throw knownError(409, ServerErrorCode.AlreadyConnected)
-        }
-
-        scan?.()
-
         res.status(200).json({})
     })
 
@@ -86,7 +52,7 @@ export function router({
 
         let charAddr: CharAddr = CharAddr.FrameWrite
 
-        const { profile } = getRemoteState()
+        const { profile } = res.app.locals.remoteState
 
         switch (command.method) {
             case ShotExecMethod.Header:
@@ -104,9 +70,11 @@ export function router({
                     throw knownError(409, ServerErrorCode.AlreadyWritingShot)
                 }
 
-                setProfile?.({
-                    id: Buffer.from(command.params as any, 'hex').toString(),
-                    ready: command.method === ShotExecMethod.ShotEndProfileWrite,
+                setRemoteState(res.app, (rs) => {
+                    Object.assign(rs.profile, {
+                        id: Buffer.from(command.params as any, 'hex').toString(),
+                        ready: command.method === ShotExecMethod.ShotEndProfileWrite,
+                    })
                 })
 
                 return void res.status(200).end()
