@@ -1,8 +1,19 @@
 import { Response, Router } from 'express'
+import fs from 'fs'
 import { IncomingMessage } from 'http'
 import { z } from 'zod'
-import { CharAddr, MajorState, ServerErrorCode, ShotExecCommand, ShotExecMethod } from '../types'
+import {
+    CharAddr,
+    MajorState,
+    Profile,
+    RawProfile,
+    ServerErrorCode,
+    ShotExecCommand,
+    ShotExecMethod,
+} from '../types'
 import { knownError, setRemoteState } from './utils'
+import path from 'path'
+import { preloadProfiles } from './middlewares/profiles'
 
 export function router() {
     const r = Router()
@@ -88,6 +99,35 @@ export function router() {
     r.post('/on', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Idle])))
 
     r.post('/off', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Sleep])))
+
+    r.post('/profile-list', preloadProfiles, (req, res) => {
+        const { profiles } = res.app.locals
+
+        if (!profiles) {
+            throw new Error('Invalid profiles')
+        }
+
+        const profileId = z
+            .string()
+            .refine((id) => profiles.some((profile) => id === profile.id))
+            .parse(req.body)
+
+        /**
+         * @todo write (if possible) and broadcast to all clients.
+         */
+
+        res.end()
+    })
+
+    r.get('/profile-list', preloadProfiles, (_, res) => {
+        const { profiles } = res.app.locals
+
+        if (!profiles) {
+            throw new Error('Invalid profiles')
+        }
+
+        res.json(profiles)
+    })
 
     return r
 }

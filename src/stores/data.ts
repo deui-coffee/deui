@@ -8,7 +8,6 @@ import {
     MinorState,
     ShotSettings,
     isCharMessage,
-    profiles,
 } from '$/types'
 import {
     ChunkType,
@@ -20,18 +19,18 @@ import {
     isStateMessage,
 } from '$/types'
 import wsStream, { WsController } from '$/utils/wsStream'
-import { current, produce } from 'immer'
+import { produce } from 'immer'
 import { MutableRefObject, useEffect, useMemo, useRef } from 'react'
 import { create } from 'zustand'
 import { Buffer } from 'buffer'
 import { decodeShotFrame, decodeShotHeader } from '$/utils/shot'
-import { getLastKnownProfile, getProfile, storeProfileId } from '$/utils/profile'
-import { exec, uploadProfile } from '$/utils/comms'
 import getDefaultRemoteState from '$/utils/getDefaultRemoteState'
 import stopwatch from '$/utils/stopwatch'
 import avg from '$/utils/avg'
 import { useUiStore } from './ui'
 import { sleep } from '$/shared/utils'
+import axios from 'axios'
+import { z } from 'zod'
 
 interface DataStore {
     wsState: WebSocketState
@@ -44,9 +43,11 @@ interface DataStore {
 
     disconnect: () => void
 
-    profile: Profile | undefined
+    profileId: string | undefined
 
-    setProfileId: (profileId: string, options?: { upload?: boolean }) => Promise<void>
+    setProfileId: (profileId: string) => void
+
+    profiles: Profile[]
 }
 
 function getDefaultProperties(): Properties {
@@ -68,6 +69,16 @@ const majorToTimedPropMap: Partial<Record<MajorState, TimedProp>> = {
 
 export const useDataStore = create<DataStore>((set, get) => {
     let ctrl: WsController | undefined
+
+    void (async () => {
+        try {
+            set({
+                profiles: z.array(Profile).parse((await axios.get('/profile-list')).data),
+            })
+        } catch (e) {
+            console.warn('Failed to fetch or parse profiles', e)
+        }
+    })()
 
     function setProperties(properties: Properties) {
         set((current) =>
@@ -148,42 +159,6 @@ export const useDataStore = create<DataStore>((set, get) => {
         { onDeviceReady }: { onDeviceReady?: () => void } = {}
     ) {
         /**
-         * Scan triggering.
-         */
-        void (async () => {
-            if (remoteState.bluetoothState !== BluetoothState.PoweredOn) {
-                return
-            }
-
-            if (remoteState.scanning || remoteState.connecting || remoteState.device) {
-                return
-            }
-
-            try {
-                await exec('scan')
-            } catch (e) {
-                console.warn('Scan failed', e)
-            }
-        })()
-
-        /**
-         * Profile setting.
-         */
-        void (async () => {
-            const { id: remoteProfileId } = remoteState.profile
-
-            const newProfileId = remoteProfileId || (await getLastKnownProfile())?.id
-
-            try {
-                if (newProfileId) {
-                    await setProfileId(newProfileId, { upload: !remoteProfileId })
-                }
-            } catch (e) {
-                console.warn('Failed to apply remote profile id', newProfileId)
-            }
-        })()
-
-        /**
          * Readyness reporting.
          */
         void (() => {
@@ -194,11 +169,7 @@ export const useDataStore = create<DataStore>((set, get) => {
             }
         })()
 
-        set((store) =>
-            produce(store, (draft) => {
-                draft.remoteState = remoteState
-            })
-        )
+        set({ remoteState })
     }
 
     const timers: Record<TimedProp, Stopwatch | undefined> = {
@@ -293,77 +264,8 @@ export const useDataStore = create<DataStore>((set, get) => {
         }
     }
 
-    async function uploadCurrentProfile() {
-        const {
-            remoteState: {
-                device,
-                deviceReady,
-                profile: { id: remoteProfileId, ready },
-            },
-            profile,
-        } = get()
-
-        if (!device || !deviceReady) {
-            /**
-             * Upload would be rejected by the backend because DE1 isn't
-             * ready. Do nothing.
-             */
-            return
-        }
-
-        if (!ready) {
-            /**
-             * We're in the middle of an upload already. Do nothing.
-             */
-            return
-        }
-
-        if (!profile) {
-            /**
-             * No profile to upload.
-             */
-            return
-        }
-
-        if (remoteProfileId === profile.id) {
-            /**
-             * Current profile is already the one available to other clients.
-             */
-            return
-        }
-
-        try {
-            const shotSettings = await uploadProfile(profile, getCurrentShotSettings())
-
-            setProperties({
-                [Prop.SteamSettings]: shotSettings.SteamSettings,
-                [Prop.TargetSteamTemp]: shotSettings.TargetSteamTemp,
-                [Prop.TargetSteamLength]: shotSettings.TargetSteamLength,
-                [Prop.TargetHotWaterTemp]: shotSettings.TargetHotWaterTemp,
-                [Prop.TargetHotWaterVol]: shotSettings.TargetHotWaterVol,
-                [Prop.TargetHotWaterLength]: shotSettings.TargetHotWaterLength,
-                [Prop.TargetEspressoVol]: shotSettings.TargetEspressoVol,
-                [Prop.TargetGroupTemp]: shotSettings.TargetGroupTemp,
-            })
-        } catch (e) {
-            console.warn('Failed to upload current profile', e)
-        }
-    }
-
-    async function setProfileId(profileId: string, { upload = false }: { upload?: boolean } = {}) {
-        const profile = await getProfile(profileId)
-
-        set((current) =>
-            produce(current, (next) => {
-                next.profile = profile
-            })
-        )
-
-        storeProfileId(profileId)
-
-        if (upload) {
-            await uploadCurrentProfile()
-        }
+    function setProfileId(profileId: string) {
+        set({ profileId })
     }
 
     return {
@@ -503,9 +405,11 @@ export const useDataStore = create<DataStore>((set, get) => {
             ctrl = undefined
         },
 
-        profile: undefined,
+        profileId: undefined,
 
         setProfileId,
+
+        profiles: [],
     }
 })
 
@@ -705,9 +609,7 @@ export function useConnectionPhase() {
 }
 
 export function useCurrentProfileLabel() {
-    const profileId = useDataStore().profile?.id
+    const { profiles, profileId } = useDataStore()
 
-    const manifest = useMemo(() => profiles.find(({ id }) => profileId === id), [profileId])
-
-    return manifest?.name
+    return useMemo(() => profiles.find(({ id }) => id === profileId)?.title, [profiles, profileId])
 }

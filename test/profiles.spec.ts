@@ -1,22 +1,19 @@
-import { Profile, RawProfile } from '$/types'
-import profiles from '../src/generated/profiles.json'
+import { RawProfile } from '$/types'
 import fs from 'fs'
 import path from 'path'
 
 describe('Predefined profiles', () => {
-    profiles.forEach(({ name, id }) => {
-        describe(`${id} (${name})`, () => {
-            it('has got a name', () => {
-                expect(name).toBeTruthy()
-            })
+    fs.readdirSync(path.resolve(__dirname, '../public/profiles')).forEach((filename) => {
+        const id = filename.replace(/\.json$/i, '')
 
+        describe(`Profile #${id}`, () => {
             it('is valid', () => {
                 expect(() => {
                     RawProfile.parse(
                         JSON.parse(
                             fs
                                 .readFileSync(
-                                    path.resolve(__dirname, '../public/profiles', `${id}.json`)
+                                    path.resolve(__dirname, '../public/profiles', filename)
                                 )
                                 .toString()
                         )

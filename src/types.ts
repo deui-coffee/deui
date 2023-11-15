@@ -5,7 +5,6 @@ import { SettingsIcon } from '$/icons'
 import { MetricsIcon } from '$/icons'
 import { ProfilesIcon } from '$/icons'
 import { z } from 'zod'
-import rawProfiles from './generated/profiles.json'
 
 export enum CharAddr {
     Versions /*       */ = '0000a001-0000-1000-8000-00805f9b34fb', // A R    Versions See T_Versions
@@ -30,7 +29,6 @@ export enum CharAddr {
 
 export enum StorageKey {
     Theme = 'deui/theme',
-    Profile = 'deui/profile',
     BackendUrl = 'deui/backendUrl',
     RecentMAC = 'deui/recentMAC',
 }
@@ -254,6 +252,7 @@ export enum BeverageType {
 
 export const Profile = z.object({
     id: z.string(),
+    title: z.string(),
     author: z.string(),
     beverage_type: z
         .literal(BeverageType.Espresso)
@@ -284,10 +283,6 @@ export type Profile = z.infer<typeof Profile>
 export const RawProfile = Profile.omit({ id: true })
 
 export type RawProfile = z.infer<typeof RawProfile>
-
-export function isRawProfile(payload: unknown): payload is RawProfile {
-    return RawProfile.safeParse(payload).success
-}
 
 export enum WebSocketState {
     Opening = 'opening',
@@ -560,19 +555,6 @@ export enum ServerErrorCode {
     NotConnected,
     UnknownCharacteristic,
     AlreadyWritingShot,
-}
-
-export const profiles = (rawProfiles as ProfileManifest[]).sort(({ id: a }, { id: b }) =>
-    a.localeCompare(b)
-)
-
-export enum ShotExecMethod {
-    Header = 'exec_writeShotHeader',
-    Frame = 'exec_writeShotFrame',
-    Tail = 'exec_writeShotTail',
-    ShotSettings = 'exec_writeShotSettings',
-    ShotBeginProfileWrite = 'exec_beginProfileWrite',
-    ShotEndProfileWrite = 'exec_endProfileWrite',
 }
 
 export interface ShotExecCommand {

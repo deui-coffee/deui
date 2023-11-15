@@ -15,9 +15,11 @@ import { listen } from './utils'
 const app = express()
 
 Object.assign(app.locals, {
-    remoteState: getDefaultRemoteState(),
     characteristicValues: {},
     mmrData: {},
+    profiles: undefined,
+    profilesDir: '.',
+    remoteState: getDefaultRemoteState(),
     wss: new WebSocketServer({ noServer: true, path: '/' }),
 })
 

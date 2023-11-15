@@ -1,5 +1,5 @@
 import { Characteristic } from '@abandonware/noble'
-import { CharAddr, MMRAddr, RemoteState } from '../src/types'
+import { CharAddr, MMRAddr, Profile, RemoteState } from '../src/types'
 import { WebSocketServer } from 'ws'
 
 export {}
@@ -32,6 +32,17 @@ declare global {
              * WebSocket server.
              */
             wss: WebSocketServer
+
+            /**
+             * Current set of visible profiles.
+             */
+            profiles: Profile[] | undefined
+
+            /**
+             * Profiles dir. It's different for production and for
+             * development so watch out.
+             */
+            profilesDir: string
         }
     }
 }

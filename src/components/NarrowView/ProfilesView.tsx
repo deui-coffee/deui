@@ -1,22 +1,16 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import { getVisibleProfiles } from '$/utils'
-import { useSetProfileIdCallback } from '$/hooks'
 import { useDataStore } from '$/stores/data'
 
-const profiles = getVisibleProfiles()
-
 export default function ProfilesView() {
-    const { profile } = useDataStore()
-
-    const setProfileId = useSetProfileIdCallback()
+    const { profileId, profiles, setProfileId } = useDataStore()
 
     return (
         <>
-            {profiles.map(({ id, name }) => (
-                <Item key={id} id={id} onClick={setProfileId} active={id === profile?.id}>
-                    {name}
+            {profiles.map(({ id, title }) => (
+                <Item key={id} id={id} onClick={setProfileId} active={id === profileId}>
+                    {title}
                 </Item>
             ))}
         </>

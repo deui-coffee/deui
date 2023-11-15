@@ -14,12 +14,24 @@ export default function development() {
         cors(),
         createProxyMiddleware(
             (pathname: string, req: Request) => {
-                return req.method !== 'POST' || !/^\/(scan|on|off|exec)/.test(pathname)
+                switch (req.method) {
+                    case 'POST':
+                        return !/^\/(scan|on|off|exec)\/?/.test(pathname)
+                    case 'GET':
+                        return !/\/profile-list\/?$/.test(pathname)
+                    default:
+                        return true
+                }
             },
             {
                 target: 'http://127.0.0.1:3000',
                 changeOrigin: true,
             }
         ),
+        (_: Request, res: Response, next: NextFunction) => {
+            res.app.locals.profilesDir = 'public'
+
+            next()
+        },
     ]
 }
