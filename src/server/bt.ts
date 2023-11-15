@@ -142,7 +142,7 @@ export function setupBluetooth(app: Application, { scan = false } = {}) {
 
                         /**
                          * @todo We may consider checking for GHC like so
-                         * await Mmr.read(MMRAddr.GHCInfo, 0)
+                         * await Mmr.read(app, MMRAddr.GHCInfo, 0)
                          */
 
                         /**
@@ -182,19 +182,19 @@ export function setupBluetooth(app: Application, { scan = false } = {}) {
 
                         /**
                          * @todo We may want to check the board model:
-                         * await Mmr.read(MMRAddr.CPUBoardModel, 2)
+                         * await Mmr.read(app, MMRAddr.CPUBoardModel, 2)
                          */
 
                         await Mmr.tweakHeaters(app)
 
                         /**
                          * @todo We may want read refill kit info here:
-                         * await Mmr.read(MMRAddr.RefillKitPresent, 0)
+                         * await Mmr.read(app, MMRAddr.RefillKitPresent, 0)
                          */
 
                         /**
                          * @todo We may want to read the serial number here:
-                         * await Mmr.read(MMRAddr.SerialN, 0)
+                         * await Mmr.read(app, MMRAddr.SerialN, 0)
                          */
 
                         /**
@@ -211,7 +211,7 @@ export function setupBluetooth(app: Application, { scan = false } = {}) {
                         /**
                          * @todo We may want to deal with calibration, You'd read the current
                          * multiplier like so:
-                         * await Mmr.read(MMRAddr.CalFlowEst, 0)
+                         * await Mmr.read(app, MMRAddr.CalFlowEst, 0)
                          */
 
                         await sleep(5000)
