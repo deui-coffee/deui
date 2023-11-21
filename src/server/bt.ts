@@ -234,6 +234,23 @@ export function setupBluetooth(app: Application) {
                         })
 
                         /**
+                         * The old set of characteristics is stale at this
+                         * point. We're gonna get a new one once we connect
+                         * to the machine again.
+                         */
+                        app.locals.characteristics = {}
+
+                        /**
+                         * Similar story. We may wanna broadcast these.
+                         */
+                        app.locals.characteristicValues = {}
+
+                        /**
+                         * And with MMR reads.
+                         */
+                        app.locals.mmrData = {}
+
+                        /**
                          * There's nothing we can do with the found device
                          * nor with the connection. It's time to start over.
                          */

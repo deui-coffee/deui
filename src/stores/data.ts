@@ -6,7 +6,6 @@ import {
     MachineMode,
     MajorState,
     MinorState,
-    ShotSettings,
     isCharMessage,
 } from '$/types'
 import {
@@ -42,10 +41,6 @@ interface DataStore {
     connect: (options?: { onDeviceReady?: () => void }) => Promise<void>
 
     disconnect: () => void
-
-    profileId: string | undefined
-
-    setProfileId: (profileId: string) => void
 
     profiles: Profile[]
 }
@@ -240,34 +235,6 @@ export const useDataStore = create<DataStore>((set, get) => {
         })
     }
 
-    function getCurrentShotSettings(): ShotSettings {
-        const {
-            [Prop.SteamSettings]: SteamSettings = 0,
-            [Prop.TargetSteamTemp]: TargetSteamTemp = 140,
-            [Prop.TargetSteamLength]: TargetSteamLength = 90,
-            [Prop.TargetHotWaterTemp]: TargetHotWaterTemp = 85,
-            [Prop.TargetHotWaterVol]: TargetHotWaterVol = 120,
-            [Prop.TargetHotWaterLength]: TargetHotWaterLength = 45,
-            [Prop.TargetEspressoVol]: TargetEspressoVol = 36,
-            [Prop.TargetGroupTemp]: TargetGroupTemp = 98,
-        } = get().properties
-
-        return {
-            SteamSettings,
-            TargetSteamTemp,
-            TargetSteamLength,
-            TargetHotWaterTemp,
-            TargetHotWaterVol,
-            TargetHotWaterLength,
-            TargetEspressoVol,
-            TargetGroupTemp,
-        }
-    }
-
-    function setProfileId(profileId: string) {
-        set({ profileId })
-    }
-
     return {
         wsState: WebSocketState.Closed,
 
@@ -404,10 +371,6 @@ export const useDataStore = create<DataStore>((set, get) => {
 
             ctrl = undefined
         },
-
-        profileId: undefined,
-
-        setProfileId,
 
         profiles: [],
     }
@@ -609,7 +572,10 @@ export function useConnectionPhase() {
 }
 
 export function useCurrentProfileLabel() {
-    const { profiles, profileId } = useDataStore()
+    const {
+        profiles,
+        remoteState: { profileId },
+    } = useDataStore()
 
     return useMemo(() => profiles.find(({ id }) => id === profileId)?.title, [profiles, profileId])
 }

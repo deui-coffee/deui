@@ -2,14 +2,25 @@ import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import { useDataStore } from '$/stores/data'
+import axios from 'axios'
 
 export default function ProfilesView() {
-    const { profileId, profiles, setProfileId } = useDataStore()
+    const {
+        profiles,
+        remoteState: { profileId },
+    } = useDataStore()
 
     return (
         <>
             {profiles.map(({ id, title }) => (
-                <Item key={id} id={id} onClick={setProfileId} active={id === profileId}>
+                <Item
+                    key={id}
+                    id={id}
+                    onClick={async () => {
+                        await axios.post(`/profile-list/${id}`)
+                    }}
+                    active={id === profileId}
+                >
                     {title}
                 </Item>
             ))}

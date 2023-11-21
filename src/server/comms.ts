@@ -1,18 +1,12 @@
 import { Application } from 'express'
 import { sleep } from '../shared/utils'
-import { CharAddr, MMRAddr } from '../types'
-import { MMREventEmitter } from './utils'
+import { CharAddr, MMRAddr, ServerErrorCode } from '../types'
+import { MMREventEmitter, knownError } from './utils'
 
 const emitter = new MMREventEmitter()
 
 export const Mmr = Object.freeze({
     async read(app: Application, addr: MMRAddr, length: number) {
-        const { [CharAddr.ReadFromMMR]: characteristic } = app.locals.characteristics
-
-        if (!characteristic) {
-            throw new Error('No ReadFromMMR characteristic')
-        }
-
         const buf = Buffer.alloc(20, 0)
 
         buf.writeUint32BE(addr)
@@ -37,6 +31,13 @@ export const Mmr = Object.freeze({
 
                     void (async () => {
                         try {
+                            const { [CharAddr.ReadFromMMR]: characteristic } =
+                                app.locals.characteristics
+
+                            if (!characteristic) {
+                                throw knownError(409, ServerErrorCode.UnknownCharacteristic)
+                            }
+
                             await characteristic.writeAsync(buf, false)
                         } catch (e) {
                             reject(e)
@@ -55,7 +56,7 @@ export const Mmr = Object.freeze({
         const { [CharAddr.WriteToMMR]: characteristic } = app.locals.characteristics
 
         if (!characteristic) {
-            throw new Error('No WriteToMMR characteristic')
+            throw knownError(409, ServerErrorCode.UnknownCharacteristic)
         }
 
         const buf = Buffer.alloc(20, 0)
@@ -122,7 +123,7 @@ export const Char = Object.freeze({
         const { [addr]: characteristic } = app.locals.characteristics
 
         if (!characteristic) {
-            throw new Error('No characteristic')
+            throw knownError(409, ServerErrorCode.UnknownCharacteristic)
         }
 
         await characteristic.writeAsync(buffer, false)
@@ -132,7 +133,7 @@ export const Char = Object.freeze({
         const { [addr]: characteristic } = app.locals.characteristics
 
         if (!characteristic) {
-            throw new Error('No characteristic')
+            throw knownError(409, ServerErrorCode.UnknownCharacteristic)
         }
 
         return characteristic.readAsync()
