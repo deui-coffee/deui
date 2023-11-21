@@ -384,7 +384,7 @@ export const RemoteState = z.object({
     discoveringCharacteristics: z.boolean(),
     device: Peripheral.or(z.undefined()),
     deviceReady: z.boolean(),
-    profile: RemoteProfile,
+    profileId: z.string(),
 })
 
 export type RemoteState = z.infer<typeof RemoteState>
@@ -555,11 +555,6 @@ export enum ServerErrorCode {
     NotConnected,
     UnknownCharacteristic,
     AlreadyWritingShot,
-}
-
-export interface ShotExecCommand {
-    method: ShotExecMethod
-    params: Buffer
 }
 
 export enum SteamSetting {

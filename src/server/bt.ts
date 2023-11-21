@@ -1,7 +1,16 @@
 import noble, { Characteristic, Peripheral } from '@abandonware/noble'
+import fs from 'fs'
 import { Application } from 'express'
 import { sleep, toU16P8, toU8P0 } from '../shared/utils'
-import { BluetoothState, CharAddr, MMRAddr, MsgType, RefillPreset, SteamSetting } from '../types'
+import {
+    BluetoothState,
+    CharAddr,
+    MMRAddr,
+    MsgType,
+    RawProfile,
+    RefillPreset,
+    SteamSetting,
+} from '../types'
 import { toEncodedShotSettings } from '../utils/shot'
 import { Char, Mmr } from './comms'
 import {
@@ -11,7 +20,10 @@ import {
     longCharacteristicUUID,
     setRemoteState,
     watchCharacteristic,
+    writeProfile,
+    writeShotSettings,
 } from './utils'
+import path from 'path'
 
 let initialized = false
 
@@ -151,27 +163,11 @@ export function setupBluetooth(app: Application) {
                          * await Mmr.read(app, MMRAddr.GHCInfo, 0)
                          */
 
-                        /**
-                         * @todo We may consider sending the profile here. In order to be able
-                         * to do it we gotta store it somewhere. Storage is a whole another topic.
-                         */
+                        const profile = await writeProfile(app, 'default')
 
                         await Mmr.write(app, MMRAddr.FanThreshold, Mmr.formatUint32(60))
 
-                        await Char.write(
-                            app,
-                            CharAddr.ShotSettings,
-                            toEncodedShotSettings({
-                                SteamSettings: SteamSetting.LowPower,
-                                TargetSteamTemp: toU8P0(160),
-                                TargetSteamLength: toU8P0(120),
-                                TargetHotWaterTemp: toU8P0(98),
-                                TargetHotWaterVol: toU8P0(70),
-                                TargetHotWaterLength: toU8P0(60),
-                                TargetEspressoVol: toU8P0(200),
-                                TargetGroupTemp: toU8P0(88),
-                            })
-                        )
+                        await writeShotSettings(app, undefined, { profile })
 
                         await Mmr.write(app, MMRAddr.TargetSteamFlow, Mmr.formatUint32(250))
 

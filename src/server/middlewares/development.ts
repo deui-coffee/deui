@@ -16,9 +16,9 @@ export default function development() {
             (pathname: string, req: Request) => {
                 switch (req.method) {
                     case 'POST':
-                        return !/^\/(scan|on|off|exec)\/?/.test(pathname)
+                        return !/^\/(on|off)\/?/.test(pathname)
                     case 'GET':
-                        return !/\/profile-list\/?$/.test(pathname)
+                        return !/\/(profile-list|state)\/?$/.test(pathname)
                     default:
                         return true
                 }

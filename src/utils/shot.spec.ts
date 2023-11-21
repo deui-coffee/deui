@@ -254,21 +254,21 @@ describe('Shot utils', () => {
 
             const [head, b0, b1, b2, b3, b4, b5] = bufs
 
-            expect(decodeShotHeader(head!.payload).HeaderV).toEqual(1)
+            expect(decodeShotHeader(head).HeaderV).toEqual(1)
 
-            expect(decodeShotHeader(head!.payload).NumberOfFrames).toEqual(4)
+            expect(decodeShotHeader(head).NumberOfFrames).toEqual(4)
 
-            expect(decodeShotFrame(b0!.payload).FrameLen).toBe(2)
+            expect(decodeShotFrame(b0!).FrameLen).toBe(2)
 
-            expect(decodeShotFrame(b1!.payload).FrameLen).toBe(6)
+            expect(decodeShotFrame(b1!).FrameLen).toBe(6)
 
-            expect(decodeShotFrame(b2!.payload).FrameLen).toBe(3)
+            expect(decodeShotFrame(b2!).FrameLen).toBe(3)
 
-            expect(decodeShotFrame(b3!.payload).FrameLen).toBe(32)
+            expect(decodeShotFrame(b3!).FrameLen).toBe(32)
 
-            expect(decodeShotExtensionFrame(b4!.payload).MaxFlowOrPressure).toBe(4.5)
+            expect(decodeShotExtensionFrame(b4!).MaxFlowOrPressure).toBe(4.5)
 
-            expect(decodeShotTailFrame(b5!.payload).MaxTotalVolume).toBe(0)
+            expect(decodeShotTailFrame(b5!).MaxTotalVolume).toBe(0)
         })
     })
 })
