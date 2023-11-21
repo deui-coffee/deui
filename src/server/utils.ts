@@ -92,6 +92,7 @@ const KnownError = z.union([
                 z.literal(ServerErrorCode.NotConnected),
                 z.literal(ServerErrorCode.UnknownCharacteristic),
                 z.literal(ServerErrorCode.AlreadyWritingShot),
+                z.literal(ServerErrorCode.Locked),
             ])
             .optional(),
         statusCode: z.number(),
@@ -269,4 +270,22 @@ export async function writeShotSettings(
     await Char.write(app, CharAddr.ShotSettings, toEncodedShotSettings(newShotSettings))
 
     return newShotSettings
+}
+
+export function lock<T extends () => any = () => void>(
+    app: Application,
+    fn: T,
+    ...args: Parameters<T>
+): ReturnType<T> {
+    app.locals.locks++
+
+    const result = (fn as any)(...args)
+
+    if (!(result instanceof Promise)) {
+        return result
+    }
+
+    return result.finally(() => {
+        app.locals.locks--
+    }) as ReturnType<T>
 }

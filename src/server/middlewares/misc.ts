@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
 import fs from 'fs'
 import path from 'path'
-import { RawProfile } from '../../types'
+import { RawProfile, ServerErrorCode } from '../../types'
+import { knownError } from '../utils'
 
 export function preloadProfiles(_: Request, res: Response, next: NextFunction) {
     const { app } = res
@@ -35,6 +36,16 @@ export function preloadProfiles(_: Request, res: Response, next: NextFunction) {
         profiles.sort(({ id: a }, { id: b }) => a.localeCompare(b))
 
         app.locals.profiles = profiles
+    }
+
+    next()
+}
+
+export function checkLocks(_: Request, res: Response, next: NextFunction) {
+    const { locks } = res.app.locals
+
+    if (locks > 0) {
+        throw knownError(409, ServerErrorCode.Locked)
     }
 
     next()

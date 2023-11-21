@@ -1,73 +1,77 @@
 import { Application } from 'express'
 import { sleep } from '../shared/utils'
 import { CharAddr, MMRAddr, ServerErrorCode } from '../types'
-import { MMREventEmitter, knownError } from './utils'
+import { MMREventEmitter, knownError, lock } from './utils'
 
 const emitter = new MMREventEmitter()
 
 export const Mmr = Object.freeze({
-    async read(app: Application, addr: MMRAddr, length: number) {
-        const buf = Buffer.alloc(20, 0)
+    read(app: Application, addr: MMRAddr, length: number) {
+        return lock(app, async () => {
+            const buf = Buffer.alloc(20, 0)
 
-        buf.writeUint32BE(addr)
+            buf.writeUint32BE(addr)
 
-        buf.writeUint8(length, 0)
+            buf.writeUint8(length, 0)
 
-        let onRead: ((addr: MMRAddr, data: Buffer) => void) | undefined = undefined
+            let onRead: ((addr: MMRAddr, data: Buffer) => void) | undefined = undefined
 
-        try {
-            return await Promise.race([
-                new Promise<Buffer>((_, reject) => {
-                    sleep(10000).then(() => void reject(new Error('Timeout')))
-                }),
-                new Promise<Buffer>((resolve, reject) => {
-                    onRead = (incomingAddr, data) => {
-                        if (incomingAddr === addr) {
-                            resolve(data)
-                        }
-                    }
-
-                    emitter.on('read', onRead)
-
-                    void (async () => {
-                        try {
-                            const { [CharAddr.ReadFromMMR]: characteristic } =
-                                app.locals.characteristics
-
-                            if (!characteristic) {
-                                throw knownError(409, ServerErrorCode.UnknownCharacteristic)
+            try {
+                return await Promise.race([
+                    new Promise<Buffer>((_, reject) => {
+                        sleep(10000).then(() => void reject(new Error('Timeout')))
+                    }),
+                    new Promise<Buffer>((resolve, reject) => {
+                        onRead = (incomingAddr, data) => {
+                            if (incomingAddr === addr) {
+                                resolve(data)
                             }
-
-                            await characteristic.writeAsync(buf, false)
-                        } catch (e) {
-                            reject(e)
                         }
-                    })()
-                }),
-            ])
-        } finally {
-            if (onRead) {
-                emitter.off('read', onRead)
+
+                        emitter.on('read', onRead)
+
+                        void (async () => {
+                            try {
+                                const { [CharAddr.ReadFromMMR]: characteristic } =
+                                    app.locals.characteristics
+
+                                if (!characteristic) {
+                                    throw knownError(409, ServerErrorCode.UnknownCharacteristic)
+                                }
+
+                                await characteristic.writeAsync(buf, false)
+                            } catch (e) {
+                                reject(e)
+                            }
+                        })()
+                    }),
+                ])
+            } finally {
+                if (onRead) {
+                    emitter.off('read', onRead)
+                }
             }
-        }
+        })
     },
 
-    async write(app: Application, addr: MMRAddr, value: Buffer) {
-        const { [CharAddr.WriteToMMR]: characteristic } = app.locals.characteristics
+    write(app: Application, addr: MMRAddr, value: Buffer) {
+        return lock(app, async () => {
+            const { [CharAddr.WriteToMMR]: characteristic } = app.locals.characteristics
 
-        if (!characteristic) {
-            throw knownError(409, ServerErrorCode.UnknownCharacteristic)
-        }
+            if (!characteristic) {
+                throw knownError(409, ServerErrorCode.UnknownCharacteristic)
+            }
 
-        const buf = Buffer.alloc(20, 0)
+            const buf = Buffer.alloc(20, 0)
 
-        buf.writeUint32BE(addr)
+            buf.writeUint32BE(addr)
 
-        buf.writeUint8(value.byteLength, 0)
+            buf.writeUint8(value.byteLength, 0)
 
-        value.copy(buf, 4)
+            value.copy(buf, 4)
 
-        await characteristic.writeAsync(buf, false)
+            await characteristic.writeAsync(buf, false)
+        })
     },
 
     async tweakHeaters(app: Application) {
@@ -119,14 +123,16 @@ export const Mmr = Object.freeze({
 })
 
 export const Char = Object.freeze({
-    async write(app: Application, addr: CharAddr, buffer: Buffer) {
-        const { [addr]: characteristic } = app.locals.characteristics
+    write(app: Application, addr: CharAddr, buffer: Buffer) {
+        return lock(app, async () => {
+            const { [addr]: characteristic } = app.locals.characteristics
 
-        if (!characteristic) {
-            throw knownError(409, ServerErrorCode.UnknownCharacteristic)
-        }
+            if (!characteristic) {
+                throw knownError(409, ServerErrorCode.UnknownCharacteristic)
+            }
 
-        await characteristic.writeAsync(buffer, false)
+            await characteristic.writeAsync(buffer, false)
+        })
     },
 
     async read(app: Application, addr: CharAddr) {

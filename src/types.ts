@@ -555,6 +555,7 @@ export enum ServerErrorCode {
     NotConnected,
     UnknownCharacteristic,
     AlreadyWritingShot,
+    Locked,
 }
 
 export enum SteamSetting {

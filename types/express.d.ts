@@ -43,6 +43,13 @@ declare global {
              * development so watch out.
              */
             profilesDir: string
+
+            /**
+             * The number of ongoing locks. Anything above 0 prevents the user
+             * from writing to the machine via the server. See `checkLocks`
+             * and the router.
+             */
+            locks: number
         }
     }
 }

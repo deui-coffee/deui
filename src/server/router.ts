@@ -1,7 +1,7 @@
-import { Router } from 'express'
+import { Request, Router } from 'express'
 import { CharAddr, MajorState } from '../types'
-import { setRemoteState, writeProfile, writeShotSettings } from './utils'
-import { preloadProfiles } from './middlewares/profiles'
+import { lock, setRemoteState, writeProfile, writeShotSettings } from './utils'
+import { checkLocks, preloadProfiles } from './middlewares/misc'
 import { Char } from './comms'
 
 export function router() {
@@ -11,14 +11,18 @@ export function router() {
         throw 404
     })
 
-    r.post('/on', async (_, res) => {
-        await Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Idle]))
+    r.post('/on', checkLocks, async (_, res) => {
+        await lock(res.app, () =>
+            Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Idle]))
+        )
 
         res.status(200).end()
     })
 
-    r.post('/off', async (_, res) => {
-        await Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Sleep]))
+    r.post('/off', checkLocks, async (_, res) => {
+        await lock(res.app, () =>
+            Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Sleep]))
+        )
 
         res.status(200).end()
     })
@@ -27,19 +31,25 @@ export function router() {
         res.json(res.app.locals.remoteState)
     })
 
-    r.post('/profile-list/:profileId', async ({ params }, res) => {
-        const { app } = res
+    r.post(
+        '/profile-list/:profileId',
+        checkLocks,
+        async (req: Request<{ profileId: string }>, res) => {
+            const { app } = res
 
-        const profile = await writeProfile(res.app, params.profileId)
+            await lock(app, async () => {
+                const profile = await writeProfile(app, req.params.profileId)
 
-        setRemoteState(app, (draft) => {
-            draft.profileId = profile.id
-        })
+                setRemoteState(app, (draft) => {
+                    draft.profileId = profile.id
+                })
 
-        await writeShotSettings(app, undefined, { profile })
+                await writeShotSettings(app, undefined, { profile })
+            })
 
-        res.status(200).end()
-    })
+            res.status(200).end()
+        }
+    )
 
     r.get('/profile-list', preloadProfiles, (_, res) => {
         res.json(res.app.locals)

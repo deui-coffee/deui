@@ -16,6 +16,7 @@ const app = express()
 
 Object.assign(app.locals, {
     characteristicValues: {},
+    locks: 0,
     mmrData: {},
     profiles: undefined,
     profilesDir: '.',
