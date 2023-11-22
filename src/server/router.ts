@@ -42,24 +42,26 @@ export function router() {
     r.post(
         '/profile-list/:profileId',
         checkLocks,
-        async (req: Request<{ profileId: string }>, res, next) => {
+        async (req: Request<{ profileId: string }>, res) => {
             const { app } = res
 
-            try {
-                await lock(app, async () => {
-                    const profile = await writeProfile(app, req.params.profileId)
+            void (async () => {
+                try {
+                    await lock(app, async () => {
+                        const profile = await writeProfile(app, req.params.profileId)
 
-                    setRemoteState(app, (draft) => {
-                        draft.profileId = profile.id
+                        setRemoteState(app, (draft) => {
+                            draft.profileId = profile.id
+                        })
+
+                        await writeShotSettings(app, undefined, { profile })
                     })
+                } catch (e) {
+                    //
+                }
+            })()
 
-                    await writeShotSettings(app, undefined, { profile })
-                })
-
-                res.status(200).end()
-            } catch (e) {
-                next(e)
-            }
+            res.status(200).end()
         }
     )
 
