@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from 'express'
 import fs from 'fs'
 import path from 'path'
-import { RawProfile, ServerErrorCode } from '../../types'
+import { RawProfile, ServerErrorCode } from '../../shared/types'
 import { knownError } from '../utils'
 
 export function preloadProfiles(_: Request, res: Response, next: NextFunction) {

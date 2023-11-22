@@ -1,7 +1,7 @@
 import noble, { Characteristic, Peripheral } from '@abandonware/noble'
 import { Application } from 'express'
 import { sleep, toU16P8 } from '../shared/utils'
-import { BluetoothState, CharAddr, MMRAddr, MsgType, RefillPreset } from '../types'
+import { BluetoothState, CharAddr, MMRAddr, MsgType, RefillPreset } from '../shared/types'
 import { Char, Mmr } from './comms'
 import {
     broadcast,

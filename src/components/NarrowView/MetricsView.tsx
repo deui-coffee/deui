@@ -1,11 +1,10 @@
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import Metric from '../Metric'
-import { MachineMode } from '$/types'
+import { MachineMode, ViewId } from '$/shared/types'
 import SubstateSwitch from '$/components/SubstateSwitch'
 import TextSwitch from '$/components/TextSwitch'
 import { useUiStore } from '$/stores/ui'
-import { ViewId } from '$/types'
 import { useCurrentProfileLabel } from '$/stores/data'
 import { useMetrics } from '$/hooks'
 

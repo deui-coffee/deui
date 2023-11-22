@@ -1,4 +1,4 @@
-import { BluetoothState, RemoteState } from '../types'
+import { BluetoothState, RemoteState } from '../shared/types'
 
 export default function getDefaultRemoteState(): RemoteState {
     return {

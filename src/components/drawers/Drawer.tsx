@@ -1,5 +1,5 @@
 import { css } from '@emotion/react'
-import { HTMLAttributes, ReactNode, useEffect, useReducer, useRef, useState } from 'react'
+import { HTMLAttributes, ReactNode, useEffect, useRef, useState } from 'react'
 import { useDiscardableEffect } from 'toasterhea'
 import tw from 'twin.macro'
 

@@ -4,7 +4,7 @@ import SettingsView from '$/components/NarrowView/SettingsView'
 import { MetricsIcon } from '$/icons'
 import { ProfilesIcon } from '$/icons'
 import { SettingsIcon } from '$/icons'
-import { MachineMode, StorageKey, Theme, ViewId } from '$/types'
+import { MachineMode, StorageKey, Theme, ViewId } from '$/shared/types'
 import { produce } from 'immer'
 import { create } from 'zustand'
 

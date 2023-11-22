@@ -1,4 +1,4 @@
-import { Prop } from '$/types'
+import { Prop } from '$/shared/types'
 import React from 'react'
 import tw from 'twin.macro'
 import { useDataStore } from '$/stores/data'

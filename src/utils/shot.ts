@@ -14,7 +14,7 @@ import {
     ShotHeader,
     ShotSettings,
     ShotTailFrame,
-} from '../types'
+} from '../shared/types'
 import { toU10P0, toU8P1, toU8P4 } from '.'
 
 export function toShotHeader(

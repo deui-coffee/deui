@@ -1,5 +1,5 @@
 import { Characteristic } from '@abandonware/noble'
-import { CharAddr, MMRAddr, Profile, RemoteState } from '../src/types'
+import { CharAddr, MMRAddr, Profile, RemoteState } from '../src/shared/types'
 import { WebSocketServer } from 'ws'
 
 export {}

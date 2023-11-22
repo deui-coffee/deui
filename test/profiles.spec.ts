@@ -1,4 +1,4 @@
-import { RawProfile } from '$/types'
+import { RawProfile } from '$/shared/types'
 import fs from 'fs'
 import path from 'path'
 

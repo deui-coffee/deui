@@ -1,6 +1,6 @@
 import React from 'react'
 import TextSwitch from '$/components/TextSwitch'
-import { ConnectionPhase, MachineMode, MajorState, MinorState } from '$/types'
+import { ConnectionPhase, MachineMode, MajorState, MinorState } from '$/shared/types'
 import { useConnectionPhase, useMajorState, useMinorState } from '$/stores/data'
 import { useUiStore } from '$/stores/ui'
 import { useIsMachineModeActive } from '$/hooks'
