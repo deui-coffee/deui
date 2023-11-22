@@ -13,7 +13,8 @@
     "pkg:build-server": "npm run build-server --silent -- --outdir=dist",
     "pkg:build-client": "cross-env NODE_ENV=production npm run build --silent",
     "pkg:build": "npm run pkg:build-client && npm run pkg:build-server",
-    "prepack": "npm run pkg:build"
+    "prepack": "npm run pkg:build && node ./bin/strip-package.js",
+    "postpack": "mv package.backup.json package.json"
   },
   "dependencies": {
     "@abandonware/noble": "^1.9.2-21",
