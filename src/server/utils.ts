@@ -210,6 +210,8 @@ export async function writeProfile(app: Application, profileId: string): Promise
         ),
     }
 
+    info(`Uploading profile: ${profile.title}…`)
+
     const [header, ...frames] = toEncodedShot(profile)
 
     await Char.write(app, CharAddr.HeaderWrite, header)
@@ -217,6 +219,8 @@ export async function writeProfile(app: Application, profileId: string): Promise
     for (const frame of frames) {
         await Char.write(app, CharAddr.FrameWrite, frame)
     }
+
+    info(`Uploading profile: ${profile.title}… Done.`)
 
     return profile
 }
@@ -267,7 +271,11 @@ export async function writeShotSettings(
         }
     }
 
+    info('Writing shot settings…')
+
     await Char.write(app, CharAddr.ShotSettings, toEncodedShotSettings(newShotSettings))
+
+    info('Writing shot settings… Done.')
 
     return newShotSettings
 }
