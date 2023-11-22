@@ -15,6 +15,7 @@ import { listen } from './utils'
 const app = express()
 
 Object.assign(app.locals, {
+    characteristics: {},
     characteristicValues: {},
     locks: 0,
     mmrData: {},
