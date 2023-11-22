@@ -52,7 +52,7 @@ export function router() {
     )
 
     r.get('/profile-list', preloadProfiles, (_, res) => {
-        res.json(res.app.locals)
+        res.json(res.app.locals.profiles)
     })
 
     return r
