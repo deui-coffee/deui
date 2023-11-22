@@ -2,7 +2,7 @@ import React, { HTMLAttributes } from 'react'
 import tw from 'twin.macro'
 import Label from './primitives/Label'
 import { useMinorState, usePropValue } from '$/stores/data'
-import { MachineMode, MinorState, Prop } from '$/types'
+import { MachineMode, MinorState, Prop } from '$/shared/types'
 import { useIsMachineModeActive } from '$/hooks'
 
 interface Props extends Omit<HTMLAttributes<HTMLDivElement>, 'property'> {

@@ -6,7 +6,7 @@ import { HTMLAttributes } from 'react'
 import { toaster } from 'toasterhea'
 import tw from 'twin.macro'
 import ProfilesDrawer from '../drawers/ProfilesDrawer'
-import { Layer } from '$/types'
+import { Layer } from '$/shared/types'
 import { useCurrentProfileLabel } from '$/stores/data'
 import { useMetrics } from '$/hooks'
 

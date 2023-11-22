@@ -10,7 +10,7 @@ import {
     ShotExtensionFrame,
     ShotFrame,
     ShotTailFrame,
-} from '$/types'
+} from '$/shared/types'
 import {
     decodeShotExtensionFrame,
     decodeShotFrame,

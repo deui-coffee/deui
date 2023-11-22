@@ -1,6 +1,6 @@
 import React from 'react'
 import Toggle from '$/components/Toggle'
-import { Theme } from '$/types'
+import { Theme } from '$/shared/types'
 import { useUiStore } from '$/stores/ui'
 
 const labels = ['Light', 'Dark']

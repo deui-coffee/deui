@@ -1,4 +1,4 @@
-import { CharAddr } from '../types'
+import { CharAddr } from './types'
 
 export function fromF817(value: number) {
     return (value & 0x80) === 0 ? value / 10 : value & 0x7f

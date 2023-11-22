@@ -7,8 +7,6 @@ import {
     MajorState,
     MinorState,
     isCharMessage,
-} from '$/types'
-import {
     ChunkType,
     Profile,
     Prop,
@@ -16,7 +14,7 @@ import {
     RemoteState,
     WebSocketState,
     isStateMessage,
-} from '$/types'
+} from '$/shared/types'
 import wsStream, { WsController } from '$/utils/wsStream'
 import { produce } from 'immer'
 import { MutableRefObject, useEffect, useMemo, useRef } from 'react'

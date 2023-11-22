@@ -1,4 +1,4 @@
-import { Chunk, ChunkType } from '$/types'
+import { Chunk, ChunkType } from '../shared/types'
 
 export interface WsController {
     read: () => Promise<Chunk | undefined>

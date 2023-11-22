@@ -1,6 +1,6 @@
 import { Application } from 'express'
 import { sleep } from '../shared/utils'
-import { CharAddr, MMRAddr, ServerErrorCode } from '../types'
+import { CharAddr, MMRAddr, ServerErrorCode } from '../shared/types'
 import { MMREventEmitter, knownError, lock } from './utils'
 
 const emitter = new MMREventEmitter()

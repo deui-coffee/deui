@@ -19,7 +19,7 @@ import {
     ServerErrorCode,
     ShotSettings,
     SteamSetting,
-} from '../types'
+} from '../shared/types'
 import { toEncodedShot, toEncodedShotSettings } from '../utils/shot'
 import { Char } from './comms'
 

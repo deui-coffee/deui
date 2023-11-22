@@ -1,6 +1,6 @@
 import { useMajorState } from '$/stores/data'
 import { useUiStore } from '$/stores/ui'
-import { MachineMode, MajorState, Period, Time } from '$/types'
+import { MachineMode, MajorState, Period, Time } from '$/shared/types'
 import { useEffect, useState } from 'react'
 import { Metrics, VerticalMetrics } from '$/components/Metric'
 

@@ -1,5 +1,5 @@
 import { Request, Router } from 'express'
-import { CharAddr, MajorState } from '../types'
+import { CharAddr, MajorState } from '../shared/types'
 import { lock, setRemoteState, writeProfile, writeShotSettings } from './utils'
 import { checkLocks, preloadProfiles } from './middlewares/misc'
 import { Char } from './comms'

@@ -7,7 +7,7 @@ import WaterBar from '$/components/ui/WaterBar'
 import PowerToggle from '$/components/ui/PowerToggle'
 import BackendAddressControl from '$/components/controls/BackendAddressControl'
 import { useDataStore } from '$/stores/data'
-import { Prop } from '$/types'
+import { Prop } from '$/shared/types'
 
 export default function SettingsView() {
     const { [Prop.WaterCapacity]: waterCapacity = 0 } = useDataStore().properties

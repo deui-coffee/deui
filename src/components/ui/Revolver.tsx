@@ -1,5 +1,5 @@
 import { usePropValue, useStatus } from '$/stores/data'
-import { MachineMode, MajorState, Prop } from '$/types'
+import { MachineMode, MajorState, Prop } from '$/shared/types'
 import { css } from '@emotion/react'
 import { useSwipeable } from 'react-swipeable'
 import { ButtonHTMLAttributes, useEffect, useState } from 'react'
