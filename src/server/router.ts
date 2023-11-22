@@ -11,20 +11,28 @@ export function router() {
         throw 404
     })
 
-    r.post('/on', checkLocks, async (_, res) => {
-        await lock(res.app, () =>
-            Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Idle]))
-        )
+    r.post('/on', checkLocks, async (_, res, next) => {
+        try {
+            await lock(res.app, () =>
+                Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Idle]))
+            )
 
-        res.status(200).end()
+            res.status(200).end()
+        } catch (e) {
+            next(e)
+        }
     })
 
-    r.post('/off', checkLocks, async (_, res) => {
-        await lock(res.app, () =>
-            Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Sleep]))
-        )
+    r.post('/off', checkLocks, async (_, res, next) => {
+        try {
+            await lock(res.app, () =>
+                Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Sleep]))
+            )
 
-        res.status(200).end()
+            res.status(200).end()
+        } catch (e) {
+            next(e)
+        }
     })
 
     r.get('/state', (_, res) => {
@@ -34,20 +42,24 @@ export function router() {
     r.post(
         '/profile-list/:profileId',
         checkLocks,
-        async (req: Request<{ profileId: string }>, res) => {
+        async (req: Request<{ profileId: string }>, res, next) => {
             const { app } = res
 
-            await lock(app, async () => {
-                const profile = await writeProfile(app, req.params.profileId)
+            try {
+                await lock(app, async () => {
+                    const profile = await writeProfile(app, req.params.profileId)
 
-                setRemoteState(app, (draft) => {
-                    draft.profileId = profile.id
+                    setRemoteState(app, (draft) => {
+                        draft.profileId = profile.id
+                    })
+
+                    await writeShotSettings(app, undefined, { profile })
                 })
 
-                await writeShotSettings(app, undefined, { profile })
-            })
-
-            res.status(200).end()
+                res.status(200).end()
+            } catch (e) {
+                next(e)
+            }
         }
     )
 
