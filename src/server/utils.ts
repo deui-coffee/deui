@@ -275,6 +275,14 @@ export async function writeShotSettings(
 
     await Char.write(app, CharAddr.ShotSettings, toEncodedShotSettings(newShotSettings))
 
+    void (async () => {
+        try {
+            await Char.read(app, CharAddr.ShotSettings)
+        } catch (e) {
+            info('Failed to read shot settings')
+        }
+    })()
+
     info('Writing shot settings… Done.')
 
     return newShotSettings
