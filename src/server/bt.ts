@@ -1,16 +1,18 @@
 import noble, { Characteristic, Peripheral } from '@abandonware/noble'
 import { Application } from 'express'
-import { sleep, toU16P8, toU8P0 } from '../shared/utils'
-import { BluetoothState, CharAddr, MMRAddr, MsgType, RefillPreset, SteamSetting } from '../types'
-import { toEncodedShotSettings } from '../utils/shot'
+import { sleep, toU16P8 } from '../shared/utils'
+import { BluetoothState, CharAddr, MMRAddr, MsgType, RefillPreset } from '../types'
 import { Char, Mmr } from './comms'
 import {
     broadcast,
     error,
     info,
+    lock,
     longCharacteristicUUID,
     setRemoteState,
     watchCharacteristic,
+    writeProfile,
+    writeShotSettings,
 } from './utils'
 
 let initialized = false
@@ -145,88 +147,74 @@ export function setupBluetooth(app: Application) {
                         })
                     },
 
-                    async onCharacteristicsReady() {
-                        /**
-                         * @todo We may consider checking for GHC like so
-                         * await Mmr.read(app, MMRAddr.GHCInfo, 0)
-                         */
+                    onCharacteristicsReady() {
+                        return lock(app, async () => {
+                            /**
+                             * @todo We may consider checking for GHC like so
+                             * await Mmr.read(app, MMRAddr.GHCInfo, 0)
+                             */
 
-                        /**
-                         * @todo We may consider sending the profile here. In order to be able
-                         * to do it we gotta store it somewhere. Storage is a whole another topic.
-                         */
+                            const profile = await writeProfile(app, 'default')
 
-                        await Mmr.write(app, MMRAddr.FanThreshold, Mmr.formatUint32(60))
+                            await Mmr.write(app, MMRAddr.FanThreshold, Mmr.formatUint32(60))
 
-                        await Char.write(
-                            app,
-                            CharAddr.ShotSettings,
-                            toEncodedShotSettings({
-                                SteamSettings: SteamSetting.LowPower,
-                                TargetSteamTemp: toU8P0(160),
-                                TargetSteamLength: toU8P0(120),
-                                TargetHotWaterTemp: toU8P0(98),
-                                TargetHotWaterVol: toU8P0(70),
-                                TargetHotWaterLength: toU8P0(60),
-                                TargetEspressoVol: toU8P0(200),
-                                TargetGroupTemp: toU8P0(88),
-                            })
-                        )
+                            await writeShotSettings(app, undefined, { profile })
 
-                        await Mmr.write(app, MMRAddr.TargetSteamFlow, Mmr.formatUint32(250))
+                            await Mmr.write(app, MMRAddr.TargetSteamFlow, Mmr.formatUint32(250))
 
-                        await Mmr.write(app, MMRAddr.SteamStartSecs, Mmr.formatUint32(70)) // 0.7s
+                            await Mmr.write(app, MMRAddr.SteamStartSecs, Mmr.formatUint32(70)) // 0.7s
 
-                        await Char.write(
-                            app,
-                            CharAddr.WaterLevels,
-                            Buffer.from([
-                                ...Char.formatUint16(toU16P8(0)),
-                                ...Char.formatUint16(toU16P8(5)),
-                            ])
-                        )
+                            await Char.write(
+                                app,
+                                CharAddr.WaterLevels,
+                                Buffer.from([
+                                    ...Char.formatUint16(toU16P8(0)),
+                                    ...Char.formatUint16(toU16P8(5)),
+                                ])
+                            )
 
-                        /**
-                         * @todo We may want to check the board model:
-                         * await Mmr.read(app, MMRAddr.CPUBoardModel, 2)
-                         */
+                            /**
+                             * @todo We may want to check the board model:
+                             * await Mmr.read(app, MMRAddr.CPUBoardModel, 2)
+                             */
 
-                        await Mmr.tweakHeaters(app)
+                            await Mmr.tweakHeaters(app)
 
-                        /**
-                         * @todo We may want read refill kit info here:
-                         * await Mmr.read(app, MMRAddr.RefillKitPresent, 0)
-                         */
+                            /**
+                             * @todo We may want read refill kit info here:
+                             * await Mmr.read(app, MMRAddr.RefillKitPresent, 0)
+                             */
 
-                        /**
-                         * @todo We may want to read the serial number here:
-                         * await Mmr.read(app, MMRAddr.SerialN, 0)
-                         */
+                            /**
+                             * @todo We may want to read the serial number here:
+                             * await Mmr.read(app, MMRAddr.SerialN, 0)
+                             */
 
-                        /**
-                         * In reality, the refill kit setting is more complex. We're going with the
-                         * default values. For more info see:
-                         * https://github.com/decentespresso/de1app/blob/21b6664b826301c07204ed3eaf21f785e049c129/de1plus/de1_comms.tcl#L1138-L1153
-                         */
-                        await Mmr.write(
-                            app,
-                            MMRAddr.RefillKitPresent,
-                            Mmr.formatUint32(RefillPreset.AutoDetect)
-                        )
+                            /**
+                             * In reality, the refill kit setting is more complex. We're going with the
+                             * default values. For more info see:
+                             * https://github.com/decentespresso/de1app/blob/21b6664b826301c07204ed3eaf21f785e049c129/de1plus/de1_comms.tcl#L1138-L1153
+                             */
+                            await Mmr.write(
+                                app,
+                                MMRAddr.RefillKitPresent,
+                                Mmr.formatUint32(RefillPreset.AutoDetect)
+                            )
 
-                        /**
-                         * @todo We may want to deal with calibration, You'd read the current
-                         * multiplier like so:
-                         * await Mmr.read(app, MMRAddr.CalFlowEst, 0)
-                         */
+                            /**
+                             * @todo We may want to deal with calibration, You'd read the current
+                             * multiplier like so:
+                             * await Mmr.read(app, MMRAddr.CalFlowEst, 0)
+                             */
 
-                        await sleep(5000)
+                            await sleep(5000)
 
-                        await Char.read(app, CharAddr.StateInfo)
+                            await Char.read(app, CharAddr.StateInfo)
 
-                        await sleep(7000)
+                            await sleep(7000)
 
-                        await Mmr.read(app, MMRAddr.HeaterV, 1)
+                            await Mmr.read(app, MMRAddr.HeaterV, 1)
+                        })
                     },
 
                     onDisconnect() {
@@ -236,6 +224,23 @@ export function setupBluetooth(app: Application) {
                                 deviceReady: false,
                             })
                         })
+
+                        /**
+                         * The old set of characteristics is stale at this
+                         * point. We're gonna get a new one once we connect
+                         * to the machine again.
+                         */
+                        app.locals.characteristics = {}
+
+                        /**
+                         * Similar story. We may wanna broadcast these.
+                         */
+                        app.locals.characteristicValues = {}
+
+                        /**
+                         * And with MMR reads.
+                         */
+                        app.locals.mmrData = {}
 
                         /**
                          * There's nothing we can do with the found device
@@ -284,6 +289,7 @@ export async function setupDe1(
         onBeforeUpdatingCharacteristics,
         onCharacteristicDiscover,
         onCharacteristicsReady,
+        onConnect,
         onDeviceReady,
         onDeviceSetupDone,
         onDisconnect,
@@ -294,6 +300,7 @@ export async function setupDe1(
         onBeforeUpdatingCharacteristics?: (device: Peripheral) => void
         onCharacteristicDiscover?: (characteristic: Characteristic) => void | Promise<void>
         onCharacteristicsReady?: () => Promise<void>
+        onConnect?: () => void
         onDeviceReady?: (device: Peripheral) => void
         onDeviceSetupDone?: (device: Peripheral) => void
         onDisconnect?: () => void
@@ -308,6 +315,8 @@ export async function setupDe1(
 
     de1.once('connect', async (err) => {
         info('Connected to DE1. Setting up.')
+
+        onConnect?.()
 
         function requireConnected() {
             if (de1.state !== 'connected') {

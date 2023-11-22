@@ -1,3 +1,5 @@
+import fs from 'fs'
+import path from 'path'
 import { Characteristic } from '@abandonware/noble'
 import debug from 'debug'
 import EventEmitter from 'events'
@@ -7,8 +9,19 @@ import { Draft, produce } from 'immer'
 import os from 'os'
 import { WebSocket, WebSocketServer } from 'ws'
 import { z } from 'zod'
-import { getCharName } from '../shared/utils'
-import { CharAddr, MMRAddr, MsgType, ServerErrorCode } from '../types'
+import { getCharName, toU8P0 } from '../shared/utils'
+import {
+    CharAddr,
+    MMRAddr,
+    MsgType,
+    Profile,
+    RawProfile,
+    ServerErrorCode,
+    ShotSettings,
+    SteamSetting,
+} from '../types'
+import { toEncodedShot, toEncodedShotSettings } from '../utils/shot'
+import { Char } from './comms'
 
 export const info = debug('deui-server:info')
 
@@ -79,6 +92,7 @@ const KnownError = z.union([
                 z.literal(ServerErrorCode.NotConnected),
                 z.literal(ServerErrorCode.UnknownCharacteristic),
                 z.literal(ServerErrorCode.AlreadyWritingShot),
+                z.literal(ServerErrorCode.Locked),
             ])
             .optional(),
         statusCode: z.number(),
@@ -180,4 +194,98 @@ export function listen(app: Application, options: { port?: number | string } = {
 
         ws.on('message', (data) => void info('Received %s', data))
     })
+}
+
+export async function writeProfile(app: Application, profileId: string): Promise<Profile> {
+    const profile = {
+        id: profileId,
+        ...RawProfile.parse(
+            JSON.parse(
+                fs
+                    .readFileSync(
+                        path.resolve(app.locals.profilesDir, 'profiles', `${profileId}.json`)
+                    )
+                    .toString('utf-8')
+            )
+        ),
+    }
+
+    const [header, ...frames] = toEncodedShot(profile)
+
+    await Char.write(app, CharAddr.HeaderWrite, header)
+
+    for (const frame of frames) {
+        await Char.write(app, CharAddr.FrameWrite, frame)
+    }
+
+    return profile
+}
+
+/**
+ * Writes the `ShotSettings` characteristic.
+ * @param shotSettings A function or explicit shot settings, or undefined for default
+ * shot settings. `TargetEspressoVol` and `TargetGroupTemp` will be taken
+ * from `options.profile` if present.
+ */
+export async function writeShotSettings(
+    app: Application,
+    shotSettings: undefined | ShotSettings | ((defaultShotSettings: ShotSettings) => ShotSettings),
+    options: { profile?: Profile }
+): Promise<ShotSettings> {
+    const defaultShotSettings = {
+        SteamSettings: SteamSetting.LowPower,
+        TargetSteamTemp: toU8P0(160),
+        TargetSteamLength: toU8P0(120),
+        TargetHotWaterTemp: toU8P0(98),
+        TargetHotWaterVol: toU8P0(70),
+        TargetHotWaterLength: toU8P0(60),
+        TargetEspressoVol: toU8P0(200),
+        TargetGroupTemp: toU8P0(88),
+    }
+
+    let newShotSettings =
+        typeof shotSettings === 'function'
+            ? shotSettings(defaultShotSettings)
+            : shotSettings || defaultShotSettings
+
+    const { profile } = options
+
+    if (profile) {
+        const {
+            steps: [{ temperature: TargetGroupTemp = undefined } = {}],
+            target_volume: TargetEspressoVol,
+        } = profile
+
+        if (typeof TargetGroupTemp === 'undefined') {
+            throw new Error('Invalid target group temp')
+        }
+
+        newShotSettings = {
+            ...newShotSettings,
+            TargetEspressoVol,
+            TargetGroupTemp,
+        }
+    }
+
+    await Char.write(app, CharAddr.ShotSettings, toEncodedShotSettings(newShotSettings))
+
+    return newShotSettings
+}
+
+export function lock<T extends () => any = () => void>(
+    app: Application,
+    fn: T,
+    ...args: Parameters<T>
+): ReturnType<T> {
+    app.locals.locks++
+
+    const result = (fn as any)(...args)
+
+    if (!(result instanceof Promise)) {
+        return result
+    }
+
+    return result.finally(() => {
+        app.locals.locks--
+    }) as ReturnType<T>
 }

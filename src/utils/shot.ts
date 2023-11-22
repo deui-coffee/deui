@@ -9,7 +9,6 @@ import {
     ProfileStep,
     ProfileStepSensor,
     ProfileStepTransition,
-    ShotExecMethod,
     ShotExtensionFrame,
     ShotFrame,
     ShotHeader,
@@ -181,54 +180,42 @@ export function decodeShotTailFrame(buf: Buffer): ShotTailFrame {
     }
 }
 
-export function toEncodedShot(profile: Profile) {
+export function toEncodedShot(profile: Profile): [Buffer, ...Buffer[]] {
     /**
      * We may want to add a 2 second pause step, see
      * https://github.com/decentespresso/de1app/blob/main/de1plus/binary.tcl#L878-L893
      */
     const steps = [...profile.steps]
 
-    const bufs: { method: ShotExecMethod; payload: Buffer }[] = [
-        {
-            method: ShotExecMethod.Header,
-            payload: encodeShotHeader(
-                toShotHeader({
-                    NumberOfFrames: steps.length,
-                    /**
-                     * NumberOfPreinfuseFrames is driven by final_desired_shot_volume_advanced_count_start in the original
-                     * profil logic, see
-                     * https://github.com/decentespresso/de1app/blob/main/de1plus/binary.tcl#L984
-                     *
-                     * I'mma stick to 0 for the frames we have. Our future profiles have to name this property correctly.
-                     */
-                    NumberOfPreinfuseFrames: 0,
-                })
-            ),
-        },
+    const bufs: [Buffer, ...Buffer[]] = [
+        encodeShotHeader(
+            toShotHeader({
+                NumberOfFrames: steps.length,
+                /**
+                 * NumberOfPreinfuseFrames is driven by final_desired_shot_volume_advanced_count_start in the original
+                 * profil logic, see
+                 * https://github.com/decentespresso/de1app/blob/main/de1plus/binary.tcl#L984
+                 *
+                 * I'mma stick to 0 for the frames we have. Our future profiles have to name this property correctly.
+                 */
+                NumberOfPreinfuseFrames: 0,
+            })
+        ),
     ]
 
     steps.forEach((step, index) => {
-        bufs.push({
-            method: ShotExecMethod.Frame,
-            payload: encodeShotFrame(toShotFrameAt(index, step)),
-        })
+        bufs.push(encodeShotFrame(toShotFrameAt(index, step)))
     })
 
     steps.forEach((step, index) => {
         const extensionFrame = toShotExtensionFrameAt(index, step)
 
         if (extensionFrame) {
-            bufs.push({
-                method: ShotExecMethod.Frame,
-                payload: encodeShotExtensionFrame(extensionFrame),
-            })
+            bufs.push(encodeShotExtensionFrame(extensionFrame))
         }
     })
 
-    bufs.push({
-        method: ShotExecMethod.Frame,
-        payload: encodeShotTailFrame(toShotTailFrameAt(steps.length, 0)),
-    })
+    bufs.push(encodeShotTailFrame(toShotTailFrameAt(steps.length, 0)))
 
     return bufs
 }
