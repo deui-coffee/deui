@@ -19,7 +19,7 @@ Object.assign(app.locals, {
     locks: 0,
     mmrData: {},
     profiles: undefined,
-    profilesDir: '.',
+    profilesDir: __dirname,
     remoteState: getDefaultRemoteState(),
     wss: new WebSocketServer({ noServer: true, path: '/' }),
 })
