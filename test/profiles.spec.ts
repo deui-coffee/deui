@@ -7,6 +7,10 @@ describe('Predefined profiles', () => {
         const id = filename.replace(/\.json$/i, '')
 
         describe(`Profile #${id}`, () => {
+            it('has valid id', () => {
+                expect(/^\w+$/.test(id)).toBeTruthy()
+            })
+
             it('is valid', () => {
                 expect(() => {
                     RawProfile.parse(
