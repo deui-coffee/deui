@@ -1,22 +1,27 @@
 import React, { ReactNode, useEffect, useRef } from 'react'
 import tw from 'twin.macro'
 import { css } from '@emotion/react'
-import { getVisibleProfiles } from '$/utils'
-import { useSetProfileIdCallback } from '$/hooks'
 import { useDataStore } from '$/stores/data'
-
-const profiles = getVisibleProfiles()
+import axios from 'axios'
 
 export default function ProfilesView() {
-    const { profile } = useDataStore()
-
-    const setProfileId = useSetProfileIdCallback()
+    const {
+        profiles,
+        remoteState: { profileId },
+    } = useDataStore()
 
     return (
         <>
-            {profiles.map(({ id, name }) => (
-                <Item key={id} id={id} onClick={setProfileId} active={id === profile?.id}>
-                    {name}
+            {profiles.map(({ id, title }) => (
+                <Item
+                    key={id}
+                    id={id}
+                    onClick={async () => {
+                        await axios.post(`/profile-list/${id}`)
+                    }}
+                    active={id === profileId}
+                >
+                    {title}
                 </Item>
             ))}
         </>

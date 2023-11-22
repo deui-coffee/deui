@@ -2,21 +2,18 @@ import React from 'react'
 import Drawer, { DrawerProps } from '$/components/drawers/Drawer'
 import ListItem from '$/components/ListItem'
 import tw from 'twin.macro'
-import { profiles as allProfiles } from '$/types'
 import { useDataStore } from '$/stores/data'
-import { getVisibleProfiles } from '$/utils'
-import { useSetProfileIdCallback } from '$/hooks'
+import axios from 'axios'
 
 interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
     onResolve?: () => void
 }
 
-const profiles = getVisibleProfiles()
-
 export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerProps) {
-    const { profile } = useDataStore()
-
-    const setProfileId = useSetProfileIdCallback()
+    const {
+        profiles,
+        remoteState: { profileId },
+    } = useDataStore()
 
     return (
         <Drawer
@@ -27,18 +24,18 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
             `}
         >
             <ul css={tw`py-20`}>
-                {profiles.map(({ id, name }) => (
+                {profiles.map(({ id, title }) => (
                     <li key={id}>
                         <ListItem
                             id={id}
-                            onClick={() => {
-                                setProfileId(id)
+                            onClick={async () => {
+                                await axios.post(`/profile-list/${id}`)
 
                                 onResolve?.()
                             }}
-                            active={id === profile?.id}
+                            active={id === profileId}
                         >
-                            {name}
+                            {title}
                         </ListItem>
                     </li>
                 ))}

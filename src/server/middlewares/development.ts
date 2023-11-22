@@ -14,7 +14,18 @@ export default function development() {
         cors(),
         createProxyMiddleware(
             (pathname: string, req: Request) => {
-                return req.method !== 'POST' || !/^\/(scan|on|off|exec)/.test(pathname)
+                switch (req.method) {
+                    case 'POST':
+                        return (
+                            pathname !== '/on' &&
+                            pathname !== '/off' &&
+                            !/^\/profile-list\/\w+$/.test(pathname)
+                        )
+                    case 'GET':
+                        return !/\/(profile-list|state)\/?$/.test(pathname)
+                    default:
+                        return true
+                }
             },
             {
                 target: 'http://127.0.0.1:3000',

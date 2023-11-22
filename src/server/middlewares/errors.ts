@@ -1,10 +1,12 @@
 import { NextFunction, Response } from 'express'
 import { IncomingMessage } from 'http'
-import { isKnownError } from '../utils'
+import { error, isKnownError } from '../utils'
 
 export function rescue() {
     return (err: unknown, _req: IncomingMessage, res: Response, _next: NextFunction) => {
         if (!isKnownError(err)) {
+            error(err)
+
             return void res.status(500).end()
         }
 

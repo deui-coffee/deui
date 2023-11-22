@@ -16,6 +16,14 @@ export function toF817(value: number) {
     return 0xff & (0.5 + value * 10)
 }
 
+export function toU8P0(value: number) {
+    return Math.max(0, Math.min(0xff, (value + 0.5) | 0))
+}
+
+export function toU16P8(value: number) {
+    return Math.max(0, Math.min(0xffff, (value * 256 + 0.5) | 0))
+}
+
 const charNames = {
     [CharAddr.Versions]: 'Versions',
     [CharAddr.RequestedState]: 'RequestedState',

@@ -1,140 +1,73 @@
-import {
-    CharAddr,
-    MajorState,
-    RemoteState,
-    ServerErrorCode,
-    ShotExecCommand,
-    ShotExecMethod,
-} from '../types'
-import { Characteristic } from '@abandonware/noble'
-import { Response, Router } from 'express'
-import { IncomingMessage } from 'http'
-import { z } from 'zod'
-import { knownError } from './utils'
+import { Request, Router } from 'express'
+import { CharAddr, MajorState } from '../types'
+import { lock, setRemoteState, writeProfile, writeShotSettings } from './utils'
+import { checkLocks, preloadProfiles } from './middlewares/misc'
+import { Char } from './comms'
 
-export function router({
-    getCharacteristic,
-    getRemoteState,
-    scan,
-    setProfile,
-}: {
-    getCharacteristic: (uuid: string) => Characteristic | undefined
-    getRemoteState: () => RemoteState
-    scan?: () => void
-    setProfile?: (profile: Required<RemoteState['profile']>) => void
-}) {
+export function router() {
     const r = Router()
-
-    function writeCharacteristic(
-        uuid: string,
-        data: Buffer,
-        { withoutResponse = false }: { withoutResponse?: boolean } = {}
-    ) {
-        return async (_: IncomingMessage, res: Response) => {
-            const { device } = getRemoteState()
-
-            if (!device) {
-                throw knownError(409, ServerErrorCode.NotConnected)
-            }
-
-            const characteristic = getCharacteristic(uuid)
-
-            if (!characteristic) {
-                throw knownError(422, ServerErrorCode.UnknownCharacteristic)
-            }
-
-            await characteristic.writeAsync(data, withoutResponse)
-
-            res.status(200).end()
-        }
-    }
 
     r.get('/', () => {
         throw 404
     })
 
-    r.post('/scan', (_, res) => {
-        const { bluetoothState, scanning, connecting, device } = getRemoteState()
+    r.post('/on', checkLocks, async (_, res, next) => {
+        try {
+            await lock(res.app, () =>
+                Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Idle]))
+            )
 
-        if (bluetoothState !== 'poweredOn') {
-            throw knownError(409, ServerErrorCode.NotPoweredOn)
+            res.status(200).end()
+        } catch (e) {
+            next(e)
         }
-
-        if (scanning) {
-            throw knownError(409, ServerErrorCode.AlreadyScanning)
-        }
-
-        if (connecting) {
-            throw knownError(409, ServerErrorCode.AlreadyConnecting)
-        }
-
-        if (device) {
-            throw knownError(409, ServerErrorCode.AlreadyConnected)
-        }
-
-        scan?.()
-
-        res.status(200).json({})
     })
 
-    r.post('/exec', (req, res) => {
-        const command = req.body
+    r.post('/off', checkLocks, async (_, res, next) => {
+        try {
+            await lock(res.app, () =>
+                Char.write(res.app, CharAddr.RequestedState, Buffer.from([MajorState.Sleep]))
+            )
 
-        if (!isExecCommand(command)) {
-            throw 404
+            res.status(200).end()
+        } catch (e) {
+            next(e)
         }
+    })
 
-        let charAddr: CharAddr = CharAddr.FrameWrite
+    r.get('/state', (_, res) => {
+        res.json(res.app.locals.remoteState)
+    })
 
-        const { profile } = getRemoteState()
+    r.post(
+        '/profile-list/:profileId',
+        checkLocks,
+        async (req: Request<{ profileId: string }>, res) => {
+            const { app } = res
 
-        switch (command.method) {
-            case ShotExecMethod.Header:
-                charAddr = CharAddr.HeaderWrite
-                break
-            case ShotExecMethod.ShotSettings:
-                charAddr = CharAddr.ShotSettings
-                break
-            case ShotExecMethod.ShotBeginProfileWrite:
-            case ShotExecMethod.ShotEndProfileWrite:
-                if (command.method === ShotExecMethod.ShotBeginProfileWrite && !profile.ready) {
-                    /**
-                     * Reject attempts to write new profile structure if one is already being written.
-                     */
-                    throw knownError(409, ServerErrorCode.AlreadyWritingShot)
+            void (async () => {
+                try {
+                    await lock(app, async () => {
+                        const profile = await writeProfile(app, req.params.profileId)
+
+                        setRemoteState(app, (draft) => {
+                            draft.profileId = profile.id
+                        })
+
+                        await writeShotSettings(app, undefined, { profile })
+                    })
+                } catch (e) {
+                    //
                 }
+            })()
 
-                setProfile?.({
-                    id: Buffer.from(command.params as any, 'hex').toString(),
-                    ready: command.method === ShotExecMethod.ShotEndProfileWrite,
-                })
-
-                return void res.status(200).end()
-            default:
-                break
+            res.status(200).end()
         }
+    )
 
-        writeCharacteristic(charAddr, Buffer.from(command.params as any, 'hex'))(req, res)
+    r.get('/profile-list', preloadProfiles, (_, res) => {
+        res.json(res.app.locals.profiles)
     })
-
-    r.post('/on', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Idle])))
-
-    r.post('/off', writeCharacteristic(CharAddr.RequestedState, Buffer.from([MajorState.Sleep])))
 
     return r
-}
-
-const ExecCommand = z.object({
-    method: z
-        .literal(ShotExecMethod.Frame)
-        .or(z.literal(ShotExecMethod.Header))
-        .or(z.literal(ShotExecMethod.Tail))
-        .or(z.literal(ShotExecMethod.ShotSettings))
-        .or(z.literal(ShotExecMethod.ShotBeginProfileWrite))
-        .or(z.literal(ShotExecMethod.ShotEndProfileWrite)),
-    params: z.string().regex(/[a-f\d]{2,}/i),
-})
-
-function isExecCommand(arg: unknown): arg is ShotExecCommand {
-    return ExecCommand.safeParse(arg).success
 }

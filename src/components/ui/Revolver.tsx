@@ -66,7 +66,7 @@ const n = machineModeLineup.length
 const limit = 500
 
 function getMode(phase: number): MachineMode {
-    return machineModeLineup[((phase % n) + n) % n]
+    return machineModeLineup[((phase % n) + n) % n] || MachineMode.Espresso
 }
 
 export default function Revolver() {
