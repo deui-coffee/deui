@@ -28,10 +28,5 @@ export default function development() {
                 changeOrigin: true,
             }
         ),
-        (_: Request, res: Response, next: NextFunction) => {
-            res.app.locals.profilesDir = 'public'
-
-            next()
-        },
     ]
 }

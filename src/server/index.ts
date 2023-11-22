@@ -11,6 +11,7 @@ import { rescue } from './middlewares/errors'
 import production from './middlewares/production'
 import { router } from './router'
 import { listen } from './utils'
+import env from './env'
 
 const app = express()
 
@@ -20,7 +21,7 @@ Object.assign(app.locals, {
     locks: 0,
     mmrData: {},
     profiles: undefined,
-    profilesDir: __dirname,
+    profilesDir: env === 'production' ? __dirname : 'public',
     remoteState: getDefaultRemoteState(),
     wss: new WebSocketServer({ noServer: true, path: '/' }),
 })
