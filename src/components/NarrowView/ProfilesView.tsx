@@ -3,12 +3,15 @@ import tw from 'twin.macro'
 import { css } from '@emotion/react'
 import { useDataStore } from '$/stores/data'
 import axios from 'axios'
+import { useServerUrl } from '$/hooks'
 
 export default function ProfilesView() {
     const {
         profiles,
         remoteState: { profileId },
     } = useDataStore()
+
+    const url = useServerUrl({ protocol: 'http' })
 
     return (
         <>
@@ -17,7 +20,7 @@ export default function ProfilesView() {
                     key={id}
                     id={id}
                     onClick={async () => {
-                        await axios.post(`/profile-list/${id}`)
+                        await axios.post(`${url}/profile-list/${id}`)
                     }}
                     active={id === profileId}
                 >

@@ -4,6 +4,7 @@ import { Status } from '../StatusIndicator'
 import Toggle from '../Toggle'
 import { useMajorState } from '$/stores/data'
 import axios from 'axios'
+import { useServerUrl } from '$/hooks'
 
 const labels = ['Sleep']
 
@@ -27,6 +28,8 @@ export default function PowerToggle() {
 
     const state = useMajorState()
 
+    const url = useServerUrl({ protocol: 'http' })
+
     return (
         <Toggle
             status={status}
@@ -36,7 +39,7 @@ export default function PowerToggle() {
             onChange={async () => {
                 if (state === MajorState.Sleep) {
                     try {
-                        await axios.post('/on')
+                        await axios.post(`${url}/on`)
                     } catch (e) {
                         console.warn('Failed to wake up the machine', e)
                     }
@@ -44,7 +47,7 @@ export default function PowerToggle() {
 
                 if (state !== MajorState.Sleep) {
                     try {
-                        await axios.post('/off')
+                        await axios.post(`${url}/off`)
                     } catch (e) {
                         console.warn('Failed to put the machine to sleep', e)
                     }

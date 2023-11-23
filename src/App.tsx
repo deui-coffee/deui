@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Helmet } from 'react-helmet'
 import 'twin.macro'
 import tw from 'twin.macro'
@@ -8,13 +8,20 @@ import NarrowView from '$/components/NarrowView'
 import { Container } from 'toasterhea'
 import { Layer } from '$/shared/types'
 import { useUiStore } from '$/stores/ui'
-import { useAutoConnectEffect } from '$/stores/data'
+import { useAutoConnectEffect, useDataStore } from '$/stores/data'
 import Debug from '$/components/Debug'
+import { useServerUrl } from './hooks'
 
 const App = () => {
     const { theme } = useUiStore()
 
     useAutoConnectEffect()
+
+    const { fetchProfiles } = useDataStore()
+
+    const url = useServerUrl({ protocol: 'http' })
+
+    useEffect(() => void fetchProfiles(url), [fetchProfiles, url])
 
     return (
         <>

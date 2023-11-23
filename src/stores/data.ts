@@ -28,6 +28,8 @@ import { useUiStore } from './ui'
 import { sleep } from '$/shared/utils'
 import axios from 'axios'
 import { z } from 'zod'
+import { useSearchParams } from 'react-router-dom'
+import { useServerUrl } from '$/hooks'
 
 interface DataStore {
     wsState: WebSocketState
@@ -36,11 +38,13 @@ interface DataStore {
 
     properties: Properties
 
-    connect: (options?: { onDeviceReady?: () => void }) => Promise<void>
+    connect: (url: string, options?: { onDeviceReady?: () => void }) => Promise<void>
 
     disconnect: () => void
 
     profiles: Profile[]
+
+    fetchProfiles: (url: string) => void
 }
 
 function getDefaultProperties(): Properties {
@@ -62,16 +66,6 @@ const majorToTimedPropMap: Partial<Record<MajorState, TimedProp>> = {
 
 export const useDataStore = create<DataStore>((set, get) => {
     let ctrl: WsController | undefined
-
-    void (async () => {
-        try {
-            set({
-                profiles: z.array(Profile).parse((await axios.get('/profile-list')).data),
-            })
-        } catch (e) {
-            console.warn('Failed to fetch or parse profiles', e)
-        }
-    })()
 
     function setProperties(properties: Properties) {
         set((current) =>
@@ -240,7 +234,7 @@ export const useDataStore = create<DataStore>((set, get) => {
 
         properties: getDefaultProperties(),
 
-        async connect({ onDeviceReady } = {}) {
+        async connect(url, { onDeviceReady } = {}) {
             ctrl?.discard()
 
             set({ wsState: WebSocketState.Opening })
@@ -252,7 +246,7 @@ export const useDataStore = create<DataStore>((set, get) => {
             await sleep()
 
             try {
-                ctrl = wsStream(`ws://${location.hostname}:3001`)
+                ctrl = wsStream(url)
 
                 while (true) {
                     const chunk = await ctrl.read()
@@ -371,6 +365,18 @@ export const useDataStore = create<DataStore>((set, get) => {
         },
 
         profiles: [],
+
+        fetchProfiles(url) {
+            void (async () => {
+                try {
+                    set({
+                        profiles: z.array(Profile).parse((await axios.get(url)).data),
+                    })
+                } catch (e) {
+                    console.warn('Failed to fetch or parse profiles', e)
+                }
+            })()
+        },
     }
 })
 
@@ -417,6 +423,8 @@ export function useAutoConnectEffect() {
 
     useEffect(() => void clearReffedTimeoutId(timeoutIdRef), [machineMode])
 
+    const url = useServerUrl({ protocol: 'ws' })
+
     useEffect(() => {
         let mounted = true
 
@@ -431,7 +439,7 @@ export function useAutoConnectEffect() {
                 }
 
                 try {
-                    await connect({
+                    await connect(url, {
                         onDeviceReady() {
                             reachedReadyness = true
                             /**
@@ -491,7 +499,7 @@ export function useAutoConnectEffect() {
 
             disconnect()
         }
-    }, [disconnect, connect, setMachineMode])
+    }, [disconnect, connect, setMachineMode, url])
 }
 
 export function usePropValue(prop: Prop) {

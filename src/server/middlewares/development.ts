@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
-import cors from 'cors'
 import env from '../env'
 
 export default function development() {
@@ -11,7 +10,6 @@ export default function development() {
     }
 
     return [
-        cors(),
         createProxyMiddleware(
             (pathname: string, req: Request) => {
                 switch (req.method) {

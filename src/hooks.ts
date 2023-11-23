@@ -3,6 +3,7 @@ import { useUiStore } from '$/stores/ui'
 import { MachineMode, MajorState, Period, Time } from '$/shared/types'
 import { useEffect, useState } from 'react'
 import { Metrics, VerticalMetrics } from '$/components/Metric'
+import { useSearchParams } from 'react-router-dom'
 
 export function useIsMachineModeActive() {
     const majorState = useMajorState()
@@ -90,4 +91,14 @@ export function useMetrics({ verticalLayout }: { verticalLayout?: boolean } = {}
     }, [machineMode])
 
     return [...(verticalLayout ? VerticalMetrics : Metrics)[measurableMachineMode]]
+}
+
+export function useServerUrl({ protocol = 'http' } = {}) {
+    const [params] = useSearchParams()
+
+    const hostname = params.get('h') || location.hostname
+
+    const port = Number(params.get('p') || void 0) || 3001
+
+    return `${protocol}://${hostname}:${port}`
 }

@@ -4,6 +4,7 @@ import bodyParser from 'body-parser'
 import express from 'express'
 import morgan from 'morgan'
 import { WebSocketServer } from 'ws'
+import cors from 'cors'
 import getDefaultRemoteState from '../utils/getDefaultRemoteState'
 import { setupBluetooth } from './bt'
 import development from './middlewares/development'
@@ -31,6 +32,8 @@ app.use(express.static('public'))
 app.use(bodyParser.json())
 
 app.use(morgan('dev'))
+
+app.use(cors())
 
 app.use(production())
 

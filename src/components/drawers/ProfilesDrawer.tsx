@@ -4,6 +4,7 @@ import ListItem from '$/components/ListItem'
 import tw from 'twin.macro'
 import { useDataStore } from '$/stores/data'
 import axios from 'axios'
+import { useServerUrl } from '$/hooks'
 
 interface ProfilesDrawerProps extends Pick<DrawerProps, 'onReject'> {
     onResolve?: () => void
@@ -14,6 +15,8 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
         profiles,
         remoteState: { profileId },
     } = useDataStore()
+
+    const url = useServerUrl({ protocol: 'http' })
 
     return (
         <Drawer
@@ -29,7 +32,7 @@ export default function ProfilesDrawer({ onReject, onResolve }: ProfilesDrawerPr
                         <ListItem
                             id={id}
                             onClick={async () => {
-                                await axios.post(`/profile-list/${id}`)
+                                await axios.post(`${url}/profile-list/${id}`)
 
                                 onResolve?.()
                             }}
