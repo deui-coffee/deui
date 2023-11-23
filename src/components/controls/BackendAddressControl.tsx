@@ -4,6 +4,7 @@ import tw from 'twin.macro'
 import Control, { ControlProps } from '../Control'
 import StatusIndicator from '../StatusIndicator'
 import TextField, { TextFieldDecorator } from '../primitives/TextField'
+import { useServerUrl } from '$/hooks'
 
 type Props = Omit<ControlProps, 'fill' | 'pad'>
 
@@ -13,6 +14,8 @@ export default function BackendAddressControl({ label = 'Connection', ...props }
     const status = useStatus()
 
     const fieldRef = useRef<HTMLInputElement>(null)
+
+    const url = useServerUrl({ protocol: 'ws' }).replace(/^ws:\/\//, '')
 
     return (
         <Control
@@ -48,7 +51,7 @@ export default function BackendAddressControl({ label = 'Connection', ...props }
                 />
                 <TextField
                     ref={fieldRef}
-                    defaultValue={`${location.hostname}:3001`}
+                    defaultValue={url}
                     readOnly
                     css={tw`
                         cursor-default
