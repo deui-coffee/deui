@@ -50,3 +50,9 @@ export function checkLocks(_: Request, res: Response, next: NextFunction) {
 
     next()
 }
+
+export function allowPrivateNetwork(_: Request, res: Response, next: NextFunction) {
+    res.set('Access-Control-Allow-Private-Network', 'true')
+
+    next()
+}

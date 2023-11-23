@@ -13,6 +13,7 @@ import production from './middlewares/production'
 import { router } from './router'
 import { listen } from './utils'
 import env from './env'
+import { allowPrivateNetwork } from './middlewares/misc'
 
 const app = express()
 
@@ -33,7 +34,13 @@ app.use(bodyParser.json())
 
 app.use(morgan('dev'))
 
-app.use(cors())
+app.use(allowPrivateNetwork)
+
+app.use(
+    cors({
+        origin: [/\.deui\.coffee$/],
+    })
+)
 
 app.use(production())
 

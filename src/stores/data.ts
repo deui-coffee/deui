@@ -28,7 +28,6 @@ import { useUiStore } from './ui'
 import { sleep } from '$/shared/utils'
 import axios from 'axios'
 import { z } from 'zod'
-import { useSearchParams } from 'react-router-dom'
 import { useServerUrl } from '$/hooks'
 
 interface DataStore {
