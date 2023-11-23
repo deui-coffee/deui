@@ -156,9 +156,9 @@ export function listen(app: Application, options: { port?: number | string } = {
     server.listen(port, '0.0.0.0', () => {
         info('Listening on %d…', port)
 
-        const addrs: string[] = []
+        const urls: string[] = []
 
-        Object.values(os.networkInterfaces())
+        const addrs = Object.values(os.networkInterfaces())
             .flatMap((i) => i ?? [])
             .filter(({ address, family } = {} as any) => {
                 return (
@@ -168,11 +168,16 @@ export function listen(app: Application, options: { port?: number | string } = {
                         family === 4)
                 )
             })
-            .forEach(({ address }) => {
-                addrs.push(`http://${address}:${port}/`)
-            })
 
-        console.log(`Deui running at:\n${addrs.map((addr) => `- ${addr}`).join('\n')}`)
+        addrs.forEach(({ address }) => {
+            urls.push(`http://${address}:${port}/`)
+        })
+
+        addrs.forEach(({ address }) => {
+            urls.push(`http://staging.deui.coffee/?h=${address}&p=${port}/`)
+        })
+
+        console.log(`Deui running at:\n${urls.map((url) => `- ${url}`).join('\n')}`)
     })
 
     app.locals.wss.on('connection', (ws) => {
