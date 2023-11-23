@@ -21,7 +21,7 @@ const App = () => {
 
     const url = useServerUrl({ protocol: 'http' })
 
-    useEffect(() => void fetchProfiles(url), [fetchProfiles, url])
+    useEffect(() => void fetchProfiles(`${url}/profile-list`), [fetchProfiles, url])
 
     return (
         <>
