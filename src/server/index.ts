@@ -38,7 +38,7 @@ app.use(allowPrivateNetwork)
 
 app.use(
     cors({
-        origin: [/\.deui\.coffee$/],
+        origin: [/\/\/127\.0\.0\.1:/, /\/\/0\.0\.0\.0:/, /\/\/localhost:/, /\.deui\.coffee$/],
     })
 )
 
